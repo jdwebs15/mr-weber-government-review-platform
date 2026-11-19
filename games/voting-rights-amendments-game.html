@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CS10 Game — Voting Rights Amendments</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#111a2e; --text:#e7eefc; --muted:#a8b4cf;
+      --accent:#7aa2ff; --good:#2bd576; --bad:#ff5c7a; --warn:#ffd166;
+      --border: rgba(255,255,255,0.10); --shadow: 0 18px 55px rgba(0,0,0,.35);
+      --radius: 18px; --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans); color:var(--text);
+      background: radial-gradient(900px 500px at 20% 0%, rgba(122,162,255,.22), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(255,209,102,.12), transparent 60%),
+                  var(--bg);
+      min-height:100vh; padding:24px;
+    }
+    .wrap{max-width:1100px;margin:0 auto;}
+    h1{font-size:1.35rem;margin:0 0 10px 0}
+    .sub{color:var(--muted);margin:0 0 18px 0;line-height:1.35}
+    .grid{display:grid;grid-template-columns: 1.25fr .75fr;gap:16px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr; } }
+    .card{
+      background: rgba(17,26,46,.82);
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding:16px;
+      backdrop-filter: blur(10px);
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .spacer{flex:1}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      font-size:.92rem;
+    }
+    .pill strong{font-family:var(--mono);font-weight:900}
+    .btn{
+      cursor:pointer;border:none;border-radius:12px;padding:10px 12px;
+      color:var(--text);background: rgba(122,162,255,.18);
+      border:1px solid rgba(122,162,255,.35);
+      transition: transform .06s ease, background .15s ease;
+      font-weight:900;
+    }
+    .btn:hover{background: rgba(122,162,255,.26)}
+    .btn:active{transform: scale(.98)}
+    .btn.secondary{background: rgba(255,255,255,.06);border:1px solid var(--border);font-weight:800}
+    .btn.danger{background: rgba(255,92,122,.14);border:1px solid rgba(255,92,122,.35);}
+    .label{color:var(--muted);font-size:.85rem}
+    .mono{font-family:var(--mono)}
+    .value{font-weight:900}
+    .qbox h2{margin:0 0 10px 0;font-size:1.08rem}
+    .prompt{font-size:1.03rem;line-height:1.38;margin:8px 0 12px 0}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width: 700px){ .choices{grid-template-columns:1fr} }
+    .choice{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:12px;border-radius: var(--radius2);
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      cursor:pointer;
+      transition: background .15s ease, transform .06s ease, border-color .15s ease;
+      user-select:none;
+    }
+    .choice:hover{background: rgba(255,255,255,.075)}
+    .choice:active{transform: scale(.99)}
+    .choice .tag{
+      width:28px;height:28px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(122,162,255,.18);
+      border:1px solid rgba(122,162,255,.28);
+      font-weight:900;flex:0 0 auto;
+    }
+    .choice.correct{border-color: rgba(43,213,118,.55);background: rgba(43,213,118,.10)}
+    .choice.wrong{border-color: rgba(255,92,122,.55);background: rgba(255,92,122,.10)}
+    .feedback{
+      margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--border);
+      background: rgba(255,255,255,.04);display:none;
+    }
+    .feedback.good{display:block;border-color: rgba(43,213,118,.45);background: rgba(43,213,118,.08)}
+    .feedback.bad{display:block;border-color: rgba(255,92,122,.45);background: rgba(255,92,122,.08)}
+    .feedback .title{font-weight:900;margin-bottom:6px}
+    .teacherPanel{
+      display:none;margin-top:12px;padding:12px;border-radius:14px;
+      border:1px dashed rgba(255,255,255,.25);background: rgba(255,255,255,.03);
+    }
+    .teacherPanel.show{display:block}
+    #timeBox .row2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    @media (max-width: 860px){ #timeBox .row2{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    pre{white-space:pre-wrap;word-break:break-word;margin:0;font-family:var(--mono);font-size:.92rem;line-height:1.35}
+    .tiny{font-size:.86rem;color:var(--muted)}
+    .divider{height:1px;background: var(--border); margin:12px 0;}
+    .input{
+      width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);
+      background: rgba(0,0,0,.18);color:var(--text);outline:none;font-weight:900;
+    }
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="row">
+      <div>
+        <h1>CS10 — Voting Rights Amendments (15th, 19th, 24th, 26th)</h1>
+        <p class="sub">Focus: identify the amendment + match the “trigger/cause.” Must reach <strong>100%</strong> to unlock submission screenshot.</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn secondary" id="toggleTeacherBtn" title="Teacher Mode: ?teacher=1 or Shift+T">Teacher Mode</button>
+      <button class="btn danger" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="startCard" class="row" style="gap:12px;">
+      <div style="flex:1;min-width:260px;">
+        <div class="label">Student Name (required)</div>
+        <input id="nameInput" class="input" placeholder="Type first + last name" autocomplete="off" />
+        <div class="tiny">Name appears in the timer + submission summary.</div>
+      </div>
+      <button class="btn" id="startBtn">Start Game</button>
+    </div>
+
+    <div id="timeBox" class="card" style="margin-top:12px;display:none;">
+      <div class="row2">
+        <div><div class="label">Student</div><div id="studentNameDisplay" class="value">—</div></div>
+        <div><div class="label">Start Time</div><div id="startStamp" class="value">—</div></div>
+        <div><div class="label">Elapsed</div><div id="timerClock" class="value mono">00:00</div></div>
+        <div><div class="label">Last Action</div><div id="lastActionStamp" class="value">—</div></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div class="pill">Question: <strong id="qNum">—</strong>/<strong id="qTotal">—</strong></div>
+      <div class="pill">Correct: <strong id="correctCount">0</strong></div>
+      <div class="pill">Attempts: <strong id="attemptCount">0</strong></div>
+      <div class="pill">Accuracy: <strong id="accuracy">0</strong>%</div>
+      <div class="spacer"></div>
+      <!-- Next removed -->
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px;">
+    <div class="card qbox">
+      <h2>Question</h2>
+      <div id="prompt" class="prompt">Enter your name and click Start.</div>
+      <div class="choices" id="choices"></div>
+
+      <div id="feedback" class="feedback">
+        <div class="title" id="fbTitle"></div>
+        <div id="fbText" class="tiny"></div>
+      </div>
+
+      <div id="teacherPanel" class="teacherPanel">
+        <div class="label">Teacher Mode is ON</div>
+        <div class="tiny">Explanations appear only after an incorrect answer.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 10px 0;font-size:1.08rem;">Rules</h2>
+      <ul class="tiny" style="margin:0 0 10px 18px;line-height:1.5;">
+        <li>Wrong answers show a hint and you retry immediately.</li>
+        <li>No hint before answering; explanation only after wrong (teacher toggled).</li>
+        <li>Submission summary appears only at <strong>100% accuracy</strong>.</li>
+      </ul>
+      <div class="divider"></div>
+      <section id="submissionBox" class="card" style="display:none;">
+        <div class="label">Submission Summary (Screenshot this)</div>
+        <pre id="submissionText" style="margin-top:10px;"></pre>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (sel) => document.querySelector(sel);
+const shuffle = (arr) => {
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+};
+
+const AUTO_ADVANCE_MS = 450;
+
+const Time = (() => {
+  const pad = (n) => String(n).padStart(2,'0');
+  const fmtClock = (ms) => {
+    const s = Math.floor(ms/1000);
+    const m = Math.floor(s/60);
+    const r = s % 60;
+    return `${pad(m)}:${pad(r)}`;
+  };
+  const fmtStamp = (d=new Date()) => d.toLocaleString([], {
+    year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  return { fmtClock, fmtStamp };
+})();
+
+const Run = {
+  startedAt:null, timerId:null, lastActionAt:null, qShownAt:null, log:[],
+  init(studentName){
+    this.startedAt = Date.now();
+    this.lastActionAt = Date.now();
+    this.qShownAt = Date.now();
+    $("#studentNameDisplay").textContent = studentName || "—";
+    $("#startStamp").textContent = Time.fmtStamp(new Date(this.startedAt));
+    $("#lastActionStamp").textContent = Time.fmtStamp(new Date(this.lastActionAt));
+    this.timerId = setInterval(()=>$("#timerClock").textContent=Time.fmtClock(Date.now()-this.startedAt), 250);
+    this.pushLog({type:"START", detail:"Game started", stamp:this.lastActionAt});
+  },
+  markAction(type, detail){
+    this.lastActionAt = Date.now();
+    $("#lastActionStamp").textContent = Time.fmtStamp(new Date(this.lastActionAt));
+    this.pushLog({type, detail, stamp:this.lastActionAt});
+  },
+  markQuestionShown(qIndex, qLabel){
+    this.qShownAt = Date.now();
+    this.markAction("Q_SHOWN", `Q${qIndex+1}: ${qLabel||""}`.trim());
+  },
+  recordAnswer({ qIndex, prompt, choiceLabel, choiceText, isCorrect, correctLabel, reasonText }){
+    const now = Date.now();
+    const timeOnQ = Math.max(0, Math.round((now - (this.qShownAt || now)) / 1000));
+    this.pushLog({
+      type: isCorrect ? "ANSWER_CORRECT" : "ANSWER_WRONG",
+      stamp: now, qIndex, timeOnQ, prompt,
+      choice: `${choiceLabel}. ${choiceText}`,
+      correct: correctLabel || "",
+      reason: reasonText || ""
+    });
+    this.lastActionAt = now;
+    $("#lastActionStamp").textContent = Time.fmtStamp(new Date(now));
+  },
+  pushLog(e){ this.log.push(e); },
+  elapsedMs(){ return this.startedAt ? (Date.now()-this.startedAt) : 0; },
+  buildSummary({ studentName, accuracy, correctCount, totalCount }){
+    const endTime = new Date();
+    const elapsed = Time.fmtClock(this.elapsedMs());
+    const rows = this.log
+      .filter(e => e.type==="ANSWER_CORRECT" || e.type==="ANSWER_WRONG")
+      .map(e => {
+        const stamp = Time.fmtStamp(new Date(e.stamp));
+        const icon = e.type==="ANSWER_CORRECT" ? "✅" : "❌";
+        return `${icon} ${stamp} | Q${(e.qIndex??0)+1} | +${e.timeOnQ}s | ${e.choice} | Correct: ${e.correct}`;
+      });
+    return [
+      `GAME:    CS10 — Voting Rights Amendments`,
+      `STUDENT: ${studentName || "—"}`,
+      `START:   ${Time.fmtStamp(new Date(this.startedAt))}`,
+      `END:     ${Time.fmtStamp(endTime)}`,
+      `ELAPSED: ${elapsed}`,
+      `SCORE:   ${correctCount}/${totalCount} (${accuracy}%)`,
+      ``,
+      `ANSWER LOG:`,
+      ...(rows.length ? rows : [`(no answers logged)`])
+    ].join("\n");
+  }
+};
+
+// QUESTIONS (unchanged)
+const QUESTIONS = [
+  { id:"CS10-15-1", prompt:"Which amendment prevents denying voting rights based on race, color, or previous condition of servitude?", choices:["15th","19th","24th","26th"], answer:0,
+    explain:"15th: race/color/previous servitude. Trigger: Southern states blocked freed Black men from voting; amendment added explicit constitutional protection."},
+  { id:"CS10-15-2", prompt:"Your class trigger for the 15th Amendment is best described as…", choices:[
+      "Southern states refused to give freed Black men the right to vote",
+      "Jefferson and Burr tied for president",
+      "18-year-olds were drafted into Vietnam",
+      "DC’s population grew"
+    ], answer:0,
+    explain:"15th was a response to Southern resistance to Black male suffrage after the Civil War."},
+
+  { id:"CS10-19-1", prompt:"Which amendment extended voting rights by gender (women’s suffrage)?", choices:["19th","24th","26th","15th"], answer:0,
+    explain:"19th Amendment: voting rights cannot be denied on the basis of sex."},
+  { id:"CS10-19-2", prompt:"Your class trigger for the 19th Amendment emphasizes…", choices:[
+      "Women’s involvement on the homefront during WWI changing Woodrow Wilson’s position",
+      "A tie between Jefferson and Burr",
+      "Japanese internment during WWII",
+      "DC gaining electors"
+    ], answer:0,
+    explain:"You teach WWI homefront contributions as a key trigger that shifted political support for women’s suffrage."},
+
+  { id:"CS10-24-1", prompt:"Which amendment banned poll taxes in federal elections?", choices:["24th","15th","19th","26th"], answer:0,
+    explain:"24th: bans poll taxes (a Jim Crow-era barrier originally designed to suppress Black voters and poor voters)."},
+  { id:"CS10-24-2", prompt:"Your class trigger for the 24th Amendment is best described as…", choices:[
+      "Jim Crow systems used poll taxes to restrict voting; needed constitutional change to stop states",
+      "Vietnam draft for 18-year-olds",
+      "Jefferson-Burr electoral tie",
+      "FDR’s four terms"
+    ], answer:0,
+    explain:"24th responds to poll taxes as a tool of disenfranchisement; your framing ties it to states’ control unless constitutionally limited."},
+
+  { id:"CS10-26-1", prompt:"Which amendment lowered the voting age to 18?", choices:["26th","19th","24th","15th"], answer:0,
+    explain:"26th: voting age 18+. Trigger: ‘Old enough to fight and die, old enough to vote’ during Vietnam era."},
+  { id:"CS10-26-2", prompt:"Your class trigger for the 26th Amendment emphasizes…", choices:[
+      "18-year-olds drafted to fight and die in Vietnam but unable to vote",
+      "DC’s growing population",
+      "Jefferson-Burr tie",
+      "Women’s WWI homefront contributions"
+    ], answer:0,
+    explain:"Vietnam-era draft fairness argument: if 18-year-olds can be sent to war, they should vote."},
+
+  { id:"CS10-MIX-1", prompt:"Which amendment matches: race/color/previous servitude?", choices:["15th","19th","24th","26th"], answer:0,
+    explain:"15th protects voting rights from denial based on race/color/previous servitude."},
+  { id:"CS10-MIX-2", prompt:"Which amendment matches: gender?", choices:["19th","15th","24th","26th"], answer:0,
+    explain:"19th: sex/gender."},
+  { id:"CS10-MIX-3", prompt:"Which amendment matches: poll taxes restricted voting?", choices:["24th","15th","19th","26th"], answer:0,
+    explain:"24th bans poll taxes in federal elections."},
+  { id:"CS10-MIX-4", prompt:"Which amendment matches: age (18+)?", choices:["26th","15th","19th","24th"], answer:0,
+    explain:"26th: age 18+."},
+
+  { id:"CS10-CE-1", prompt:"Cause → Amendment: ‘Old enough to fight and die’ argument during Vietnam → ?", choices:["26th","24th","19th","15th"], answer:0,
+    explain:"26th lowered voting age to 18."},
+  { id:"CS10-CE-2", prompt:"Cause → Amendment: poll taxes used to suppress voting → ?", choices:["24th","19th","26th","15th"], answer:0,
+    explain:"24th bans poll taxes (federal elections)." },
+  { id:"CS10-CE-3", prompt:"Cause → Amendment: women’s war work shifted public/political support → ?", choices:["19th","15th","24th","26th"], answer:0,
+    explain:"19th extended women’s suffrage."},
+  { id:"CS10-CE-4", prompt:"Cause → Amendment: states denying Black men voting access post–Civil War → ?", choices:["15th","24th","19th","26th"], answer:0,
+    explain:"15th protects against race-based denial."},
+
+  { id:"CS10-TRICK-1", prompt:"Which amendment is NOT part of the voting-rights expansions listed in CS10?", choices:["22nd","15th","19th","24th"], answer:0,
+    explain:"22nd is term limits (presidency), not suffrage expansion."},
+  { id:"CS10-TRICK-2", prompt:"Which amendment is NOT about voting rights expansion?", choices:["12th","15th","19th","26th"], answer:0,
+    explain:"12th changes Electoral College procedure (president/VP ballots), not voting eligibility."},
+
+  { id:"CS10-ADD-1", prompt:"Poll taxes most directly limited voting for which groups?", choices:[
+      "Poor voters and African Americans (Jim Crow suppression)",
+      "Only wealthy voters",
+      "Only women",
+      "Only DC residents"
+    ], answer:0,
+    explain:"Poll taxes limited poor voters and were designed to suppress Black voting in the Jim Crow South."},
+  { id:"CS10-ADD-2", prompt:"Which pair is correctly matched?", choices:[
+      "19th = gender; 26th = age",
+      "19th = age; 26th = gender",
+      "24th = race; 15th = poll tax",
+      "15th = term limits; 22nd = race"
+    ], answer:0,
+    explain:"19th is gender; 26th is age. 15th is race; 24th is poll taxes."},
+  { id:"CS10-ADD-3", prompt:"Which amendment is most associated with Jim Crow poll tax barriers?", choices:["24th","26th","19th","23rd"], answer:0,
+    explain:"24th targets poll taxes as a disenfranchisement tool."},
+  { id:"CS10-ADD-4", prompt:"Which amendment is most associated with women voting nationwide?", choices:["19th","24th","15th","22nd"], answer:0,
+    explain:"19th extended women’s suffrage nationally."},
+  { id:"CS10-ADD-5", prompt:"Which amendment is most associated with protecting Black men’s voting rights after the Civil War?", choices:["15th","19th","24th","26th"], answer:0,
+    explain:"15th Amendment: race-based voting denial prohibited."},
+  { id:"CS10-ADD-6", prompt:"Which amendment is most associated with 18-year-olds gaining voting rights?", choices:["26th","15th","19th","24th"], answer:0,
+    explain:"26th lowered the voting age to 18."}
+];
+
+const state = {
+  teacherMode:false, started:false, studentName:"",
+  deck:[], i:0, correct:0, attempts:0,
+  missedQueue:[], answeredCorrectly:new Set(),
+  currentChoices:[], currentCorrectIndex:0,
+  locked:false
+};
+
+function parseTeacherFromURL(){
+  const u = new URL(location.href);
+  return u.searchParams.get("teacher")==="1";
+}
+function setTeacherMode(on){
+  state.teacherMode=!!on;
+  $("#toggleTeacherBtn").textContent = state.teacherMode ? "Teacher Mode: ON" : "Teacher Mode";
+  $("#teacherPanel").classList.toggle("show", state.teacherMode);
+  if(state.started) Run.markAction("TEACHER_MODE", state.teacherMode ? "ON" : "OFF");
+}
+function resetUI(){
+  $("#qNum").textContent="—"; $("#qTotal").textContent="—";
+  $("#correctCount").textContent="0"; $("#attemptCount").textContent="0"; $("#accuracy").textContent="0";
+  $("#prompt").textContent="Enter your name and click Start.";
+  $("#choices").innerHTML="";
+  $("#feedback").style.display="none";
+  $("#submissionBox").style.display="none";
+  $("#submissionText").textContent="";
+  $("#timeBox").style.display="none";
+  $("#startCard").style.display="flex";
+}
+function accuracyPct(){ return state.attempts ? Math.round((state.correct/state.attempts)*100) : 0; }
+function updateHud(){
+  $("#qNum").textContent = state.started ? String(state.i+1) : "—";
+  $("#qTotal").textContent = state.started ? String(state.deck.length) : "—";
+  $("#correctCount").textContent = String(state.correct);
+  $("#attemptCount").textContent = String(state.attempts);
+  $("#accuracy").textContent = String(accuracyPct());
+}
+function buildDeck(){ state.deck = shuffle(QUESTIONS); }
+
+// Hint generator aligned to your “trigger” framing without giving the answer away
+function buildHint(q){
+  const t = (q.prompt||"").toLowerCase();
+
+  if(t.includes("race") || t.includes("color") || t.includes("servitude")) return "Hint: This is the post–Civil War protection tied to Black male suffrage.";
+  if(t.includes("women") || t.includes("gender") || t.includes("sex")) return "Hint: Think women’s suffrage and the WWI homefront shift.";
+  if(t.includes("poll tax")) return "Hint: This is the Jim Crow-era barrier that required a constitutional limit on states.";
+  if(t.includes("voting age") || t.includes("18")) return "Hint: ‘Old enough to fight and die, old enough to vote’ (Vietnam era).";
+  if(t.includes("cause") && t.includes("vietnam")) return "Hint: Vietnam draft fairness argument.";
+  if(t.includes("cause") && t.includes("poll")) return "Hint: Poll taxes used to suppress voting participation.";
+  if(t.includes("cause") && (t.includes("women") || t.includes("war"))) return "Hint: Women’s WWI contributions shifting support.";
+  if(t.includes("cause") && (t.includes("civil war") || t.includes("black"))) return "Hint: Southern resistance after the Civil War.";
+  return "Hint: Match the trigger—post–Civil War race protection (15th), women’s suffrage (19th), poll taxes (24th), voting age 18+ (26th).";
+}
+
+function renderQuestion(){
+  $("#feedback").style.display="none";
+  state.locked=false;
+
+  const q = state.deck[state.i];
+  $("#prompt").textContent = q.prompt;
+
+  const labeled = q.choices.map((t,idx)=>({text:t, origIndex:idx}));
+  const shuffled = shuffle(labeled);
+  state.currentChoices = shuffled;
+  state.currentCorrectIndex = shuffled.findIndex(x=>x.origIndex===q.answer);
+
+  const letters=["A","B","C","D"];
+  $("#choices").innerHTML="";
+  shuffled.forEach((opt,idx)=>{
+    const div=document.createElement("div");
+    div.className="choice";
+    div.innerHTML = `<div class="tag">${letters[idx]}</div><div><div style="font-weight:850">${opt.text}</div></div>`;
+    // click = submit answer (attempt)
+    div.addEventListener("click",()=>grade(idx));
+    $("#choices").appendChild(div);
+  });
+
+  Run.markQuestionShown(state.i, q.id || "CS10");
+  updateHud();
+}
+
+function grade(pickedIdx){
+  if(!state.started || state.locked) return;
+  state.locked=true;
+
+  const q = state.deck[state.i];
+  const letters=["A","B","C","D"];
+  const picked=pickedIdx;
+  const correct=state.currentCorrectIndex;
+
+  // attempt counted ONLY on answer click
+  state.attempts++;
+  updateHud();
+
+  const isCorrect = picked===correct;
+
+  Run.recordAnswer({
+    qIndex: state.i,
+    prompt: q.prompt,
+    choiceLabel: letters[picked],
+    choiceText: state.currentChoices[picked].text,
+    isCorrect,
+    correctLabel: letters[correct],
+    reasonText: q.explain || ""
+  });
+
+  const nodes=Array.from($("#choices").children);
+  nodes.forEach((node, idx)=>{
+    node.classList.remove("correct","wrong");
+    if(idx===correct) node.classList.add("correct");
+    if(idx===picked && !isCorrect) node.classList.add("wrong");
+  });
+
+  $("#feedback").style.display="block";
+
+  if(isCorrect){
+    state.correct++;
+    state.answeredCorrectly.add(q.id);
+
+    $("#fbTitle").textContent="Correct ✅";
+    $("#fbText").textContent="Next question…";
+    $("#feedback").className="feedback good";
+
+    updateHud();
+    maybeUnlockSubmission();
+
+    setTimeout(()=>{ next(); }, AUTO_ADVANCE_MS);
+
+  } else {
+    // wrong: hint + stay on same question
+    state.missedQueue.push(q);
+
+    $("#fbTitle").textContent="Incorrect ❌";
+    const hint = buildHint(q);
+    $("#fbText").textContent = state.teacherMode
+      ? `Hint: ${hint}\nExplanation: ${q.explain}`
+      : `Hint: ${hint}`;
+    $("#feedback").className="feedback bad";
+
+    maybeUnlockSubmission();
+
+    state.locked=false; // allow immediate retry
+  }
+}
+
+function maybeUnlockSubmission(){
+  const acc=accuracyPct();
+  if(state.attempts === QUESTIONS.length && state.correct === QUESTIONS.length && state.answeredCorrectly.size === QUESTIONS.length){
+  WeberRun.finish(state.studentName, Run.startedAt, QUESTIONS.length, state.correct, state.attempts);
+    $("#submissionBox").style.display="block";
+    $("#submissionText").textContent = Run.buildSummary({
+      studentName: state.studentName,
+      accuracy: acc,
+      correctCount: state.correct,
+      totalCount: state.attempts
+    });
+  }
+}
+
+function next(){
+  if(state.i >= state.deck.length-1){
+    if(state.missedQueue.length){
+      const missed=state.missedQueue.slice();
+      state.missedQueue=[];
+      state.deck=shuffle(missed);
+      state.i=0;
+      renderQuestion();
+      return;
+    } else {
+      state.deck=shuffle(QUESTIONS);
+      state.i=0;
+      renderQuestion();
+      return;
+    }
+  } else {
+    state.i++;
+    renderQuestion();
+  }
+}
+
+function startGame(){
+  const name = ($("#nameInput").value||"").trim();
+  if(name.length<3){ alert("Please enter your full name (first + last)."); $("#nameInput").focus(); return; }
+  state.studentName=name;
+  state.started=true;
+  $("#startCard").style.display="none";
+  $("#timeBox").style.display="block";
+  buildDeck(); state.i=0;
+  Run.init(name);
+  Run.markAction("START_CLICK","Student started the game");
+  $("#qTotal").textContent=String(state.deck.length);
+  renderQuestion();
+}
+
+$("#startBtn").addEventListener("click", startGame);
+$("#resetBtn").addEventListener("click", ()=>{ if(confirm("Reset local progress for this game?")) location.reload(); });
+$("#toggleTeacherBtn").addEventListener("click", ()=>setTeacherMode(!state.teacherMode));
+
+// Keyboard: 1–4 answers immediately
+window.addEventListener("keydown",(e)=>{
+  if(e.shiftKey && e.key.toLowerCase()==="t"){ setTeacherMode(!state.teacherMode); }
+  if(!state.started || state.locked) return;
+
+  if(["1","2","3","4"].includes(e.key)){
+    grade(parseInt(e.key,10)-1);
+  }
+});
+
+(function init(){
+  resetUI();
+  setTeacherMode(parseTeacherFromURL());
+})();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('nameInput');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (state.started) ? { state:WeberProgress.dataFields(state), runStarted:Run.startedAt,advance:state.correct>0 && document.getElementById("fbTitle").textContent.startsWith("Correct") } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; Run.startedAt = v.runStarted; if(v.advance) next(); else renderQuestion(); updateHud(); }
+});
+</script>
+</body>
+</html>
+

@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CS4 Game 5 — Persuasion, Compromise, Consensus, Negotiation</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --border:rgba(255,255,255,0.12);
+  --radius:18px;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0e1530);color:var(--text);}
+.container{max-width:980px;margin:auto;padding:24px;}
+.card{background:#121a33;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+h1,h2{text-align:center;margin:8px 0 14px;}
+p{line-height:1.35}
+input{
+  width:100%;padding:12px;border-radius:12px;border:none;
+  margin-bottom:12px;font-size:1rem;
+}
+.btn{
+  background:#1b2a55;color:white;border:1px solid var(--border);
+  padding:14px;border-radius:14px;cursor:pointer;width:100%;
+  margin:8px 0;font-size:1rem;text-align:left;
+}
+.btn:hover{background:#243a77}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.correct{background:rgba(43,213,118,.15);border:1px solid var(--good);padding:12px;border-radius:14px;margin-top:10px;}
+.incorrect{background:rgba(255,92,122,.15);border:1px solid var(--bad);padding:12px;border-radius:14px;margin-top:10px;}
+.hint{background:rgba(255,209,102,.12);border:1px solid var(--warn);padding:12px;border-radius:14px;margin-top:10px;color:var(--text);}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:10px}
+.stat{background:#0f1630;padding:10px 14px;border-radius:12px}
+.toggle{cursor:pointer;color:var(--warn);user-select:none}
+.hidden{display:none}
+.footer{text-align:center;margin-top:10px;color:var(--muted)}
+.small{color:var(--muted);font-size:.95rem}
+hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px;justify-content:center}
+.pill{
+  display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;color:var(--muted);font-size:.9rem;
+}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- START -->
+  <div class="card" id="start">
+    <h1>CS4 — Game 5: Democratic Decision Skills</h1>
+    <p class="small" style="text-align:center">
+      Choose the BEST skill being used in each scenario:
+      <b>Persuasion</b>, <b>Compromise</b>, <b>Consensus Building</b>, or <b>Negotiation</b>.
+      <br><br>
+      Teacher Hints can be turned on and will appear <b>only after an incorrect answer</b>.
+    </p>
+
+    <div class="pillrow">
+      <span class="pill"><b>Persuasion</b> = changing minds with reasons/evidence</span>
+      <span class="pill"><b>Compromise</b> = each side gives something up</span>
+      <span class="pill"><b>Consensus</b> = broad group support</span>
+      <span class="pill"><b>Negotiation</b> = bargaining to settle terms (often formal)</span>
+    </div>
+
+    <hr>
+    <p style="text-align:center">Enter your name to begin.</p>
+    <input id="studentName" placeholder="Your Name">
+    <button class="btn" onclick="startGame()" style="text-align:center">Start Game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="card hidden" id="game">
+    <div class="topbar">
+      <div class="stat">Started: <span id="startedTop">--</span></div>
+      <div class="stat">Time: <span id="time">0</span>s</div>
+      <div class="stat">Attempts: <span id="attempts">0</span></div>
+      <div class="stat">Accuracy: <span id="accuracy">0%</span></div>
+      <div class="stat toggle" onclick="toggleHints()">Hints: <span id="hintState">OFF</span></div>
+    </div>
+
+    <h2 id="qnum"></h2>
+    <p id="question"></p>
+
+    <div id="choices"></div>
+
+    <div id="feedback"></div>
+
+    <button class="btn hidden" id="nextBtn" onclick="nextQuestion()" style="text-align:center">Next</button>
+  </div>
+
+  <!-- END -->
+  <div class="card hidden" id="end">
+    <h2>Completed!</h2>
+    <p><b>Name:</b> <span id="finalName"></span></p>
+    <p><b>Started:</b> <span id="finalTimestamp"></span></p>
+    <p><b>Time:</b> <span id="finalTime"></span>s</p>
+    <p><b>Attempts:</b> <span id="finalAttempts"></span></p>
+    <p><b>Accuracy:</b> <span id="finalAccuracy"></span></p>
+    <p><b>Receipt:</b> <span class="mono" id="receipt"></span></p>
+    <p class="footer">Take a screenshot and submit.</p>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   Teacher Controls
+========================= */
+let hintsOn = false;
+function toggleHints(){
+  hintsOn = !hintsOn;
+  document.getElementById("hintState").textContent = hintsOn ? "ON" : "OFF";
+}
+
+/* =========================
+   Date/Time Stamp
+========================= */
+let startTime = null;
+let startStampText = "";
+function setStartStamp(){
+  startTime = new Date();
+  startStampText = startTime.toLocaleString();
+}
+
+/* =========================
+   Receipt
+========================= */
+function generateReceipt(){
+  const nameClean = (nameValue || "").replace(/\s+/g,"");
+  const dt = startTime || new Date();
+
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  const yy = String(dt.getFullYear()).slice(2);
+
+  const hh = String(dt.getHours()).padStart(2,"0");
+  const min = String(dt.getMinutes()).padStart(2,"0");
+  const ss = String(dt.getSeconds()).padStart(2,"0");
+
+  const accuracyPct = attempts ? Math.round((correct/attempts)*100) : 0;
+  return `${nameClean}${mm}${dd}${yy}-${hh}${min}${ss}-${correct}Q-${accuracyPct}A`;
+}
+
+/* =========================
+   Answers
+   0 Persuasion
+   1 Compromise
+   2 Consensus Building
+   3 Negotiation
+========================= */
+const labels = ["Persuasion","Compromise","Consensus Building","Negotiation"];
+
+const questions = [
+  {
+    q:"Two student groups disagree about the dance’s theme. After discussion, they choose a theme that includes elements from both ideas, even though neither group gets exactly what it wanted.",
+    a:1,
+    explain:"This is **compromise**: each side gives up something to reach a middle-ground solution.",
+    hint:"Look for “split the difference” where both sides concede."
+  },
+  {
+    q:"A city council member presents data, expert testimony, and examples from similar towns to convince other members to support a new traffic safety ordinance.",
+    a:0,
+    explain:"This is **persuasion**: using reasons and evidence to change minds.",
+    hint:"Look for evidence/reasons meant to change someone’s opinion."
+  },
+  {
+    q:"A committee keeps discussing a school policy until most members can say, “I can live with this,” even if it’s not their first choice—so the group can move forward together.",
+    a:2,
+    explain:"This is **consensus building**: working toward broad support across the group.",
+    hint:"Look for broad agreement and group buy-in."
+  },
+  {
+    q:"The school board and the teachers’ association bargain back and forth over salary and work conditions, then sign a written agreement outlining the final terms.",
+    a:3,
+    explain:"This is **negotiation**: bargaining to settle terms, often resulting in a formal agreement (sometimes written).",
+    hint:"Look for bargaining over terms and a final agreement."
+  },
+  {
+    q:"A student leader meets with opponents and asks questions to understand concerns, then adjusts the proposal so more people will support it.",
+    a:2,
+    explain:"This is **consensus building**: addressing concerns to gain broad support.",
+    hint:"Look for “bringing people along” until the group can support it."
+  },
+  {
+    q:"A student argues that a new recycling program will work by showing cost estimates, a timeline, and results from other schools, aiming to win support.",
+    a:0,
+    explain:"This is **persuasion**: reasoning and evidence to influence others.",
+    hint:"Look for proof, data, and arguments designed to convince."
+  },
+  {
+    q:"Two sides disagree on curfew time. One side wants 10 PM, the other wants 12 AM. They agree on 11 PM so both sides give up something.",
+    a:1,
+    explain:"This is **compromise**: a middle ground created by mutual concessions.",
+    hint:"A ‘middle number’ is a classic sign of compromise."
+  },
+  {
+    q:"A community group and the city negotiate: the city will add sidewalks if residents support a levy, and the final plan is approved with clearly stated responsibilities.",
+    a:3,
+    explain:"This is **negotiation**: trading terms and responsibilities to settle an agreement (often formal).",
+    hint:"Look for trading terms (“we do X if you do Y”)."
+  },
+  {
+    q:"A committee chair summarizes points of agreement and disagreement, then proposes a revised plan that most members can support to avoid a split decision.",
+    a:2,
+    explain:"This is **consensus building**: refining the plan to maximize group agreement.",
+    hint:"Look for finding common ground across many people."
+  },
+  {
+    q:"A mayor tries to convince the public to support a tax levy by explaining the benefits, addressing counterarguments, and using examples from nearby cities.",
+    a:0,
+    explain:"This is **persuasion**: presenting reasons and addressing counterarguments to influence opinion.",
+    hint:"Look for arguments meant to change minds."
+  },
+  {
+    q:"Two groups argue over the budget. They agree to cut a little from both programs instead of eliminating one entirely.",
+    a:1,
+    explain:"This is **compromise**: both sides sacrifice something to reach agreement.",
+    hint:"Mutual sacrifice to reach a middle solution."
+  },
+  {
+    q:"Union leaders and management exchange proposals, counterproposals, and settle on specific work rules and pay rates that are written into a contract.",
+    a:3,
+    explain:"This is **negotiation**: bargaining to settle specific terms, often written into an agreement.",
+    hint:"Counteroffers + terms + contract = negotiation."
+  },
+  {
+    q:"A group uses calm discussion and respectful listening to reduce conflict, so members will accept a shared plan and move forward together.",
+    a:2,
+    explain:"This is **consensus building**: group dynamics aimed at shared agreement.",
+    hint:"The goal is broad agreement across the group."
+  },
+  {
+    q:"A student persuades classmates to support a policy by showing how it benefits multiple groups and by answering questions with evidence.",
+    a:0,
+    explain:"This is **persuasion**: using evidence and reasoning to influence others.",
+    hint:"Evidence + convincing = persuasion."
+  },
+  {
+    q:"Two sides want different policies. They agree each will accept part of the other side’s proposal so the final plan can pass.",
+    a:1,
+    explain:"This is **compromise**: each side gives something up to get something else.",
+    hint:"Both sides concede to get agreement."
+  },
+  {
+    q:"A council works through disagreements until they reach a plan nearly everyone can support, even if it takes longer.",
+    a:2,
+    explain:"This is **consensus building**: prioritizing broad support over speed.",
+    hint:"Time-consuming agreement across many people = consensus."
+  },
+  {
+    q:"Two parties bargain: one agrees to support a bill if an amendment is added, and the final agreement is recorded in the bill’s language and committee notes.",
+    a:3,
+    explain:"This is **negotiation**: bargaining over terms to reach a concrete agreement, often documented.",
+    hint:"Bargaining over specific terms and documented results."
+  },
+  {
+    q:"A leader convinces opponents by showing evidence their worry is addressed and explaining why the plan is fair.",
+    a:0,
+    explain:"This is **persuasion**: using reasons to change minds.",
+    hint:"Changing minds with reasons/evidence."
+  },
+  {
+    q:"A school committee wants a unanimous decision, so members suggest changes and keep talking until everyone can accept the final plan.",
+    a:2,
+    explain:"This is **consensus building**: aiming for group-wide acceptance.",
+    hint:"The goal is everyone (or nearly everyone) accepting it."
+  },
+  {
+    q:"A neighborhood group and a developer meet to bargain: the developer adds green space and the group supports the project. The final terms are written into a formal agreement.",
+    a:3,
+    explain:"This is **negotiation**: bargaining to settle terms, often resulting in a formal written agreement.",
+    hint:"Trading concessions + written terms = negotiation."
+  }
+];
+
+/* =========================
+   Game State
+========================= */
+let index = 0;
+let attempts = 0;
+let correct = 0;
+let time = 0;
+let timer = null;
+let locked = false;
+let nameValue = "";
+
+/* =========================
+   Start
+========================= */
+function startGame(){
+  const nm = document.getElementById("studentName").value.trim();
+  if(!nm) return alert("Enter name");
+  nameValue = nm;
+
+  setStartStamp();
+
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  // ✅ stamp visible during game
+  document.getElementById("startedTop").textContent = startStampText;
+
+  timer = setInterval(() => {
+    time++;
+    document.getElementById("time").textContent = time;
+  }, 1000);
+
+  loadQ();
+}
+
+/* =========================
+   Render
+========================= */
+function loadQ(){
+  locked = false;
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  const q = questions[index];
+  document.getElementById("qnum").textContent = `Question ${index+1}/20`;
+  document.getElementById("question").textContent = q.q;
+
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+
+  labels.forEach((label,i)=>{
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${String.fromCharCode(65+i)}. ${label}`;
+    b.onclick = () => check(i);
+    holder.appendChild(b);
+  });
+
+  updateStats();
+}
+
+function disableChoices(disabled){
+  document.querySelectorAll("#choices .btn").forEach(btn => btn.disabled = disabled);
+}
+
+/* =========================
+   Check
+========================= */
+function check(choice){
+  if(locked) return;
+
+  attempts++;
+  const q = questions[index];
+  const fb = document.getElementById("feedback");
+
+  if(choice === q.a){
+    correct++;
+    locked = true;
+    disableChoices(true);
+    fb.innerHTML = `<div class="correct"><b>Correct!</b> ${q.explain}</div>`;
+    document.getElementById("nextBtn").classList.remove("hidden");
+  } else {
+    fb.innerHTML = `<div class="incorrect"><b>Incorrect.</b> Try again.</div>`;
+    if(hintsOn){
+      fb.innerHTML += `<div class="hint"><b>Hint:</b> ${q.hint}</div>`;
+    }
+  }
+  updateStats();
+}
+
+/* =========================
+   Stats
+========================= */
+function updateStats(){
+  document.getElementById("attempts").textContent = attempts;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  document.getElementById("accuracy").textContent = acc + "%";
+}
+
+/* =========================
+   Next / End
+========================= */
+function nextQuestion(){
+  if(!locked) return;
+  index++;
+  if(index >= questions.length){
+    endGame();
+  } else {
+    loadQ();
+  }
+}
+
+function endGame(){
+  WeberRun.finish(nameValue, startTime, questions.length, correct, attempts);
+
+  clearInterval(timer);
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("end").classList.remove("hidden");
+
+  document.getElementById("finalName").textContent = nameValue;
+  document.getElementById("finalTimestamp").textContent = startStampText;
+  document.getElementById("finalTime").textContent = time;
+  document.getElementById("finalAttempts").textContent = attempts;
+  document.getElementById("finalAccuracy").textContent =
+    (attempts ? Math.round((correct/attempts)*100) : 0) + "%";
+
+  document.getElementById("receipt").textContent = generateReceipt();
+}
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startTime) ? { index, attempts, correct, time, startTime, startStampText, nameValue, locked } : null; },
+  restore(v) { index=v.index; attempts=v.attempts; correct=v.correct; time=v.time; startTime=v.startTime; startStampText=v.startStampText; nameValue=v.nameValue; locked=v.locked; if(locked) index++; if(index>=questions.length) endGame(); else loadQ(); updateStats(); }
+});
+</script>
+</body>
+</html>

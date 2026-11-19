@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bill of Rights — SCOTUS Application (Mastery Game)</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --card:#111a2f;
+    --text:#e7eefc;
+    --muted:#a8b4cf;
+    --accent:#7aa2ff;
+    --good:#2bd576;
+    --bad:#ff5c7a;
+    --warn:#ffd166;
+    --border:rgba(255,255,255,.10);
+    --shadow:0 18px 55px rgba(0,0,0,.35);
+    --radius:18px;
+    --radius2:14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    background: radial-gradient(900px 500px at 20% 15%, rgba(122,162,255,.18), transparent 60%),
+                radial-gradient(800px 500px at 85% 10%, rgba(43,213,118,.12), transparent 55%),
+                linear-gradient(180deg,#0b1220,#070b14);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+  .app{
+    width:min(980px,100%);
+    background: rgba(17,26,47,.92);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  header{
+    padding:18px 18px 12px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .title{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .title h1{
+    margin:0;
+    font-size:18px;
+    letter-spacing:.2px;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:13px;
+  }
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-end;
+  }
+  .pill{
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:rgba(0,0,0,.18);
+    font-size:13px;
+    color:var(--text);
+    display:flex;
+    gap:8px;
+    align-items:center;
+    white-space:nowrap;
+  }
+  .pill span{
+    color:var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  main{ padding:16px 18px 18px; }
+  .row{
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap:14px;
+  }
+  @media (max-width:860px){
+    .row{ grid-template-columns:1fr; }
+  }
+  .panel{
+    background:rgba(0,0,0,.18);
+    border:1px solid var(--border);
+    border-radius:var(--radius2);
+    padding:14px;
+  }
+  .topline{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .qmeta{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .tag{
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    font-size:12px;
+    color:var(--muted);
+    background:rgba(255,255,255,.04);
+  }
+  .tag strong{ color:var(--text); font-weight:600; }
+  .passage{
+    border-left:4px solid rgba(122,162,255,.55);
+    padding:10px 12px;
+    margin:8px 0 12px;
+    background:rgba(122,162,255,.07);
+    border-radius:10px;
+    color:var(--text);
+    line-height:1.4;
+    font-size:14px;
+  }
+  .prompt{
+    margin:0 0 12px;
+    line-height:1.35;
+    font-size:15px;
+  }
+  .answers{
+    display:grid;
+    gap:10px;
+  }
+  button.choice{
+    width:100%;
+    text-align:left;
+    padding:12px 12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.04);
+    color:var(--text);
+    cursor:pointer;
+    transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    font-size:14px;
+  }
+  button.choice:hover{ transform: translateY(-1px); background:rgba(255,255,255,.06); }
+  button.choice:disabled{ cursor:not-allowed; opacity:.7; }
+  button.choice.correct{ border-color: rgba(43,213,118,.6); background: rgba(43,213,118,.10); }
+  button.choice.wrong{ border-color: rgba(255,92,122,.7); background: rgba(255,92,122,.10); }
+
+  .side .panel{ height:100%; display:flex; flex-direction:column; gap:12px; }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-size:12px;
+    color:var(--muted);
+  }
+  input[type="text"]{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:rgba(0,0,0,.25);
+    color:var(--text);
+    outline:none;
+    font-size:14px;
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    color:var(--text);
+    cursor:pointer;
+    transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    font-size:14px;
+  }
+  .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+  .btn.primary{
+    border-color: rgba(122,162,255,.55);
+    background: rgba(122,162,255,.12);
+  }
+  .btn.danger{
+    border-color: rgba(255,92,122,.55);
+    background: rgba(255,92,122,.10);
+  }
+  .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+  .msg{
+    border-radius:12px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.22);
+    padding:10px 12px;
+    color:var(--text);
+    line-height:1.35;
+    font-size:13px;
+  }
+  .msg.good{ border-color: rgba(43,213,118,.55); background: rgba(43,213,118,.10); }
+  .msg.bad{ border-color: rgba(255,92,122,.65); background: rgba(255,92,122,.10); }
+  .msg.warn{ border-color: rgba(255,209,102,.6); background: rgba(255,209,102,.10); }
+  .small{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.35;
+  }
+  .kv{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .kv .item{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:rgba(0,0,0,.18);
+  }
+  .kv .item b{ display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .kv .item div{ font-size:13px; color:var(--text); }
+
+  footer{
+    padding:12px 18px 16px;
+    border-top:1px solid var(--border);
+    color:var(--muted);
+    font-size:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .mono{ font-family:var(--mono); }
+  .hidden{ display:none !important; }
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Bill of Rights SCOTUS Mastery Game">
+    <header>
+      <div class="title">
+        <h1>Bill of Rights — SCOTUS Application (Mastery Game)</h1>
+        <div class="subtitle">Passage-based scenarios • 100% mastery required • Shuffles each load</div>
+      </div>
+      <div class="stats">
+        <div class="pill"><span>Score</span><b id="scoreLine">0 / 0</b></div>
+        <div class="pill"><span>Accuracy</span><b id="accLine">0%</b></div>
+        <div class="pill"><span>Question</span><b id="qLine">0 / 0</b></div>
+      </div>
+    </header>
+
+    <main>
+      <div class="row">
+        <section class="panel" aria-label="Question panel">
+          <div class="topline">
+            <div class="qmeta">
+              <div class="tag"><strong id="caseTag">Case</strong></div>
+              <div class="tag">Focus: <strong id="focusTag">—</strong></div>
+              <div class="tag">Type: <strong id="typeTag">Application</strong></div>
+            </div>
+            <div class="tag mono">ID: <strong id="idTag">—</strong></div>
+          </div>
+
+          <div id="passageBox" class="passage"></div>
+          <p id="prompt" class="prompt"></p>
+
+          <div id="answers" class="answers" aria-label="Answer choices"></div>
+
+          <div id="hintBox" class="msg warn hidden" style="margin-top:12px;">
+            <b>Hint</b>
+            <div id="hintText" style="margin-top:6px;"></div>
+          </div>
+
+          <div id="feedbackBox" class="msg hidden" style="margin-top:12px;">
+            <b id="fbTitle">Feedback</b>
+            <div id="fbText" style="margin-top:6px;"></div>
+          </div>
+        </section>
+
+        <aside class="side">
+          <div class="panel" aria-label="Controls and submission">
+            <div class="field">
+              <label for="studentName">Student name (required)</label>
+              <input id="studentName" type="text" autocomplete="name" placeholder="Type first and last name..."/>
+            </div>
+
+            <div class="controls">
+              <button class="btn primary" id="btnStart">Start / Restart</button>
+              <button class="btn" id="btnNext" disabled>Next</button>
+              <button class="btn danger" id="btnReset" title="Clear score and restart" disabled>Reset</button>
+            </div>
+
+            <div class="kv">
+              <div class="item">
+                <b>Started</b>
+                <div id="startedLine" class="mono">—</div>
+              </div>
+              <div class="item">
+                <b>Completed</b>
+                <div id="completedLine" class="mono">—</div>
+              </div>
+              <div class="item">
+                <b>Finish Code</b>
+                <div id="codeLine" class="mono">LOCKED</div>
+              </div>
+            </div>
+
+            <div id="statusBox" class="msg" style="margin-top:10px;">
+              <b>Status</b>
+              <div id="statusText" style="margin-top:6px;">
+                Enter your name, then click <span class="mono">Start</span>. You must finish with <b>100% accuracy</b> to unlock the code.
+              </div>
+            </div>
+
+            <div class="small">
+              <b>Rules:</b> A wrong click counts as an attempt and lowers accuracy. You may retry the same question until correct.
+              Finish only unlocks when all questions are completed with perfect accuracy.
+            </div>
+
+            <div class="controls" style="margin-top:10px;">
+              <button class="btn primary" id="btnFinish" disabled>Finish / Submit</button>
+              <button class="btn" id="btnCopy" disabled>Copy Code</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer>
+      <div>Mastery is awarded only when <b>all questions</b> are completed with <b>100%</b> accuracy.</div>
+      <div class="mono">BoR Repo • SCOTUS Passage Set • v1</div>
+    </footer>
+  </div>
+
+<script>
+/* =========================
+   BUILD PARAMETERS (same pattern you’ve been refining)
+   - Name required
+   - Start + completed date/time
+   - Shuffles questions on load/start
+   - Shuffles answer choices
+   - Wrong answer shows hint; must retry until correct
+   - Wrong clicks count as attempts (accuracy drops)
+   - Finish unlocks ONLY at end AND 100% accuracy
+   ========================= */
+
+const elScoreLine = document.getElementById("scoreLine");
+const elAccLine   = document.getElementById("accLine");
+const elQLine     = document.getElementById("qLine");
+
+const elCaseTag  = document.getElementById("caseTag");
+const elFocusTag = document.getElementById("focusTag");
+const elTypeTag  = document.getElementById("typeTag");
+const elIdTag    = document.getElementById("idTag");
+
+const elPassage  = document.getElementById("passageBox");
+const elPrompt   = document.getElementById("prompt");
+const elAnswers  = document.getElementById("answers");
+
+const elHintBox  = document.getElementById("hintBox");
+const elHintText = document.getElementById("hintText");
+
+const elFbBox   = document.getElementById("feedbackBox");
+const elFbTitle = document.getElementById("fbTitle");
+const elFbText  = document.getElementById("fbText");
+
+const elName = document.getElementById("studentName");
+
+const btnStart = document.getElementById("btnStart");
+const btnNext  = document.getElementById("btnNext");
+const btnReset = document.getElementById("btnReset");
+const btnFinish= document.getElementById("btnFinish");
+const btnCopy  = document.getElementById("btnCopy");
+
+const elStarted   = document.getElementById("startedLine");
+const elCompleted = document.getElementById("completedLine");
+const elCodeLine  = document.getElementById("codeLine");
+const elStatusText= document.getElementById("statusText");
+
+// ---------- Question Bank (25) ----------
+// “Passage” is a short, relevant summary portion (paraphrased) for passage-style items.
+const BANK = [
+  {
+    id:"BOR-01",
+    caseName:"Gideon v. Wainwright (1963)",
+    focus:"6th (Counsel) + 14th",
+    passage:"A Florida man charged with a felony asked for a lawyer because he could not afford one. The judge denied the request under state law, and he defended himself.",
+    prompt:"Which constitutional protection is most directly involved?",
+    choices:[
+      "Right to bear arms",
+      "Right to counsel in criminal prosecutions",
+      "Protection from excessive bail",
+      "Reserved powers to the states"
+    ],
+    answerIndex:1,
+    hint:"Think: felony trial + cannot afford a lawyer. What right ensures an attorney is provided?"
+  },
+  {
+    id:"BOR-02",
+    caseName:"Mapp v. Ohio (1961)",
+    focus:"4th (Search/Seizure) + 14th",
+    passage:"Police entered a home searching for a suspect. They did not have a valid warrant, but they found evidence and used it to convict the homeowner.",
+    prompt:"Which constitutional principle applies most directly?",
+    choices:[
+      "Protection against unreasonable searches and seizures",
+      "Right to bear arms",
+      "Protection from double jeopardy",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Focus on entry into a home and evidence taken without a proper warrant."
+  },
+  {
+    id:"BOR-03",
+    caseName:"Miranda v. Arizona (1966)",
+    focus:"5th (Self-Incrimination)",
+    passage:"A suspect was questioned in custody and confessed. He was not clearly informed of his right to remain silent or his right to an attorney before questioning.",
+    prompt:"Which constitutional protection is most directly involved?",
+    choices:[
+      "Right to a speedy trial",
+      "Protection against self-incrimination",
+      "Protection from excessive fines",
+      "Reserved powers to the states"
+    ],
+    answerIndex:1,
+    hint:"Custodial interrogation + confession + not warned about silence."
+  },
+  {
+    id:"BOR-04",
+    caseName:"District of Columbia v. Heller (2008)",
+    focus:"2nd (Arms)",
+    passage:"A law prohibited possession of working handguns in the home. The Court evaluated whether the Second Amendment protects an individual right for lawful purposes such as self-defense.",
+    prompt:"What constitutional right is central to this scenario?",
+    choices:[
+      "Right to counsel",
+      "Protection against unreasonable searches",
+      "Right to keep and bear arms",
+      "Protection from cruel and unusual punishment"
+    ],
+    answerIndex:2,
+    hint:"Home handgun ban + self-defense discussion points to which amendment?"
+  },
+  {
+    id:"BOR-05",
+    caseName:"McDonald v. Chicago (2010)",
+    focus:"2nd (Arms) + 14th",
+    passage:"A city restricted handgun ownership. The Court considered whether the Second Amendment applies to state and local governments through the Fourteenth Amendment.",
+    prompt:"Why is the Fourteenth Amendment important in this case?",
+    choices:[
+      "It forces states to recognize the Second Amendment right",
+      "It creates a national police force",
+      "It removes state authority over courts",
+      "It bans all firearm regulations"
+    ],
+    answerIndex:0,
+    hint:"This is about applying a Bill of Rights protection to states (incorporation)."
+  },
+  {
+    id:"BOR-06",
+    caseName:"Duncan v. Louisiana (1968)",
+    focus:"6th (Jury Trial) + 14th",
+    passage:"A defendant facing a serious charge in state court requested a jury trial. The state procedure allowed a judge-only trial for the offense.",
+    prompt:"Which right is being enforced against the state?",
+    choices:[
+      "Right to trial by jury in serious criminal cases",
+      "Protection from excessive fines",
+      "Right to bear arms",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Serious crime + requested jury + state court."
+  },
+  {
+    id:"BOR-07",
+    caseName:"Benton v. Maryland (1969)",
+    focus:"5th (Double Jeopardy) + 14th",
+    passage:"A defendant was tried again for an offense after an earlier proceeding ended in an acquittal on that same charge.",
+    prompt:"Which constitutional protection is most directly involved?",
+    choices:[
+      "Protection against self-incrimination",
+      "Protection against double jeopardy",
+      "Right to counsel",
+      "Protection against unreasonable searches"
+    ],
+    answerIndex:1,
+    hint:"Retrial after acquittal → think “twice for the same offense.”"
+  },
+  {
+    id:"BOR-08",
+    caseName:"Barker v. Wingo (1972)",
+    focus:"6th (Speedy Trial)",
+    passage:"A defendant’s trial was delayed repeatedly over a long period. The Court evaluated whether the delay violated the constitutional guarantee for a timely trial.",
+    prompt:"Which right is most directly involved?",
+    choices:[
+      "Right to a speedy trial",
+      "Protection against self-incrimination",
+      "Protection from cruel punishment",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Long delays before trial are directly tied to which 6th Amendment guarantee?"
+  },
+  {
+    id:"BOR-09",
+    caseName:"Crawford v. Washington (2004)",
+    focus:"6th (Confrontation)",
+    passage:"A person was convicted using testimonial statements from a witness who did not appear in court for cross-examination.",
+    prompt:"Which constitutional protection is most directly involved?",
+    choices:[
+      "Right to confront witnesses",
+      "Right to bear arms",
+      "Protection from excessive fines",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Testimonial statement used at trial without cross-examination."
+  },
+  {
+    id:"BOR-10",
+    caseName:"Strickland v. Washington (1984)",
+    focus:"6th (Effective Counsel)",
+    passage:"A defendant argued his lawyer’s performance was so poor it undermined the fairness and reliability of the conviction and sentence.",
+    prompt:"What right is most directly implicated?",
+    choices:[
+      "Effective assistance of counsel",
+      "Protection from double jeopardy",
+      "Right to bear arms",
+      "Protection from excessive bail"
+    ],
+    answerIndex:0,
+    hint:"Not just having a lawyer—having competent representation."
+  },
+  {
+    id:"BOR-11",
+    caseName:"Apprendi v. New Jersey (2000)",
+    focus:"6th (Jury Findings)",
+    passage:"A judge increased a sentence beyond the usual maximum based on additional facts not found by a jury beyond a reasonable doubt.",
+    prompt:"Which constitutional principle is most directly involved?",
+    choices:[
+      "Jury must determine facts that increase punishment",
+      "Protection against unreasonable searches",
+      "Right to bear arms",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Judge vs jury: who must find the key facts for higher punishment?"
+  },
+  {
+    id:"BOR-12",
+    caseName:"Kelo v. City of New London (2005)",
+    focus:"5th (Takings)",
+    passage:"A city took private property and transferred it for a redevelopment plan intended to increase economic activity. The issue was whether this counted as a public use.",
+    prompt:"Which constitutional clause applies most directly?",
+    choices:[
+      "5th Amendment Takings Clause",
+      "4th Amendment warrant requirement",
+      "8th Amendment excessive bail",
+      "10th Amendment reserved powers"
+    ],
+    answerIndex:0,
+    hint:"Government taking private property + compensation/public use."
+  },
+  {
+    id:"BOR-13",
+    caseName:"Brady v. Maryland (1963)",
+    focus:"5th (Due Process)",
+    passage:"Prosecutors failed to disclose evidence favorable to the defendant that could have affected guilt or punishment. The Court focused on fairness in criminal trials.",
+    prompt:"Which constitutional principle is most directly involved?",
+    choices:[
+      "Due process and fair trial protections",
+      "Right to bear arms",
+      "Protection from cruel punishment",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Withholding exculpatory evidence is about fairness in the process."
+  },
+  {
+    id:"BOR-14",
+    caseName:"United States v. Jones (2012)",
+    focus:"4th (Privacy / Tracking)",
+    passage:"Police attached a GPS device to a vehicle and monitored its movements for an extended period without a valid warrant.",
+    prompt:"Which constitutional protection is most directly involved?",
+    choices:[
+      "Protection against unreasonable searches and seizures",
+      "Right to counsel",
+      "Protection from excessive fines",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Tracking device + monitoring movements → search/seizure concerns."
+  },
+  {
+    id:"BOR-15",
+    caseName:"Weeks v. United States (1914)",
+    focus:"4th (Exclusionary Rule - federal)",
+    passage:"In a federal case, evidence was taken from a home without proper authorization. The Court addressed whether unlawfully obtained evidence can be used at trial.",
+    prompt:"Which legal idea best matches this passage?",
+    choices:[
+      "Exclusionary rule (illegally seized evidence is suppressed)",
+      "Right to bear arms",
+      "Protection from double jeopardy",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Illegally obtained evidence and whether it can be used in court."
+  },
+  {
+    id:"BOR-16",
+    caseName:"Hudson v. Michigan (2006)",
+    focus:"4th (Knock-and-Announce)",
+    passage:"Police had a valid warrant but entered without properly following knock-and-announce procedures. The Court considered what remedy applies for that violation.",
+    prompt:"Which amendment governs the issue described?",
+    choices:[
+      "4th Amendment",
+      "2nd Amendment",
+      "8th Amendment",
+      "10th Amendment"
+    ],
+    answerIndex:0,
+    hint:"Entry procedures during a search are tied to search-and-seizure rules."
+  },
+  {
+    id:"BOR-17",
+    caseName:"Timbs v. Indiana (2019)",
+    focus:"8th (Excessive Fines) + 14th",
+    passage:"A state seized a valuable vehicle connected to a crime with a relatively small maximum fine. The Court examined whether excessive fines limits apply to states.",
+    prompt:"Which protection is most directly involved?",
+    choices:[
+      "Protection from excessive fines",
+      "Right to bear arms",
+      "Right to counsel",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Huge financial penalty/forfeiture compared to the offense."
+  },
+  {
+    id:"BOR-18",
+    caseName:"Stack v. Boyle (1951)",
+    focus:"8th (Excessive Bail)",
+    passage:"Defendants were given extremely high bail amounts not closely tied to ensuring appearance in court. The Court considered constitutional limits on bail.",
+    prompt:"Which constitutional protection is most directly involved?",
+    choices:[
+      "Protection against excessive bail",
+      "Right to bear arms",
+      "Protection against unreasonable searches",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Bail set far higher than necessary is an 8th Amendment issue."
+  },
+  {
+    id:"BOR-19",
+    caseName:"Furman v. Georgia (1972)",
+    focus:"8th (Cruel/Unusual)",
+    passage:"The Court evaluated the death penalty as applied under certain systems, focusing on whether punishments were imposed in an arbitrary or inconsistent way.",
+    prompt:"Which protection is most directly involved?",
+    choices:[
+      "Protection against cruel and unusual punishment",
+      "Right to counsel",
+      "Right to bear arms",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Death penalty + arbitrary application ties to which amendment’s punishment limits?"
+  },
+  {
+    id:"BOR-20",
+    caseName:"Printz v. United States (1997)",
+    focus:"10th (Federalism / Anti-Commandeering)",
+    passage:"A federal law required state and local officials to carry out federal background-check tasks. The Court considered whether the federal government can command state officers to enforce federal policy.",
+    prompt:"Which constitutional principle is most directly involved?",
+    choices:[
+      "Limits on federal power / state sovereignty (10th Amendment principle)",
+      "Right to bear arms",
+      "Protection from self-incrimination",
+      "Right to a speedy trial"
+    ],
+    answerIndex:0,
+    hint:"Federal government ordering state officials to implement federal law."
+  },
+  {
+    id:"BOR-21",
+    caseName:"United States v. Lopez (1995)",
+    focus:"10th (Limits on federal power) / Commerce power limits",
+    passage:"Congress passed a law banning guns near schools. The Court ruled the law exceeded Congress’s enumerated powers and reinforced limits on federal authority.",
+    prompt:"Which concept best fits this scenario?",
+    choices:[
+      "Federal power is limited; states retain general police powers",
+      "Right to counsel",
+      "Protection from excessive fines",
+      "Right to confront witnesses"
+    ],
+    answerIndex:0,
+    hint:"When Congress lacks an enumerated power, who typically has authority over local safety regulation?"
+  },
+  {
+    id:"BOR-22",
+    caseName:"Salinas v. Texas (2013)",
+    focus:"5th (Self-Incrimination)",
+    passage:"A suspect answered some questions voluntarily but became silent when asked an incriminating question. The case examined how Fifth Amendment protections apply in that setting.",
+    prompt:"Which right is most directly involved?",
+    choices:[
+      "Protection against self-incrimination",
+      "Protection from cruel punishment",
+      "Right to bear arms",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Silence in response to potentially incriminating questioning."
+  },
+  {
+    id:"BOR-23",
+    caseName:"Moore v. Illinois (1977)",
+    focus:"6th (Counsel at critical stages)",
+    passage:"After formal charges, police arranged a lineup identification. The defendant did not have counsel present, raising questions about protection at critical stages.",
+    prompt:"Which constitutional right is most directly involved?",
+    choices:[
+      "Right to counsel during critical stages of prosecution",
+      "Protection from excessive fines",
+      "Right to bear arms",
+      "Reserved powers to the states"
+    ],
+    answerIndex:0,
+    hint:"Lineup after charges filed = ‘critical stage’ where counsel may be required."
+  },
+  {
+    id:"BOR-24",
+    caseName:"Gamble v. United States (2019)",
+    focus:"5th (Double Jeopardy) / Dual Sovereignty",
+    passage:"A defendant faced prosecution by both a state and the federal government for similar conduct. The issue involved how double jeopardy interacts with separate sovereigns.",
+    prompt:"Which concept is being tested?",
+    choices:[
+      "Dual sovereignty limits the double jeopardy claim in some situations",
+      "Right to counsel",
+      "Protection from excessive bail",
+      "Right to bear arms"
+    ],
+    answerIndex:0,
+    hint:"Two different governments (state and federal) prosecuting can affect double jeopardy analysis."
+  },
+  {
+    id:"BOR-25",
+    caseName:"Mapp v. Ohio (Reinforcement)",
+    focus:"4th (Warrants / Exclusionary Rule) + 14th",
+    passage:"A state trial used evidence seized during a search that violated constitutional search requirements. The Court addressed whether the remedy applies to the states.",
+    prompt:"Which statement best matches the rule applied?",
+    choices:[
+      "Illegally seized evidence is excluded in state courts (via incorporation)",
+      "States may ignore search rules in criminal cases",
+      "Only federal courts can enforce the Bill of Rights",
+      "The 10th Amendment overrides the 4th Amendment"
+    ],
+    answerIndex:0,
+    hint:"Think: exclusionary rule + applying it to state courts."
+  }
+];
+
+// ---------- Utility ----------
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function nowStamp(){
+  const d = new Date();
+  // Local readable stamp
+  return d.toLocaleString(undefined, {
+    year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", second:"2-digit"
+  });
+}
+function makeFinishCode(name, startedISO, correct, attempts){
+  // Deterministic-ish, no external deps
+  const base = `${name.trim().toUpperCase()}|${startedISO}|${correct}|${attempts}|BOR-SCOTUS`;
+  let hash = 0;
+  for(let i=0;i<base.length;i++){
+    hash = (hash*31 + base.charCodeAt(i)) >>> 0;
+  }
+  const code = ("00000000" + hash.toString(16).toUpperCase()).slice(-8);
+  return `BOR-${code}`;
+}
+
+// ---------- Game State ----------
+let questions = [];
+let qIndex = 0;
+
+let correct = 0;
+let attempts = 0;
+
+let startedAt = null;     // Date object
+let startedISO = "";      // ISO string
+let completedAt = null;
+
+let locked = true;
+let awaitingCorrect = false; // if wrong was selected, must retry until correct
+let currentShuffledChoices = []; // choices array for current question (shuffled)
+let currentCorrectText = "";      // correct choice text after shuffle
+
+// ---------- Rendering ----------
+function updateStats(){
+  elScoreLine.textContent = `${correct} / ${attempts}`;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  elAccLine.textContent = `${acc}%`;
+  elQLine.textContent = `${Math.min(qIndex+1, questions.length)} / ${questions.length}`;
+
+  // Mastery only at END and perfect accuracy and all correct
+  const mastery = (correct === questions.length) && (attempts === questions.length) && acc === 100;
+
+  btnFinish.disabled = !mastery;
+  btnCopy.disabled = locked;
+
+  if(mastery){
+    elStatusText.innerHTML = `✅ Mastery reached (<b>100%</b>). Click <span class="mono">Finish / Submit</span> to unlock your code.`;
+    elFbBox.className = "msg good";
+    elFbBox.classList.remove("hidden");
+    elFbTitle.textContent = "Mastery";
+    elFbText.textContent = "You completed every question with perfect accuracy.";
+  }else{
+    // keep status informative but not annoying
+    const remaining = questions.length - correct;
+    if(attempts === 0){
+      elStatusText.innerHTML = `Enter your name, then click <span class="mono">Start</span>. You must finish with <b>100% accuracy</b> to unlock the code.`;
+    }else{
+      elStatusText.innerHTML = `Questions remaining: <b>${remaining}</b>. Accuracy must be <b>100%</b> to finish.`;
+    }
+  }
+}
+
+function renderQuestion(){
+  const q = questions[qIndex];
+
+  elCaseTag.textContent = q.caseName;
+  elTypeTag.textContent = "Application";
+  elIdTag.textContent = q.id;
+
+  elPassage.textContent = q.passage;
+  elPrompt.textContent = q.prompt;
+
+  elHintBox.classList.add("hidden");
+  elHintText.textContent = "";
+
+  elFbBox.classList.add("hidden");
+  elFbText.textContent = "";
+  elFbTitle.textContent = "Feedback";
+
+  // shuffle choices fresh each time question shown
+  currentShuffledChoices = shuffle(q.choices);
+  currentCorrectText = q.choices[q.answerIndex];
+
+  elAnswers.innerHTML = "";
+  currentShuffledChoices.forEach((txt) => {
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.type = "button";
+    b.textContent = txt;
+    b.addEventListener("click", () => handleChoice(b, txt));
+    elAnswers.appendChild(b);
+  });
+
+  btnNext.disabled = true;
+  awaitingCorrect = false;
+
+  updateStats();
+}
+
+function lockChoices(lock=true){
+  [...elAnswers.querySelectorAll("button.choice")].forEach(btn => btn.disabled = lock);
+}
+
+function showHint(text){
+  elHintText.textContent = text;
+  elHintBox.classList.remove("hidden");
+}
+
+function showFeedback(kind, title, text){
+  elFbBox.classList.remove("hidden");
+  elFbBox.className = `msg ${kind}`;
+  elFbTitle.textContent = title;
+  elFbText.textContent = text;
+}
+
+// ---------- Logic ----------
+function handleChoice(btnEl, chosenText){
+  const q = questions[qIndex];
+
+  // Count every click as an attempt (state-style mastery)
+  attempts++;
+
+  const isCorrect = (chosenText === currentCorrectText);
+
+  if(isCorrect){
+    correct++;
+
+    // Visual mark
+    btnEl.classList.add("correct");
+
+    // Lock and allow next
+    lockChoices(true);
+    btnNext.disabled = false;
+
+    elHintBox.classList.add("hidden");
+
+    // Provide short success feedback, but not mastery unless at end
+    const remaining = questions.length - correct;
+    if(remaining > 0){
+      showFeedback("good", "Correct", "Nice. Click Next to continue.");
+    }
+
+    // If last question, keep Next disabled and let stats logic handle finish
+    if(qIndex === questions.length - 1){
+      btnNext.disabled = true;
+      // Completion will be handled by updateStats/mastery gating
+    }
+
+  }else{
+    // wrong answer
+    btnEl.classList.add("wrong");
+
+    // Keep choices enabled so they can retry
+    showFeedback("bad", "Not Yet", "That choice does not match the constitutional protection tested in the passage. Try again.");
+    showHint(q.hint);
+
+    // Do NOT enable next
+    btnNext.disabled = true;
+  }
+
+  updateStats();
+}
+
+function startGame(){
+  const name = elName.value.trim();
+  if(!name){
+    showFeedback("warn", "Name Required", "Enter your name before starting.");
+    return;
+  }
+
+  // Reset state
+  questions = shuffle(BANK); // shuffle question order each start
+  qIndex = 0;
+  correct = 0;
+  attempts = 0;
+  locked = true;
+  awaitingCorrect = false;
+
+  startedAt = new Date();
+  startedISO = startedAt.toISOString();
+  completedAt = null;
+
+  elStarted.textContent = nowStamp();
+  elCompleted.textContent = "—";
+  elCodeLine.textContent = "LOCKED";
+
+  btnReset.disabled = false;
+
+  renderQuestion();
+  showFeedback("good", "Started", "Read the passage carefully. One wrong click drops accuracy.");
+}
+
+function nextQuestion(){
+  if(qIndex >= questions.length - 1) return;
+
+  qIndex++;
+  renderQuestion();
+}
+
+function resetGame(){
+  // Keep name, restart fresh
+  startGame();
+}
+
+function finishGame(){
+  // Gate: must be perfect and complete
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  const mastery = (correct === questions.length) && (attempts === questions.length) && acc === 100;
+
+  if(!mastery){
+    showFeedback("warn", "Finish Locked", "Finish unlocks only after all questions are completed with 100% accuracy.");
+    return;
+  }
+
+  completedAt = new Date();
+  elCompleted.textContent = nowStamp();
+
+  locked = false;
+
+  const code = makeFinishCode(elName.value, startedISO, correct, attempts);
+  WeberRun.finish(elName.value, startedISO, questions.length, correct, attempts);
+  elCodeLine.textContent = code;
+
+  showFeedback("good", "Submitted", "Code unlocked. Copy it and submit in the form as instructed.");
+  btnCopy.disabled = false;
+}
+
+async function copyCode(){
+  const code = elCodeLine.textContent.trim();
+  if(!code || code === "LOCKED") return;
+  try{
+    await navigator.clipboard.writeText(code);
+    showFeedback("good", "Copied", "Finish code copied to clipboard.");
+  }catch(e){
+    showFeedback("warn", "Copy Failed", "Your browser blocked clipboard access. Select and copy the code manually.");
+  }
+}
+
+// ---------- Events ----------
+btnStart.addEventListener("click", startGame);
+btnNext.addEventListener("click", nextQuestion);
+btnReset.addEventListener("click", resetGame);
+btnFinish.addEventListener("click", finishGame);
+btnCopy.addEventListener("click", copyCode);
+
+// Initial UI
+(function init(){
+  elQLine.textContent = `0 / ${BANK.length}`;
+  updateStats();
+  elPassage.textContent = "Passage will appear after you click Start.";
+  elPrompt.textContent  = "Enter your name, then click Start. You must finish with 100% accuracy.";
+  elAnswers.innerHTML = "";
+})();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startedAt && questions.length) ? { questions, qIndex, correct, attempts, startedAt, startedISO, locked, awaitingCorrect } : null; },
+  restore(v) { questions=v.questions; qIndex=v.qIndex; correct=v.correct; attempts=v.attempts; startedAt=v.startedAt; startedISO=v.startedISO; locked=v.locked; awaitingCorrect=v.awaitingCorrect; if(correct>qIndex) qIndex++; if(qIndex>=questions.length){updateStats(); if(correct===questions.length && attempts===questions.length) finishGame();} else renderQuestion(); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CS1 Game 1 — Political vs Public Policy Pathways</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --border:rgba(255,255,255,0.12);
+  --radius:18px;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0e1530);color:var(--text);}
+.container{max-width:980px;margin:auto;padding:24px;}
+.card{background:#121a33;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+h1,h2{text-align:center;margin:8px 0 14px;}
+p{line-height:1.35}
+input{
+  width:100%;padding:12px;border-radius:12px;border:none;
+  margin-bottom:12px;font-size:1rem;
+}
+.btn{
+  background:#1b2a55;color:white;border:1px solid var(--border);
+  padding:14px;border-radius:14px;cursor:pointer;width:100%;
+  margin:8px 0;font-size:1rem;text-align:left;
+}
+.btn:hover{background:#243a77}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.correct{background:rgba(43,213,118,.15);border:1px solid var(--good);padding:12px;border-radius:14px;margin-top:10px;}
+.incorrect{background:rgba(255,92,122,.15);border:1px solid var(--bad);padding:12px;border-radius:14px;margin-top:10px;}
+.hint{background:rgba(255,209,102,.12);border:1px solid var(--warn);padding:12px;border-radius:14px;margin-top:10px;color:var(--text);}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:10px}
+.stat{background:#0f1630;padding:10px 14px;border-radius:12px}
+.toggle{cursor:pointer;color:var(--warn);user-select:none}
+.hidden{display:none}
+.footer{text-align:center;margin-top:10px;color:var(--muted)}
+.small{color:var(--muted);font-size:.95rem}
+hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- START -->
+  <div class="card" id="start">
+    <h1>CS1 — Game 1: Political vs Public Policy Pathways</h1>
+    <p class="small" style="text-align:center">
+      Decide whether each scenario is best addressed through the <b>Political Process</b> or the <b>Public Policy Process</b>.
+      Hints can be turned on by the teacher and will appear <b>only after an incorrect answer</b>.
+    </p>
+    <hr>
+    <p style="text-align:center">Enter your name to begin.</p>
+    <input id="studentName" placeholder="Your Name">
+    <button class="btn" onclick="startGame()" style="text-align:center">Start Game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="card hidden" id="game">
+    <div class="topbar">
+      <!-- ✅ VISIBLE DATE/TIME STAMP DURING GAME -->
+      <div class="stat">Started: <span id="startedTop">--</span></div>
+
+      <div class="stat">Time: <span id="time">0</span>s</div>
+      <div class="stat">Attempts: <span id="attempts">0</span></div>
+      <div class="stat">Accuracy: <span id="accuracy">0%</span></div>
+      <div class="stat toggle" onclick="toggleHints()">Hints: <span id="hintState">OFF</span></div>
+    </div>
+
+    <h2 id="qnum"></h2>
+    <p id="question"></p>
+
+    <div id="choices"></div>
+
+    <div id="feedback"></div>
+
+    <button class="btn hidden" id="nextBtn" onclick="nextQuestion()" style="text-align:center">Next</button>
+  </div>
+
+  <!-- END -->
+  <div class="card hidden" id="end">
+    <h2>Completed!</h2>
+    <p><b>Name:</b> <span id="finalName"></span></p>
+    <p><b>Started:</b> <span id="finalTimestamp"></span></p>
+    <p><b>Time:</b> <span id="finalTime"></span>s</p>
+    <p><b>Attempts:</b> <span id="finalAttempts"></span></p>
+    <p><b>Accuracy:</b> <span id="finalAccuracy"></span></p>
+    <p><b>Receipt:</b> <span class="mono" id="receipt"></span></p>
+    <p class="footer">Take a screenshot and submit.</p>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   Teacher Controls
+========================= */
+let hintsOn = false;
+function toggleHints(){
+  hintsOn = !hintsOn;
+  document.getElementById("hintState").textContent = hintsOn ? "ON" : "OFF";
+}
+
+/* =========================
+   ✅ DATE/TIME STAMP (REAL)
+========================= */
+let startTime = null;      // Date object (for receipt)
+let startStampText = "";   // Display string (for UI)
+
+function setStartStamp(){
+  startTime = new Date();
+  startStampText = startTime.toLocaleString();
+}
+
+/* =========================
+   ✅ RECEIPT (Readable)
+   Example: Weber020326-081742-20Q-94A
+========================= */
+function generateReceipt(){
+  const nameClean = (nameValue || "").replace(/\s+/g,"");
+  const dt = startTime || new Date();
+
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  const yy = String(dt.getFullYear()).slice(2);
+
+  const hh = String(dt.getHours()).padStart(2,"0");
+  const min = String(dt.getMinutes()).padStart(2,"0");
+  const ss = String(dt.getSeconds()).padStart(2,"0");
+
+  const accuracyPct = attempts ? Math.round((correct/attempts)*100) : 0;
+
+  return `${nameClean}${mm}${dd}${yy}-${hh}${min}${ss}-${correct}Q-${accuracyPct}A`;
+}
+
+/* =========================
+   Question Bank (20)
+   a: 0 = Political Process
+      1 = Public Policy Process
+========================= */
+const questions = [
+  {q:"A group of citizens works to elect candidates who promise lower property taxes.",a:0,explain:"Using elections to gain power is a Political Process.",hint:"Look for elections, campaigns, voting, parties, or running for office."},
+  {q:"Congress passes a law raising the federal minimum wage.",a:1,explain:"Passing laws is part of the Public Policy Process.",hint:"Look for laws, regulations, enforcement, courts, or budgets."},
+  {q:"A student organization campaigns to register more voters.",a:0,explain:"Voter registration relates to political participation.",hint:"Registration and turnout connect to elections."},
+  {q:"The EPA creates new air-quality regulations.",a:1,explain:"Regulations are public policy actions.",hint:"Agencies creating/enforcing rules = policy."},
+  {q:"A mayor runs for re-election on a crime reduction platform.",a:0,explain:"Running for office is political.",hint:"Running for office is about gaining power."},
+  {q:"A court strikes down a state law as unconstitutional.",a:1,explain:"Court rulings shape public policy.",hint:"Courts interpreting laws = policy impact."},
+  {q:"A party launches TV ads attacking an opponent.",a:0,explain:"Campaign ads are political.",hint:"Ads tied to winning elections = political."},
+  {q:"A city council votes on a new zoning ordinance.",a:1,explain:"Local ordinances are public policy.",hint:"Ordinances/laws passed by government = policy."},
+  {q:"Citizens organize to support a ballot initiative.",a:0,explain:"Ballot initiatives involve political participation.",hint:"Voting/ballot measures connect to political processes."},
+  {q:"A state agency enforces workplace safety standards.",a:1,explain:"Enforcement is part of public policy implementation.",hint:"Enforcing rules = policy process."},
+  {q:"Volunteers canvass neighborhoods to support a candidate.",a:0,explain:"Canvassing is a campaign activity.",hint:"Campaigning = political."},
+  {q:"Congress funds new highway construction.",a:1,explain:"Budgeting/spending decisions are public policy.",hint:"Government spending = policy."},
+  {q:"A party selects its nominee at a convention.",a:0,explain:"Party nominations are part of the political process.",hint:"Parties selecting nominees = political."},
+  {q:"A governor signs a bill into law.",a:1,explain:"Signing laws is part of the public policy process.",hint:"Passing/signing laws = policy."},
+  {q:"A group works to increase turnout in local elections.",a:0,explain:"Turnout efforts relate to elections (political).",hint:"Elections/turnout = political."},
+  {q:"A school board changes graduation requirements.",a:1,explain:"School rules/policies are public policy actions.",hint:"Rule changes by a governing body = policy."},
+  {q:"A candidate holds a town hall meeting while campaigning.",a:0,explain:"Campaign events are political.",hint:"Candidate/campaign = political."},
+  {q:"Congress holds hearings on possible gun regulations.",a:1,explain:"Hearings influence lawmaking and policy decisions.",hint:"Law-making process = policy."},
+  {q:"A party releases a platform outlining its beliefs and goals.",a:0,explain:"Platforms are political tools to win support and elections.",hint:"Party platform = political."},
+  {q:"A city increases funding for public transit.",a:1,explain:"Funding decisions are public policy.",hint:"Budgets and spending = policy."}
+];
+
+/* =========================
+   Game State
+========================= */
+let index = 0;
+let attempts = 0;
+let correct = 0;
+let time = 0;
+let timer = null;
+
+let locked = false;
+let nameValue = "";
+
+/* =========================
+   Start / Timer
+========================= */
+function startGame(){
+  const nm = document.getElementById("studentName").value.trim();
+  if(!nm) return alert("Enter name");
+  nameValue = nm;
+
+  // ✅ capture date/time stamp at start
+  setStartStamp();
+
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  // ✅ write stamp AFTER game is visible (prevents any render timing weirdness)
+  document.getElementById("startedTop").textContent = startStampText;
+
+  timer = setInterval(() => {
+    time++;
+    document.getElementById("time").textContent = time;
+  }, 1000);
+
+  loadQ();
+}
+
+/* =========================
+   Render Question
+========================= */
+function loadQ(){
+  locked = false;
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  const q = questions[index];
+  document.getElementById("qnum").textContent = `Question ${index+1}/20`;
+  document.getElementById("question").textContent = q.q;
+
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+
+  const labels = ["Political Process","Public Policy Process"];
+  labels.forEach((label,i)=>{
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${i===0?"A":"B"}. ${label}`;
+    b.onclick = () => check(i);
+    holder.appendChild(b);
+  });
+
+  updateStats();
+}
+
+function disableChoices(disabled){
+  document.querySelectorAll("#choices .btn").forEach(btn => btn.disabled = disabled);
+}
+
+/* =========================
+   Answer Check
+========================= */
+function check(choice){
+  if(locked) return;
+
+  attempts++;
+  const q = questions[index];
+  const fb = document.getElementById("feedback");
+
+  if(choice === q.a){
+    correct++;
+    locked = true;
+    disableChoices(true);
+
+    fb.innerHTML = `<div class="correct"><b>Correct!</b> ${q.explain}</div>`;
+    document.getElementById("nextBtn").classList.remove("hidden");
+  } else {
+    fb.innerHTML = `<div class="incorrect"><b>Incorrect.</b> Try again.</div>`;
+    if(hintsOn){
+      fb.innerHTML += `<div class="hint"><b>Hint:</b> ${q.hint}</div>`;
+    }
+  }
+
+  updateStats();
+}
+
+/* =========================
+   Stats
+========================= */
+function updateStats(){
+  document.getElementById("attempts").textContent = attempts;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  document.getElementById("accuracy").textContent = acc + "%";
+}
+
+/* =========================
+   Next / End
+========================= */
+function nextQuestion(){
+  if(!locked) return;
+
+  index++;
+  if(index >= questions.length){
+    endGame();
+  } else {
+    loadQ();
+  }
+}
+
+function endGame(){
+  WeberRun.finish(nameValue, startTime, questions.length, correct, attempts);
+
+  clearInterval(timer);
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("end").classList.remove("hidden");
+
+  document.getElementById("finalName").textContent = nameValue;
+  document.getElementById("finalTimestamp").textContent = startStampText;
+  document.getElementById("finalTime").textContent = time;
+  document.getElementById("finalAttempts").textContent = attempts;
+  document.getElementById("finalAccuracy").textContent =
+    (attempts ? Math.round((correct/attempts)*100) : 0) + "%";
+
+  document.getElementById("receipt").textContent = generateReceipt();
+}
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startTime) ? { index, attempts, correct, time, startTime, startStampText, nameValue, locked } : null; },
+  restore(v) { index=v.index; attempts=v.attempts; correct=v.correct; time=v.time; startTime=v.startTime; startStampText=v.startStampText; nameValue=v.nameValue; locked=v.locked; if(locked) index++; if(index>=questions.length) endGame(); else loadQ(); updateStats(); }
+});
+</script>
+</body>
+</html>

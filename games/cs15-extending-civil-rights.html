@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CS15 — Extending Civil Rights (Full Template)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --text:#e7eefc;
+      --muted:#a8b4cf;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --good:#2bd576;
+      --bad:#ff5c7a;
+      --warn:#ffd166;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background: radial-gradient(1100px 700px at 10% 10%, rgba(122,162,255,.18), transparent 55%),
+               radial-gradient(900px 600px at 90% 15%, rgba(43,213,118,.14), transparent 60%),
+               radial-gradient(900px 600px at 30% 90%, rgba(255,92,122,.12), transparent 60%),
+               var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+    }
+    .wrap{width:min(980px, 100%)}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      overflow:hidden;
+    }
+    header{
+      padding:18px 18px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between;
+    }
+    .title{text-align:left}
+    .title h1{margin:0; font-size:18px}
+    .title .sub{margin-top:6px; color:var(--muted); font-size:13px; line-height:1.35}
+    .hud{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill{
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.18);
+      padding:8px 10px;
+      border-radius:999px;
+      min-width: 170px;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .content{padding:18px; display:grid; grid-template-columns: 1.2fr .8fr; gap:16px}
+    @media (max-width: 860px){ .content{grid-template-columns:1fr} .pill{min-width:auto} }
+    .panel{
+      background:rgba(0,0,0,.20);
+      border:1px solid var(--border);
+      border-radius:var(--radius2);
+      padding:14px;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    label{font-size:12px; color:var(--muted)}
+    input{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      color:var(--text);
+      outline:none;
+      min-width: 240px;
+    }
+    input::placeholder{color:rgba(168,180,207,.7)}
+    .btn{
+      border:1px solid var(--border);
+      background:rgba(122,162,255,.12);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.15s transform ease, .15s filter ease;
+      font-weight:600;
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:rgba(255,255,255,.06)}
+    .btn.danger{background:rgba(255,92,122,.14)}
+    .btn:disabled{opacity:.45; cursor:not-allowed; filter:none; transform:none}
+
+    .qbox h2{margin:0 0 8px; font-size:16px; line-height:1.35}
+    .meta{color:var(--muted); font-size:12px; margin-bottom:10px}
+    .choices{display:grid; gap:10px; margin-top:10px}
+    .choice{
+      text-align:left;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      cursor:pointer;
+      font-weight:700;
+      transition:.12s transform ease, .12s filter ease, .12s background ease;
+    }
+    .choice:hover{filter:brightness(1.06)}
+    .choice:active{transform:translateY(1px)}
+    .choice.locked{cursor:not-allowed; opacity:.9}
+    .choice.correct{background:rgba(43,213,118,.16); border-color:rgba(43,213,118,.35)}
+    .choice.wrong{background:rgba(255,92,122,.16); border-color:rgba(255,92,122,.35)}
+
+    .feedback{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.20);
+      font-size:13px;
+      line-height:1.45;
+      display:none;
+    }
+    .feedback.good{border-color:rgba(43,213,118,.35)}
+    .feedback.bad{border-color:rgba(255,92,122,.35)}
+    .feedback.warn{border-color:rgba(255,209,102,.35)}
+    .hint{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      background:rgba(255,209,102,.08);
+      color:#ffe8b3;
+      font-size:13px;
+      line-height:1.45;
+      display:none;
+      text-align:left;
+    }
+    .stats{margin-top:10px; display:grid; gap:8px; font-family:var(--mono); font-size:12px; color:var(--muted)}
+    .divider{height:1px;background:var(--border);margin:12px 0}
+    textarea{
+      width:100%;
+      min-height:140px;
+      resize:vertical;
+      background:rgba(0,0,0,.25);
+      border:1px solid var(--border);
+      border-radius:14px;
+      color:var(--text);
+      padding:10px 12px;
+      font-family:var(--mono);
+      font-size:12px;
+      outline:none;
+    }
+    .submitBlock{display:none}
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.3px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+    }
+    .badge.good{background:rgba(43,213,118,.14); border-color:rgba(43,213,118,.35)}
+    .badge.bad{background:rgba(255,92,122,.14); border-color:rgba(255,92,122,.35)}
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="title">
+          <h1>CS15 — Extending Civil Rights</h1>
+          <div class="sub">
+            Identify which branch acted to extend civil rights/opportunities for participation. Mastery requires <b>100% accuracy</b> + all items correct.
+          </div>
+        </div>
+        <div class="hud">
+          <div class="pill" id="clockPill">Clock: --:--:--</div>
+          <div class="pill" id="startPill">Start: --</div>
+          <div class="pill" id="elapsedPill">Elapsed: 00:00</div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="panel">
+          <div class="row" style="justify-content:space-between; align-items:flex-end;">
+            <div>
+              <label for="studentName">Student Name (required)</label><br/>
+              <input id="studentName" placeholder="Type your name exactly..." />
+            </div>
+            <div class="row" style="gap:8px; align-items:center;">
+              <span class="badge bad" id="masteryBadge">NOT MASTERED</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="qbox">
+            <h2 id="qText">Click Start to begin.</h2>
+            <div class="meta" id="qMeta">Question 0 of 0</div>
+            <div class="choices" id="choices"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="hint" id="hint"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row" style="justify-content:space-between;">
+            <div class="row" style="gap:8px;">
+              <button class="btn" id="startBtn">Start</button>
+              <button class="btn secondary" id="nextBtn" disabled>Next</button>
+              <button class="btn danger" id="resetBtn">Reset Attempts</button>
+            </div>
+            <div class="row" style="gap:8px;">
+              <button class="btn secondary" id="shuffleBtn">Shuffle Questions</button>
+            </div>
+          </div>
+
+          <div class="stats" id="stats">
+            <div id="sCorrect">Correct: 0</div>
+            <div id="sAttempts">Attempts: 0</div>
+            <div id="sAccuracy">Accuracy: 0%</div>
+            <div id="sCoverage">Items mastered: 0 / 0</div>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <h2 style="margin:0 0 6px; font-size:16px;">Submit Code</h2>
+          <div class="meta" style="margin-bottom:10px;">
+            Only appears after <b>100% mastery</b>. Screenshot this box or copy/paste into Classroom.
+          </div>
+
+          <div id="submitLocked" class="feedback warn" style="display:block;">
+            🔒 Submit Code is locked until you reach <b>100%</b> accuracy and complete all items.
+          </div>
+
+          <div class="submitBlock" id="submitBlock">
+            <textarea id="submitCode" readonly></textarea>
+            <div class="row" style="justify-content:space-between; margin-top:10px;">
+              <button class="btn" id="copyBtn">Copy Submit Code</button>
+              <button class="btn secondary" id="regenBtn">Regenerate</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="meta" style="text-align:left;">
+            <b>OST Alignment (CS15):</b><br/>
+            • Identify a denial of civil rights to a minority group<br/>
+            • Explain how a federal branch helped extend rights/participation<br/><br/>
+            <b>Answer choices:</b> Legislative / Executive / Judicial
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =======================
+   CS15 — Full Template JS
+   ======================= */
+
+const BRANCHES = ["Legislative", "Executive", "Judicial"];
+
+// CS15 question bank (tight to your content elaboration + examples)
+let questions = [
+  {
+    prompt: "Women were denied suffrage. The 19th Amendment was added to guarantee women the right to vote. Which branch acted?",
+    answer: "Legislative",
+    reasoning: "Constitutional amendments are proposed/passed through the legislative process (Congress + states). For this game, classify as Legislative action."
+  },
+  {
+    prompt: "Poll taxes were used to restrict African American voting. The 24th Amendment eliminated poll taxes in federal elections. Which branch acted?",
+    answer: "Legislative",
+    reasoning: "Amendments are part of the constitutional process driven by the legislative branch (Congress proposes; states ratify)."
+  },
+  {
+    prompt: "After Brown v. Board, a president sent federal troops to help integrate Little Rock Central High School. Which branch acted?",
+    answer: "Executive",
+    reasoning: "The executive branch enforces federal law and court orders; presidents can deploy federal forces to enforce integration."
+  },
+  {
+    prompt: "To enforce desegregation, the federal government intervened against Governor George Wallace at the University of Alabama. Which branch acted?",
+    answer: "Executive",
+    reasoning: "The executive branch enforces civil rights protections and court orders; presidents/direct federal agencies ensure compliance."
+  },
+  {
+    prompt: "Congress passed major Civil Rights Acts to reduce discrimination in public accommodations and employment. Which branch acted?",
+    answer: "Legislative",
+    reasoning: "Congress makes laws—civil rights acts are legislative enactments."
+  },
+  {
+    prompt: "Congress passed Voting Rights legislation to protect participation and reduce discriminatory barriers. Which branch acted?",
+    answer: "Legislative",
+    reasoning: "Voting Rights Acts are laws enacted by Congress."
+  },
+  {
+    prompt: "The U.S. Supreme Court used the 14th Amendment’s Due Process/Equal Protection clauses to apply most of the Bill of Rights to states (incorporation). Which branch acted?",
+    answer: "Judicial",
+    reasoning: "Incorporation happens through Supreme Court rulings interpreting the Constitution and applying it to the states."
+  },
+  {
+    prompt: "Federal prosecutors brought charges against violators of open housing legislation (fair housing enforcement). Which branch acted?",
+    answer: "Executive",
+    reasoning: "Prosecution/enforcement is handled by executive agencies (e.g., DOJ) enforcing laws passed by Congress."
+  }
+];
+
+// State
+let started = false;
+let startTime = null;      // Date object
+let endTime = null;        // Date object when mastery achieved
+let timerInterval = null;
+let clockInterval = null;
+
+let idx = 0;
+let attempts = 0;
+let correct = 0;
+let locked = false;        // locks choices after selection until Next
+let masteredSet = new Set(); // question indices answered correctly at least once
+
+// Elements
+const elClock = document.getElementById("clockPill");
+const elStart = document.getElementById("startPill");
+const elElapsed = document.getElementById("elapsedPill");
+
+const elName = document.getElementById("studentName");
+const elBadge = document.getElementById("masteryBadge");
+
+const elQText = document.getElementById("qText");
+const elQMeta = document.getElementById("qMeta");
+const elChoices = document.getElementById("choices");
+const elFeedback = document.getElementById("feedback");
+const elHint = document.getElementById("hint");
+
+const elStartBtn = document.getElementById("startBtn");
+const elNextBtn = document.getElementById("nextBtn");
+const elResetBtn = document.getElementById("resetBtn");
+const elShuffleBtn = document.getElementById("shuffleBtn");
+
+const elSCorrect = document.getElementById("sCorrect");
+const elSAttempts = document.getElementById("sAttempts");
+const elSAccuracy = document.getElementById("sAccuracy");
+const elSCoverage = document.getElementById("sCoverage");
+
+const elSubmitLocked = document.getElementById("submitLocked");
+const elSubmitBlock = document.getElementById("submitBlock");
+const elSubmitCode = document.getElementById("submitCode");
+const elCopyBtn = document.getElementById("copyBtn");
+const elRegenBtn = document.getElementById("regenBtn");
+
+function pad(n){ return String(n).padStart(2,"0"); }
+
+function fmtClock(d){
+  const h = pad(d.getHours());
+  const m = pad(d.getMinutes());
+  const s = pad(d.getSeconds());
+  return `${h}:${m}:${s}`;
+}
+function fmtDateTime(d){
+  // local display, readable for screenshots
+  const mm = pad(d.getMonth()+1);
+  const dd = pad(d.getDate());
+  const yyyy = d.getFullYear();
+  let h = d.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12; if(h===0) h=12;
+  const min = pad(d.getMinutes());
+  const sec = pad(d.getSeconds());
+  return `${mm}/${dd}/${yyyy} ${h}:${min}:${sec} ${ampm}`;
+}
+function fmtElapsed(ms){
+  const totalSec = Math.max(0, Math.floor(ms/1000));
+  const m = Math.floor(totalSec/60);
+  const s = totalSec % 60;
+  return `${pad(m)}:${pad(s)}`;
+}
+
+function updateClock(){
+  elClock.textContent = `Clock: ${fmtClock(new Date())}`;
+}
+
+function updateElapsed(){
+  if(!started || !startTime) return;
+  const now = new Date();
+  const ms = now - startTime;
+  elElapsed.textContent = `Elapsed: ${fmtElapsed(ms)}`;
+}
+
+function accuracy(){
+  if(attempts===0) return 0;
+  return Math.round((correct/attempts)*100);
+}
+
+function allItemsMastered(){
+  return masteredSet.size === questions.length;
+}
+
+function isMastered(){
+  // strict mastery: all items correct at least once AND 100% accuracy overall
+  // i.e., no incorrect attempts allowed
+  return started && allItemsMastered() && attempts > 0 && correct === attempts && accuracy() === 100;
+}
+
+function setBadge(mastered){
+  if(mastered){
+    elBadge.textContent = "MASTERED";
+    elBadge.classList.remove("bad");
+    elBadge.classList.add("good");
+  }else{
+    elBadge.textContent = "NOT MASTERED";
+    elBadge.classList.remove("good");
+    elBadge.classList.add("bad");
+  }
+}
+
+function renderStats(){
+  elSCorrect.textContent = `Correct: ${correct}`;
+  elSAttempts.textContent = `Attempts: ${attempts}`;
+  elSAccuracy.textContent = `Accuracy: ${accuracy()}%`;
+  elSCoverage.textContent = `Items mastered: ${masteredSet.size} / ${questions.length}`;
+  setBadge(isMastered());
+}
+
+function clearFeedback(){
+  elFeedback.style.display = "none";
+  elFeedback.className = "feedback";
+  elFeedback.textContent = "";
+  elHint.style.display = "none";
+  elHint.textContent = "";
+}
+
+function setFeedback(type, text){
+  elFeedback.style.display = "block";
+  elFeedback.className = `feedback ${type}`;
+  elFeedback.textContent = text;
+}
+
+function showHint(text){
+  elHint.style.display = "block";
+  elHint.textContent = `Hint / Explanation: ${text}`;
+}
+
+function renderQuestion(){
+  clearFeedback();
+  locked = false;
+  elNextBtn.disabled = true; // prevents double-next bug and forces an attempt per question
+  const q = questions[idx];
+  elQText.textContent = q.prompt;
+  elQMeta.textContent = `Question ${idx+1} of ${questions.length}`;
+
+  elChoices.innerHTML = "";
+  const order = shuffleArray([...BRANCHES]); // shuffle answer order each question for repetition strength
+
+  order.forEach(branch=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.type = "button";
+    btn.textContent = branch;
+    btn.addEventListener("click", ()=> chooseAnswer(branch, btn));
+    elChoices.appendChild(btn);
+  });
+
+  renderStats();
+}
+
+function lockChoices(){
+  locked = true;
+  [...elChoices.querySelectorAll(".choice")].forEach(b=>{
+    b.classList.add("locked");
+    b.disabled = true;
+  });
+}
+
+function chooseAnswer(choice, btnEl){
+  if(!started){
+    setFeedback("warn","Click Start first.");
+    return;
+  }
+  if(locked) return;
+
+  const q = questions[idx];
+  attempts++;
+
+  const correctPick = (choice === q.answer);
+
+  // lock + mark
+  lockChoices();
+
+  if(correctPick){
+    correct++;
+    masteredSet.add(idx);
+    btnEl.classList.add("correct");
+    setFeedback("good","✅ Correct. Read the reasoning, then click Next.");
+    showHint(q.reasoning);
+  }else{
+    btnEl.classList.add("wrong");
+    // also show which is correct (like our prior games)
+    setFeedback("bad",`❌ Incorrect. Correct answer: ${q.answer}. Read the explanation, then click Next.`);
+    showHint(q.reasoning);
+  }
+
+  elNextBtn.disabled = false;
+  renderStats();
+
+  // If mastery achieved for first time, freeze end timestamp + unlock submit
+  if(isMastered() && !endTime){
+    endTime = new Date();
+    unlockSubmit();
+  }
+}
+
+function nextQuestion(){
+  if(!started) return;
+  // move to next
+  idx = (idx + 1) % questions.length;
+  renderQuestion();
+}
+
+function startGame(){
+  const name = elName.value.trim();
+  if(!name){
+    setFeedback("warn","Type your name first (required), then click Start.");
+    elName.focus();
+    return;
+  }
+  if(started) return;
+
+  started = true;
+  startTime = new Date();
+  endTime = null;
+
+  elStart.textContent = `Start: ${fmtDateTime(startTime)}`;
+  elElapsed.textContent = "Elapsed: 00:00";
+
+  timerInterval = setInterval(updateElapsed, 250);
+  clockInterval = setInterval(updateClock, 250);
+  updateClock();
+  updateElapsed();
+
+  // Initialize
+  idx = 0;
+  renderQuestion();
+  setFeedback("warn","Answer the question. Next unlocks after you submit an answer.");
+}
+
+function resetAttempts(){
+  startTime = started ? new Date() : null;
+  if(started) elStart.textContent = `Start: ${fmtDateTime(startTime)}`;
+  // This keeps question order + mastered coverage (or you can clear mastered too — but your standard is to clear both)
+  attempts = 0;
+  correct = 0;
+  masteredSet = new Set();
+  endTime = null;
+
+  // lock submit again
+  lockSubmit();
+
+  clearFeedback();
+  setFeedback("warn","Attempts reset. Mastery requires 100% accuracy and all items correct.");
+  renderStats();
+
+  if(started){
+    // keep the same current question but refresh choices
+    renderQuestion();
+  }else{
+    elQText.textContent = "Click Start to begin.";
+    elQMeta.textContent = "Question 0 of 0";
+    elChoices.innerHTML = "";
+  }
+}
+
+function shuffleQuestions(){
+  questions = shuffleArray([...questions]);
+  // mastered tracking is by index; reshuffle means reset mastery coverage
+  masteredSet = new Set();
+  attempts = 0;
+  correct = 0;
+  endTime = null;
+  lockSubmit();
+
+  clearFeedback();
+  setFeedback("warn","Questions shuffled. Attempts reset. Mastery requires 100% accuracy + all items correct.");
+  idx = 0;
+
+  if(started) renderQuestion();
+  renderStats();
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+/* ===== Submit Code ===== */
+
+function lockSubmit(){
+  elSubmitLocked.style.display = "block";
+  elSubmitBlock.style.display = "none";
+  elSubmitCode.value = "";
+}
+
+function unlockSubmit(){
+  elSubmitLocked.style.display = "none";
+  elSubmitBlock.style.display = "block";
+  generateSubmitCode();
+}
+
+function generateSubmitCode(){
+  if(isMastered())
+  WeberRun.finish(elName.value.trim(), startTime, questions.length, correct, attempts);
+  const name = elName.value.trim() || "(no name)";
+  const now = new Date();
+  const startStr = startTime ? fmtDateTime(startTime) : "--";
+  const endStr = endTime ? fmtDateTime(endTime) : "--";
+  const elapsedStr = startTime ? fmtElapsed((endTime || now) - startTime) : "--:--";
+  const acc = accuracy();
+
+  const code =
+`STUDENT: ${name}
+GAME: CS15 — Extending Civil Rights
+START: ${startStr}
+END: ${endStr}
+ELAPSED: ${elapsedStr}
+
+SCORE: ${correct} / ${questions.length} items mastered
+ATTEMPTS: ${attempts}
+ACCURACY: ${acc}%
+
+MASTERY: ${isMastered() ? "YES (100%)" : "NO"}
+
+SUBMITTED AT: ${fmtDateTime(now)}`;
+
+  elSubmitCode.value = code;
+}
+
+async function copySubmitCode(){
+  try{
+    await navigator.clipboard.writeText(elSubmitCode.value);
+    setFeedback("good","📋 Submit Code copied. Paste into Classroom or take a screenshot.");
+  }catch(e){
+    setFeedback("warn","Copy blocked by browser. You can still screenshot the Submit Code.");
+  }
+}
+
+/* ===== Wire up buttons ===== */
+elStartBtn.addEventListener("click", startGame);
+elNextBtn.addEventListener("click", nextQuestion);
+elResetBtn.addEventListener("click", resetAttempts);
+elShuffleBtn.addEventListener("click", shuffleQuestions);
+
+elCopyBtn.addEventListener("click", copySubmitCode);
+elRegenBtn.addEventListener("click", ()=>{
+  if(isMastered()){
+    generateSubmitCode();
+    setFeedback("good","Submit Code regenerated.");
+  }else{
+    setFeedback("warn","Submit Code stays locked until 100% mastery.");
+  }
+});
+
+updateClock();
+lockSubmit();
+renderStats();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (started) ? { questions, startTime, idx, attempts, correct, masteredSet, locked, endTime } : null; },
+  restore(v) { questions=v.questions; startTime=v.startTime; idx=v.idx; attempts=v.attempts; correct=v.correct; masteredSet=v.masteredSet; locked=v.locked; endTime=v.endTime; if(locked && masteredSet.size<questions.length) idx=(idx+1)%questions.length; renderQuestion(); renderStats(); if(isMastered()) unlockSubmit(); }
+});
+</script>
+</body>
+</html>
