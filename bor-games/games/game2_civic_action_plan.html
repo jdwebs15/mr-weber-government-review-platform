@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CS1 Game 2 — Build the Civic Action Plan (Next Step)</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --border:rgba(255,255,255,0.12);
+  --radius:18px;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0e1530);color:var(--text);}
+.container{max-width:980px;margin:auto;padding:24px;}
+.card{background:#121a33;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+h1,h2{text-align:center;margin:8px 0 14px;}
+p{line-height:1.35}
+.btn{
+  background:#1b2a55;color:white;border:1px solid var(--border);
+  padding:14px;border-radius:14px;cursor:pointer;width:100%;
+  margin:8px 0;font-size:1rem;text-align:left;
+}
+.btn:hover{background:#243a77}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.correct{background:rgba(43,213,118,.15);border:1px solid var(--good);padding:12px;border-radius:14px;margin-top:10px;}
+.incorrect{background:rgba(255,92,122,.15);border:1px solid var(--bad);padding:12px;border-radius:14px;margin-top:10px;}
+.hint{background:rgba(255,209,102,.12);border:1px solid var(--warn);padding:12px;border-radius:14px;margin-top:10px;color:var(--text);}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:10px}
+.stat{background:#0f1630;padding:10px 14px;border-radius:12px}
+.toggle{cursor:pointer;color:var(--warn);user-select:none}
+.hidden{display:none}
+.footer{text-align:center;margin-top:10px;color:var(--muted)}
+.small{color:var(--muted);font-size:.95rem}
+input{
+  width:100%;padding:12px;border-radius:12px;border:none;
+  margin-bottom:12px;font-size:1rem;
+}
+hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- START -->
+  <div class="card" id="start">
+    <h1>CS1 — Game 2: Build the Civic Action Plan</h1>
+    <p class="small" style="text-align:center">
+      Choose the <b>best next step</b> in the civic engagement process.
+      Hints can be turned on by the teacher and will appear <b>only after an incorrect answer</b>.
+    </p>
+    <hr>
+    <p style="text-align:center">Enter your name to begin.</p>
+    <input id="studentName" placeholder="Your Name">
+    <button class="btn" onclick="startGame()" style="text-align:center">Start Game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="card hidden" id="game">
+    <div class="topbar">
+      <div class="stat">Started: <span id="startedTop">—</span></div>
+      <div class="stat">Time: <span id="time">0</span>s</div>
+      <div class="stat">Attempts: <span id="attempts">0</span></div>
+      <div class="stat">Accuracy: <span id="accuracy">0%</span></div>
+      <div class="stat toggle" onclick="toggleHints()">Hints: <span id="hintState">OFF</span></div>
+    </div>
+
+    <h2 id="qnum"></h2>
+    <p id="question"></p>
+    <div id="choices"></div>
+
+    <div id="feedback"></div>
+
+    <button class="btn hidden" id="nextBtn" onclick="nextQuestion()" style="text-align:center">Next</button>
+  </div>
+
+  <!-- END -->
+  <div class="card hidden" id="end">
+    <h2>Completed!</h2>
+    <p><b>Name:</b> <span id="finalName"></span></p>
+    <p><b>Started:</b> <span id="finalTimestamp"></span></p>
+    <p><b>Time:</b> <span id="finalTime"></span>s</p>
+    <p><b>Attempts:</b> <span id="finalAttempts"></span></p>
+    <p><b>Accuracy:</b> <span id="finalAccuracy"></span></p>
+    <p><b>Receipt:</b> <span class="mono" id="receipt"></span></p>
+    <p class="footer">Take a screenshot and submit.</p>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   Teacher Controls
+========================= */
+let hintsOn = false;
+function toggleHints(){
+  hintsOn = !hintsOn;
+  document.getElementById("hintState").textContent = hintsOn ? "ON" : "OFF";
+}
+
+/* =========================
+   ✅ DATE/TIME STAMP (REAL)
+========================= */
+let startTime = null;           // Date object for receipt
+let startStampText = "";        // display string
+
+function setStartStamp(){
+  startTime = new Date();
+  // Example display: 2/3/2026, 8:17:42 AM (device-local)
+  startStampText = startTime.toLocaleString();
+}
+
+/* =========================
+   ✅ RECEIPT (Readable)
+   Example: Weber020326-081742-20Q-94A
+========================= */
+function generateReceipt(){
+  const nameClean = (nameValue || "").replace(/\s+/g,""); // remove spaces
+  const dt = startTime || new Date();
+
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  const yy = String(dt.getFullYear()).slice(2);
+
+  const hh = String(dt.getHours()).padStart(2,"0");
+  const min = String(dt.getMinutes()).padStart(2,"0");
+  const ss = String(dt.getSeconds()).padStart(2,"0");
+
+  const accuracyPct = attempts ? Math.round((correct/attempts)*100) : 0;
+
+  return `${nameClean}${mm}${dd}${yy}-${hh}${min}${ss}-${correct}Q-${accuracyPct}A`;
+}
+
+/* =========================
+   Question Bank (20)
+========================= */
+const questions = [
+  {
+    q:"Your class notices that many students are getting hurt at a dangerous crosswalk near the school. The group agrees the problem is real. What is the BEST next step?",
+    choices:["Identify the issue","Research the issue using credible sources","Devise an action plan and assign tasks","Weigh costs and benefits of different solutions"],
+    a:1,
+    explain:"After identifying a problem, the next step is to research it so you understand causes, data, and stakeholder perspectives before proposing solutions.",
+    hint:"Look for the step that comes right after recognizing/defining a problem."
+  },
+  {
+    q:"A student council team has gathered data on the crosswalk (accident reports, traffic counts, and student surveys). What is the BEST next step?",
+    choices:["Propose appropriate solutions","Identify the issue","Examine consequences of each solution","Debate different viewpoints and priorities"],
+    a:3,
+    explain:"Once research is collected, groups should debate viewpoints (safety, cost, traffic flow) so the plan reflects trade-offs and multiple perspectives.",
+    hint:"After research, the process typically moves into discussion of viewpoints and priorities."
+  },
+  {
+    q:"Your group just finished a debate on a proposal to require later school start times. What is the BEST next step?",
+    choices:["Propose appropriate solutions","Weigh costs and benefits","Devise an action plan","Research the issue"],
+    a:0,
+    explain:"Debate helps clarify pros/cons and perspectives; next you should propose solutions clearly (what exactly should change).",
+    hint:"Debate clarifies options—now state the option you want."
+  },
+  {
+    q:"Your group proposes two solutions to reduce vaping at school: (1) increased counseling supports, (2) stricter enforcement and penalties. What is the BEST next step?",
+    choices:["Examine possible consequences of each proposed solution","Identify the issue","Launch the action plan immediately","Run for school board office"],
+    a:0,
+    explain:"After proposing solutions, examine consequences—intended and unintended—before deciding which approach is best.",
+    hint:"You have options on the table; now predict what happens under each."
+  },
+  {
+    q:"Your group predicts consequences of each solution for vaping, including effects on discipline, student trust, and costs. What is the BEST next step?",
+    choices:["Weigh costs and benefits of each approach","Debate viewpoints","Research the issue","Propose solutions"],
+    a:0,
+    explain:"After consequences, weigh costs and benefits to choose the most effective and realistic approach.",
+    hint:"After consequences comes comparing trade-offs."
+  },
+  {
+    q:"After weighing costs and benefits, your group chooses a plan: counseling supports plus targeted enforcement. What is the BEST next step?",
+    choices:["Devise an action plan (who does what, when, and how)","Debate viewpoints","Collect more sources even if unnecessary","Switch to a different issue"],
+    a:0,
+    explain:"Once a solution is selected, implementation begins by devising an action plan with roles, timeline, and steps.",
+    hint:"You chose the solution—now you need execution steps."
+  },
+  {
+    q:"Your action plan includes writing to the school board, presenting data, and proposing a budget line for counseling supports. What is MOST important before presenting publicly?",
+    choices:["Identify the issue again","Check that your sources are credible and relevant","Ignore opposing views to stay focused","Skip consequences because you already chose a plan"],
+    a:1,
+    explain:"Before presenting, verify source credibility and relevance so your plan is persuasive and defensible.",
+    hint:"What makes your plan trustworthy to decision-makers?"
+  },
+  {
+    q:"A group wants the city to add a sidewalk near a busy road. They have not defined the exact problem (where, who is affected, and what evidence exists). What should they do FIRST?",
+    choices:["Identify the issue clearly (define the problem)","Devise an action plan","Weigh costs and benefits","Examine consequences"],
+    a:0,
+    explain:"Civic engagement begins with identifying the issue—defining it clearly so later research and solutions are focused.",
+    hint:"You can’t research or plan well without a clear problem definition."
+  },
+  {
+    q:"Students identify the problem is “no safe walking route from the apartments to the middle school.” What is the BEST next step?",
+    choices:["Research (traffic data, maps, injuries, budgets)","Propose solutions immediately","Implement a protest right away","Vote in an election"],
+    a:0,
+    explain:"After identifying the issue, research is needed to understand scope, causes, stakeholders, and constraints.",
+    hint:"Before solutions, gather facts and credible information."
+  },
+  {
+    q:"A group researches the sidewalk issue and learns the road is maintained by the county, not the city. What is the BEST next step?",
+    choices:["Debate viewpoints and set priorities with the correct decision-makers in mind","Ignore the new information and proceed","Switch to a completely unrelated issue","Assume the city can fix it anyway"],
+    a:0,
+    explain:"Research can change who has authority. Next, debate and refine strategy based on the correct government level and stakeholders.",
+    hint:"Use the research to adjust who you target and what you prioritize."
+  },
+  {
+    q:"After debating, the group agrees on a solution: request a county-funded sidewalk project with a safer crosswalk. What is the BEST next step?",
+    choices:["Propose the solution clearly in writing and speech","Go straight to implementation without details","Re-identify the issue","Stop because agreement is enough"],
+    a:0,
+    explain:"Once the group agrees on a direction, propose the solution clearly (what, where, and why) before moving to consequences and trade-offs.",
+    hint:"Agreement should produce a clear proposal."
+  },
+  {
+    q:"A proposal is written to the county engineer. What is the BEST next step before asking for a vote or funding?",
+    choices:["Examine consequences (traffic, safety, cost, timeline)","Skip to implementation","Attack opponents personally","Avoid discussing costs"],
+    a:0,
+    explain:"Decision-makers need consequences and trade-offs to evaluate feasibility and impact before approval or funding.",
+    hint:"Show you’ve thought through what happens next."
+  },
+  {
+    q:"Your group is examining consequences of a new recycling program at school. What should you focus on MOST?",
+    choices:["Only the best-case outcome","Both intended and unintended outcomes","Only whether it sounds popular","Only what your group already believes"],
+    a:1,
+    explain:"Examining consequences means considering intended benefits and unintended problems (cost, compliance, staffing).",
+    hint:"Consequences include positives and negatives—planned and unplanned."
+  },
+  {
+    q:"After consequences are listed for the recycling program, what is the BEST next step?",
+    choices:["Weigh costs and benefits of each approach","Identify the issue again","Debate only one side","Stop because you already did research"],
+    a:0,
+    explain:"Weighing costs and benefits helps select the most effective and realistic solution among alternatives.",
+    hint:"You predicted outcomes—now compare trade-offs."
+  },
+  {
+    q:"The group chooses the recycling plan that costs less but may recycle fewer items. What should happen NEXT?",
+    choices:["Devise an action plan (bins, training, schedule, roles)","Restart research from the beginning","Avoid compromise to keep purity","Refuse to consider feasibility"],
+    a:0,
+    explain:"Once a plan is chosen, implementation requires a concrete action plan: tasks, timeline, resources, and responsibility.",
+    hint:"Picking a solution isn’t the end—execution planning is next."
+  },
+  {
+    q:"Your action plan is written, but your group has not considered any pushback (students who won’t participate, staff workload). What is the BEST step to strengthen the plan?",
+    choices:["Examine possible consequences and obstacles and adjust","Ignore objections","Remove all details so it’s simpler","Switch topics to avoid conflict"],
+    a:0,
+    explain:"A strong civic plan anticipates obstacles and unintended consequences, then adjusts to improve feasibility and effectiveness.",
+    hint:"Strength comes from anticipating problems before implementation."
+  },
+  {
+    q:"Students want to change the school lunch menu. They have gathered opinions but no nutrition requirements or cost data. What is the BEST next step?",
+    choices:["Research credible sources (requirements, costs, vendor options)","Devise an action plan immediately","Only debate the most popular opinion","Skip to consequences without facts"],
+    a:0,
+    explain:"Opinion is not enough—research credible information (requirements, budgets, vendors) before proposing solutions.",
+    hint:"What step turns opinions into defensible civic work?"
+  },
+  {
+    q:"A group researched lunch requirements and budgets. They disagree on whether to prioritize cost or healthier options. What is the BEST next step?",
+    choices:["Debate viewpoints and priorities respectfully","Propose one solution without discussion","Implement the most expensive choice immediately","Avoid compromise at all costs"],
+    a:0,
+    explain:"When priorities differ, debate helps surface values and constraints so the group can move toward solutions and trade-offs.",
+    hint:"When people disagree, the process calls for discussion of perspectives."
+  },
+  {
+    q:"After debate, the group proposes two lunch solutions: (1) healthier menu with slightly higher cost, (2) keep cost flat with small changes. What is the BEST next step?",
+    choices:["Examine consequences of each solution","Run candidates for office","Skip consequences and choose randomly","Only publicize the option you like"],
+    a:0,
+    explain:"Examining consequences helps predict effects on participation, budgets, nutrition, and feasibility before choosing a plan.",
+    hint:"Two solutions exist—now evaluate what each leads to."
+  },
+  {
+    q:"After examining consequences and weighing costs/benefits, the group selects a “healthier with small cost increase” plan. What is the BEST next step to IMPLEMENT it?",
+    choices:["Devise an action plan (presentation, stakeholders, timeline)","Re-identify the issue","Only keep debating forever","Stop at selecting a plan"],
+    a:0,
+    explain:"Implementation requires a structured action plan: who to contact, what to present, deadlines, and follow-through steps.",
+    hint:"Selection becomes change only through action steps."
+  }
+];
+
+/* =========================
+   Game State
+========================= */
+let index = 0;
+let attempts = 0;
+let correct = 0;
+let time = 0;
+let timer = null;
+
+let locked = false;
+let nameValue = "";
+
+/* =========================
+   Start / Timer
+========================= */
+function startGame(){
+  const nm = document.getElementById("studentName").value.trim();
+  if(!nm) return alert("Enter name");
+  nameValue = nm;
+
+  // ✅ set date/time stamp at the exact moment game begins
+  setStartStamp();
+  document.getElementById("startedTop").textContent = startStampText;
+
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  timer = setInterval(() => {
+    time++;
+    document.getElementById("time").textContent = time;
+  }, 1000);
+
+  loadQ();
+}
+
+/* =========================
+   Render Question
+========================= */
+function loadQ(){
+  locked = false;
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  const q = questions[index];
+  document.getElementById("qnum").textContent = `Question ${index+1}/20`;
+  document.getElementById("question").textContent = q.q;
+
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+
+  q.choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${String.fromCharCode(65+i)}. ${c}`;
+    b.onclick = () => check(i);
+    holder.appendChild(b);
+  });
+
+  updateStats();
+}
+
+function disableChoices(disabled){
+  document.querySelectorAll("#choices .btn").forEach(btn => btn.disabled = disabled);
+}
+
+/* =========================
+   Answer Check
+========================= */
+function check(choice){
+  if(locked) return;
+
+  attempts++;
+  const q = questions[index];
+  const fb = document.getElementById("feedback");
+
+  if(choice === q.a){
+    correct++;
+    locked = true;
+    disableChoices(true);
+
+    fb.innerHTML = `<div class="correct"><b>Correct!</b> ${q.explain}</div>`;
+    document.getElementById("nextBtn").classList.remove("hidden");
+  } else {
+    fb.innerHTML = `<div class="incorrect"><b>Incorrect.</b> Try again.</div>`;
+    if(hintsOn){
+      fb.innerHTML += `<div class="hint"><b>Hint:</b> ${q.hint}</div>`;
+    }
+  }
+
+  updateStats();
+}
+
+/* =========================
+   Stats
+========================= */
+function updateStats(){
+  document.getElementById("attempts").textContent = attempts;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  document.getElementById("accuracy").textContent = acc + "%";
+}
+
+/* =========================
+   Next / End
+========================= */
+function nextQuestion(){
+  if(!locked) return;
+
+  index++;
+  if(index >= questions.length){
+    endGame();
+  } else {
+    loadQ();
+  }
+}
+
+function endGame(){
+  WeberRun.finish(nameValue, startTime, questions.length, correct, attempts);
+
+  clearInterval(timer);
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("end").classList.remove("hidden");
+
+  document.getElementById("finalName").textContent = nameValue;
+  document.getElementById("finalTimestamp").textContent = startStampText;
+  document.getElementById("finalTime").textContent = time;
+  document.getElementById("finalAttempts").textContent = attempts;
+  document.getElementById("finalAccuracy").textContent =
+    (attempts ? Math.round((correct/attempts)*100) : 0) + "%";
+
+  document.getElementById("receipt").textContent = generateReceipt();
+}
+</script>
+</body>
+</html>

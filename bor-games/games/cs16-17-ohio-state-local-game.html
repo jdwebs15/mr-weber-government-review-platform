@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CS16–17 Ohio State & Local Government Game</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --panel:#121a2f;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --accent:#7aa2ff;
+  --radius:18px;
+  --shadow:0 20px 55px rgba(0,0,0,.4);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0b1220,#070b14);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.app{
+  width:min(900px,95vw);
+  background:var(--panel);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:28px;
+}
+h1{text-align:center;margin:0 0 10px}
+.sub{text-align:center;color:var(--muted);margin-bottom:18px}
+
+.topbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+}
+input, select{
+  background:#0b1220;
+  border:1px solid #222;
+  color:var(--text);
+  padding:8px 10px;
+  border-radius:10px;
+}
+.btn{
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.btn.secondary{background:#2a355e}
+.btn.warn{background:var(--warn);color:#000}
+
+.card{
+  background:#0b1220;
+  padding:24px;
+  border-radius:14px;
+  margin-top:18px;
+  text-align:center;
+}
+
+.statement{
+  font-size:1.2rem;
+  margin-bottom:20px;
+}
+
+.choices{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+
+.choice{
+  background:#1b2550;
+  padding:14px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.choice:hover{outline:2px solid var(--accent)}
+
+.feedback{
+  margin-top:14px;
+  font-weight:600;
+}
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  margin-top:18px;
+  color:var(--muted);
+}
+.hidden{display:none}
+
+.stamps{
+  margin-top:10px;
+  text-align:left;
+  color:var(--muted);
+  font-size:.95rem;
+  line-height:1.35;
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:10px;
+}
+.stamps b{color:var(--text)}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+<h1>Ohio State & Local Government</h1>
+<div class="sub">CS16–17 Interactive Classification Game</div>
+
+<div class="topbar">
+  <div>
+    Name: <input id="studentName" placeholder="Enter name"/>
+  </div>
+  <div>
+    Mode:
+    <select id="modeSelect">
+      <option value="cs16">CS16 – Ohio vs U.S. Constitution</option>
+      <option value="cs17">CS17 – Citizen Involvement</option>
+    </select>
+  </div>
+  <div>
+    <button class="btn warn" onclick="toggleHint()">Teacher Hint Toggle</button>
+  </div>
+</div>
+
+<div class="card">
+  <div id="timer">Time: 0s</div>
+  <div class="statement" id="statement">Press Start</div>
+
+  <div class="choices" id="choices"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div style="margin-top:14px">
+    <button class="btn" onclick="startGame()">Start</button>
+    <button class="btn secondary" onclick="next()">Next</button>
+  </div>
+
+  <div class="footer">
+    <div id="progress">0 / 0</div>
+    <div id="accuracy">Accuracy: 0%</div>
+  </div>
+
+  <!-- NEW: Date + start/end stamps -->
+  <div class="stamps">
+    <div><b>Date:</b> <span id="dateStamp">—</span></div>
+    <div><b>Started:</b> <span id="startStamp">—</span></div>
+    <div><b>Completed:</b> <span id="endStamp">—</span></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let hintOn=false;
+function toggleHint(){
+  hintOn=!hintOn;
+  alert("Hints: "+(hintOn?"ON":"OFF"));
+}
+
+// ===== NEW: session stamping =====
+const session = {
+  date: null,
+  startedAt: null,
+  completedAt: null
+};
+
+function fmtDate(d){
+  // Example: Feb 11, 2026
+  return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
+}
+function fmtDateTime(d){
+  // Example: Feb 11, 2026, 9:14:07 AM
+  return d.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"numeric", minute:"2-digit", second:"2-digit" });
+}
+function setStampsUI(){
+  document.getElementById("dateStamp").innerText = session.date ?? "—";
+  document.getElementById("startStamp").innerText = session.startedAt ?? "—";
+  document.getElementById("endStamp").innerText = session.completedAt ?? "—";
+}
+
+// Pre-fill date on load (so it’s always visible even before Start)
+(function initDate(){
+  const now = new Date();
+  session.date = fmtDate(now);
+  setStampsUI();
+})();
+
+// ===== game state =====
+let timer=0, interval;
+let index=0, correct=0, attempts=0;
+let deck=[];
+
+const cs16=[
+ {q:"Judges are elected.",a:"Ohio"},
+ {q:"Legislators do NOT have term limits.",a:"U.S."},
+ {q:"Citizens can vote directly on laws.",a:"Ohio"},
+ {q:"Judges are appointed.",a:"U.S."},
+ {q:"Major executive officials are elected.",a:"Ohio"},
+ {q:"Legislators vote on laws for citizens.",a:"U.S."},
+ {q:"District courts were added in 1851.",a:"Ohio"},
+ {q:"Has a national Bill of Rights.",a:"U.S."},
+ {q:"Has separation of powers.",a:"Both"},
+ {q:"Has popular sovereignty.",a:"Both"}
+];
+
+const cs17=[
+ {q:"Signing a petition to place an issue on the ballot.",a:"State"},
+ {q:"Joining a community watch group.",a:"Local"},
+ {q:"Serving in the National Guard.",a:"State"},
+ {q:"Running for city council.",a:"Local"},
+ {q:"Voting in statewide elections.",a:"State"},
+ {q:"Attending a school board meeting.",a:"Local"},
+ {q:"Paying state taxes.",a:"State"},
+ {q:"Volunteering in fire department.",a:"Local"}
+];
+
+function startGame(){
+  // Reset completion stamp each new run
+  session.completedAt = null;
+
+  // Set start timestamp + date stamp at the moment Start is pressed
+  const now = new Date();
+  session.date = fmtDate(now);
+  session.startedAt = fmtDateTime(now);
+  session.runStartedAt = now;
+  setStampsUI();
+
+  clearInterval(interval);
+  timer=0;
+  interval=setInterval(()=>{
+    timer++;
+    document.getElementById("timer").innerText="Time: "+timer+"s";
+  },1000);
+
+  index=0; correct=0; attempts=0;
+  deck=document.getElementById("modeSelect").value==="cs16"
+    ? shuffle([...cs16])
+    : shuffle([...cs17]);
+
+  next();
+}
+
+function next(){
+  document.getElementById("feedback").innerText="";
+  if(index>=deck.length){
+    document.getElementById("statement").innerText="Finished!";
+    document.getElementById("choices").innerHTML="";
+    document.getElementById("accuracy").innerText =
+      "Accuracy: " + (attempts ? Math.round(correct/attempts*100) : 0) + "%";
+
+    clearInterval(interval);
+
+    // NEW: completion timestamp when finished
+    session.completedAt = fmtDateTime(new Date());
+  WeberRun.finish(document.getElementById("studentName").value.trim(), session.runStartedAt, deck.length, correct, attempts);
+    setStampsUI();
+
+    return;
+  }
+
+  let item=deck[index];
+  document.getElementById("statement").innerText=item.q;
+
+  let choices=[];
+  if(document.getElementById("modeSelect").value==="cs16"){
+    choices=["Ohio","U.S.","Both"];
+  }else{
+    choices=["State","Local"];
+  }
+
+  document.getElementById("choices").innerHTML=choices.map(c =>
+    `<div class="choice" onclick="answer('${c}')">${c}</div>`
+  ).join("");
+
+  document.getElementById("progress").innerText=(index+1)+" / "+deck.length;
+}
+
+function answer(choice){
+  attempts++;
+  let item=deck[index];
+  if(choice===item.a){
+    correct++;
+    document.getElementById("feedback").style.color="var(--good)";
+    document.getElementById("feedback").innerText="Correct!";
+    index++;
+  }else{
+    document.getElementById("feedback").style.color="var(--bad)";
+    document.getElementById("feedback").innerText="Incorrect." + (hintOn ? (" Correct answer: "+item.a) : "");
+  }
+  document.getElementById("accuracy").innerText =
+    "Accuracy: " + (attempts ? Math.round(correct/attempts*100) : 0) + "%";
+}
+
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
+</script>
+
+</body>
+</html>

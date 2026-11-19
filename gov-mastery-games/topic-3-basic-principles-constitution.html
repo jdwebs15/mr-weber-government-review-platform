@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Topic 3 — Basic Principles of the U.S. Constitution (CS5–CS7) — Mastery Game</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --panel:#121a2f;
+  --panel2:#0f1730;
+  --text:#e7eefc;
+  --muted:#9fb0d0;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --border:rgba(255,255,255,.12);
+  --radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(900px 520px at 20% 20%, rgba(122,162,255,.18), transparent 60%), var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.app{
+  width:min(980px, 100%);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.header{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.badge{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(122,162,255,.12);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:13px;
+}
+h1,h2{margin:0 0 8px}
+small{color:var(--muted)}
+hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+.panel{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+
+label{display:block;margin:10px 0 6px;color:var(--muted)}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(10,15,30,.6);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+input:focus{border-color:rgba(122,162,255,.6)}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:650;
+}
+button:hover{opacity:.92}
+button.secondary{
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+
+.stats{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  font-size:13px;
+}
+.stat{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 12px;
+}
+.stat b{font-weight:750}
+
+.qwrap{margin-top:8px}
+.qmeta{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.qtag{
+  font-size:12px;
+  color:var(--muted);
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:999px;
+}
+.question{
+  font-size:20px;
+  line-height:1.25;
+  margin:0 0 10px;
+}
+.choices{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.choice{
+  width:100%;
+  text-align:left;
+  padding:14px 14px;
+  background:rgba(26,37,69,.75);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-size:16px;
+  cursor:pointer;
+}
+.choice:hover{border-color:rgba(122,162,255,.55)}
+.choice.correct{background:rgba(43,213,118,.18); border-color:rgba(43,213,118,.45)}
+.choice.wrong{background:rgba(255,92,122,.18); border-color:rgba(255,92,122,.45)}
+
+.hidden{display:none}
+
+/* Modal */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.68);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:9999;
+}
+.modal.hidden{ display:none !important; }
+.modal-card{
+  width:min(720px, 100%);
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.modal-card h3{margin:0 0 8px}
+.modal-card p{margin:0 0 12px;color:var(--text);line-height:1.35}
+
+/* Ticket */
+.ticket{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  background:rgba(0,0,0,.18);
+}
+.ticket h2{margin:0 0 10px}
+.ticket .grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media (max-width:720px){
+  .ticket .grid{grid-template-columns:1fr}
+  .question{font-size:18px}
+}
+.kv{
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.kv .k{color:var(--muted);font-size:12px;margin-bottom:4px}
+.kv .v{font-weight:750}
+.footer-note{color:var(--muted);font-size:12px;margin-top:10px}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1>Topic 3 — Basic Principles of the U.S. Constitution</h1>
+      <small>CS5 • CS6 • CS7 • Perfect run required (Misses = 0) to earn ticket.</small>
+    </div>
+    <div class="badge">Topic 3 • CS5–CS7</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="panel">
+    <h2>Enter Student Info</h2>
+    <label for="studentName">Student Name (required)</label>
+    <input id="studentName" placeholder="First Last" autocomplete="name"/>
+    <div class="btnrow">
+      <button onclick="startGame()">Start</button>
+      <button class="secondary" onclick="showRules()">Rules</button>
+    </div>
+    <hr/>
+    <small>Correct = auto-advance. Wrong = explanation + retry. Ticket only if Misses = 0.</small>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="hidden">
+    <div class="stats">
+      <div class="stat"><b>Name:</b> <span id="nameOut"></span></div>
+      <div class="stat"><b>Start:</b> <span id="startOut"></span></div>
+      <div class="stat"><b>Now:</b> <span id="nowOut"></span></div>
+      <div class="stat"><b>Timer:</b> <span id="timerOut">0:00</span></div>
+      <div class="stat"><b>Progress:</b> <span id="progressOut">0/0</span></div>
+      <div class="stat"><b>Attempts:</b> <span id="attemptsOut">0</span></div>
+      <div class="stat"><b>Misses:</b> <span id="missesOut">0</span></div>
+      <div class="stat"><b>Perfect Run:</b> <span id="perfectOut">YES</span></div>
+    </div>
+
+    <div class="panel qwrap">
+      <div class="qmeta">
+        <div class="qtag" id="csTag">CS</div>
+        <div class="qtag" id="skillTag">Skill</div>
+      </div>
+
+      <p class="question" id="questionText"></p>
+      <div class="choices" id="choicesBox"></div>
+
+      <div class="btnrow" style="margin-top:12px">
+        <button class="secondary" onclick="restartGame()">Restart</button>
+      </div>
+
+      <div class="footer-note">
+        Reminder: Ticket requires Misses = 0. If you miss any item, restart for a perfect run.
+      </div>
+    </div>
+  </div>
+
+  <!-- END / TICKET -->
+  <div id="endScreen" class="hidden">
+    <div class="ticket">
+      <h2 id="endTitle">SUBMIT TICKET</h2>
+      <div class="grid">
+        <div class="kv"><div class="k">Student</div><div class="v" id="tName"></div></div>
+        <div class="kv"><div class="k">Topic</div><div class="v">Topic 3 — Basic Principles (CS5–CS7)</div></div>
+
+        <div class="kv"><div class="k">Start Date/Time</div><div class="v" id="tStart"></div></div>
+        <div class="kv"><div class="k">Finish Date/Time</div><div class="v" id="tFinish"></div></div>
+
+        <div class="kv"><div class="k">Total Time</div><div class="v" id="tTotal"></div></div>
+        <div class="kv"><div class="k">Accuracy</div><div class="v" id="tAcc"></div></div>
+
+        <div class="kv"><div class="k">Attempts</div><div class="v" id="tAttempts"></div></div>
+        <div class="kv"><div class="k">Misses</div><div class="v" id="tMisses"></div></div>
+      </div>
+
+      <div class="btnrow" style="margin-top:12px">
+        <button onclick="restartGame()">Play Again</button>
+      </div>
+
+      <div class="footer-note">Screenshot this ticket for submission. It must show Accuracy = 100% and Misses = 0.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h3>Explanation (read, then retry)</h3>
+    <p id="modalText"></p>
+    <div class="btnrow">
+      <button onclick="closeModal()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =======================
+   TOPIC 3 QUESTION BANK (28)
+   ======================= */
+
+const QUESTIONS_RAW = [
+  // CS5 — Principles
+  {cs:"CS5",skill:"Popular sovereignty",q:"Which excerpt most clearly reflects Popular Sovereignty?",choices:["Preamble: “We the People…”","Article II, Section 2","Supremacy Clause","Necessary and Proper Clause"],answer:0,
+   explanation:"Popular sovereignty means the authority of government comes from the people. “We the People…” directly expresses that idea."},
+  {cs:"CS5",skill:"Separation of powers",q:"Congress passes laws, the President enforces them, and courts interpret them. This best illustrates…",choices:["Separation of powers","Monarchy","Unitary system","Party platform"],answer:0,
+   explanation:"Each branch has distinct roles: legislature makes laws, executive enforces, judiciary interprets."},
+  {cs:"CS5",skill:"Checks & balances",q:"Which action is a check by the executive branch on Congress?",choices:["Vetoing a bill passed by Congress","Passing a bill in Congress","Holding a city election","Approving a state budget"],answer:0,
+   explanation:"The presidential veto is a constitutional check on the legislative branch."},
+  {cs:"CS5",skill:"Federalism",q:"A state law conflicts with a federal law made under the Constitution. Which principle explains which law prevails?",choices:["Supremacy of the Constitution and federal law","Direct democracy","Judicial elections","Term limits"],answer:0,
+   explanation:"Under the Supremacy Clause, the Constitution and federal laws made under it are supreme over conflicting state laws."},
+  {cs:"CS5",skill:"Limited government",q:"A court strikes down a law because it violates freedom of speech. Which principle is most directly involved?",choices:["Limited government","Federalism","Direct democracy","Term limits"],answer:0,
+   explanation:"Limited government means government power is restricted, especially when rights are protected by the Constitution."},
+  {cs:"CS5",skill:"Federal republic",q:"Which statement best describes the United States as a federal republic?",choices:["Power is shared between national and state governments, and citizens elect representatives to govern","All laws are made directly by citizens with no representatives","The national government has all power and states have none","A king rules with no elections"],answer:0,
+   explanation:"Federal republic = federalism (shared power) + republic (representation through elections)."},
+  {cs:"CS5",skill:"Constitution as supreme law",q:"Calling the Constitution the “supreme law of the land” means…",choices:["Government actions must follow the Constitution, and conflicting laws can be invalid","States can ignore federal law whenever they want","Courts cannot interpret laws","Citizens cannot challenge laws"],answer:0,
+   explanation:"The Constitution sets the highest legal authority; laws and actions must comply or can be struck down."},
+
+  // CS6 — Federalists vs Anti-Federalists
+  {cs:"CS6",skill:"Anti-Federalist concern",q:"The Bill of Rights was adopted largely to address which Anti-Federalist concern?",choices:["The Constitution did not adequately protect civil liberties of individuals","The Constitution gave too little power to Congress","The Constitution made states too powerful","The Constitution eliminated elections"],answer:0,
+   explanation:"Anti-Federalists argued the Constitution lacked explicit protections for individual rights; the Bill of Rights addressed that concern."},
+  {cs:"CS6",skill:"Anti-Federalist position",q:"Which statement reflects an Anti-Federalist position?",choices:["The Supremacy Clause places too much power in the national government","A strong national government is needed to fix problems under the Articles","National powers must expand to run the country efficiently","General welfare outweighs state sovereignty"],answer:0,
+   explanation:"Anti-Federalists feared national power would overwhelm states; criticizing the Supremacy Clause is a classic Anti-Federalist view."},
+  {cs:"CS6",skill:"Federalist position",q:"Which statement reflects a Federalist position?",choices:["The national government needs sufficient power to address problems under the Articles of Confederation","A Bill of Rights was required before ratification could happen","The national government should be clearly weaker than states","The Supremacy Clause is dangerous because it weakens states"],answer:0,
+   explanation:"Federalists argued the Articles were too weak and the new Constitution needed stronger national power to govern effectively."},
+  {cs:"CS6",skill:"BoR reasoning",q:"Which statement best summarizes the original Federalist argument about a Bill of Rights?",choices:["No amendments were needed because the Constitution already limited government power","A Bill of Rights must come before any Constitution","A Bill of Rights should replace the Constitution","Only states should protect rights, not the federal government"],answer:0,
+   explanation:"Many Federalists argued a Bill of Rights was unnecessary because the Constitution already limited government and protected liberty structurally."},
+  {cs:"CS6",skill:"Ratification impact",q:"Why did adding the Bill of Rights help ratification succeed in key states?",choices:["It reassured skeptics that individual liberties would be protected from federal power","It removed elections from government","It eliminated federal courts","It guaranteed all laws would be unanimous"],answer:0,
+   explanation:"The Bill of Rights helped win over skeptics by guaranteeing rights and limiting federal power."},
+  {cs:"CS6",skill:"Debate → outcome",q:"Which relationship best explains the debates and the adoption of the Bill of Rights?",choices:["Anti-Federalist demands for protections pushed Federalists to support amendments after ratification","Federalists opposed any amendments permanently","Anti-Federalists wrote the Constitution alone","The debates ended the need for courts"],answer:0,
+   explanation:"Anti-Federalist pressure contributed to the promise and later ratification of the Bill of Rights."},
+
+  // CS7 — Change over time
+  {cs:"CS7",skill:"What changed?",q:"What feature of constitutional government in the U.S. has changed over time?",choices:["The ability of citizens to vote in federal elections","The number of branches of the federal government","The president’s veto power","The role of commander in chief"],answer:0,
+   explanation:"Voting rights expanded over time (e.g., 15th, 19th, 24th, 26th Amendments)."},
+  {cs:"CS7",skill:"How changed?",q:"What action has been used to change the ability of citizens to vote in federal elections?",choices:["Ratification of constitutional amendments","Declaration of war","Impeachment","Federal budget approval"],answer:0,
+   explanation:"Voting rights expanded primarily through constitutional amendments."},
+  {cs:"CS7",skill:"Paths of change",q:"Which list correctly identifies major ways constitutional government has changed over time?",choices:["Amendments, Supreme Court decisions, legislation, informal practices","Only wars and treaties","Only presidential speeches","Only state constitutions"],answer:0,
+   explanation:"CS7 emphasizes amendments, Court decisions, legislation, and informal practices."},
+  {cs:"CS7",skill:"Judicial review",q:"Judicial review is best defined as the power of the Supreme Court to…",choices:["Decide whether laws or government actions violate the Constitution","Write new laws for Congress","Control elections in every state","Appoint all executive officials"],answer:0,
+   explanation:"Judicial review allows courts to invalidate laws/actions that conflict with the Constitution."},
+  {cs:"CS7",skill:"Legislation example",q:"Which is the best example of constitutional change through congressional legislation?",choices:["Civil Rights Act of 1964 outlawing discrimination in public places","Electing a mayor","Writing a newspaper editorial","A city ordinance about parking"],answer:0,
+   explanation:"Major civil rights laws passed by Congress changed how rights were protected and enforced nationally."},
+  {cs:"CS7",skill:"Informal practice example",q:"Which is an example of an informal practice that influences constitutional government?",choices:["Legislative oversight hearings that pressure executive agencies","Ratifying a constitutional amendment","Passing the Bill of Rights","Judicial review in a court case"],answer:0,
+   explanation:"Informal practices aren’t written explicitly into the Constitution but shape governance—like oversight hearings and norms."},
+  {cs:"CS7",skill:"Court decisions example",q:"Which best represents constitutional change through a Supreme Court decision?",choices:["A ruling that expands or limits how a constitutional protection applies","A governor signing a city ordinance","A party platform statement","A charity fundraiser"],answer:0,
+   explanation:"Supreme Court interpretations can expand/contract constitutional protections and change practice nationwide."},
+  {cs:"CS7",skill:"Amendment example",q:"Lowering the voting age to 18 is an example of change through…",choices:["A constitutional amendment (26th Amendment)","A Supreme Court decision only","An informal practice only","A presidential executive order only"],answer:0,
+   explanation:"The 26th Amendment lowered the voting age to 18."},
+  {cs:"CS7",skill:"Incorporation link",q:"If the Supreme Court applies a Bill of Rights protection to state governments through the 14th Amendment, that is change through…",choices:["Supreme Court interpretation (incorporation)","Treaties","State referendums","Executive privilege"],answer:0,
+   explanation:"Applying protections to the states through the 14th Amendment is done by Supreme Court interpretation."},
+
+  // Additional coverage items to reach 28 (varied scenarios)
+  {cs:"CS5",skill:"Checks & balances",q:"Which action is a check by the judicial branch on the legislative branch?",choices:["Declaring a law unconstitutional","Overriding a veto","Writing a bill","Signing a treaty"],answer:0,
+   explanation:"Courts can strike down laws that violate the Constitution."},
+  {cs:"CS5",skill:"Checks & balances",q:"Which action is a check by Congress on the executive branch?",choices:["Impeaching a president or executive official","Issuing a court ruling","Running a campaign ad","Creating a state constitution"],answer:0,
+   explanation:"Impeachment is a legislative check on executive officials."},
+  {cs:"CS6",skill:"Anti-Fed reasoning",q:"An Anti-Federalist would MOST likely argue that a strong national government could…",choices:["Threaten individual liberties without clear protections","Solve all problems without elections","Eliminate state governments entirely by itself","Guarantee no taxes ever exist"],answer:0,
+   explanation:"Anti-Federalists feared centralized power could endanger rights unless protections were clearly stated."},
+  {cs:"CS6",skill:"Federalist reasoning",q:"A Federalist would MOST likely argue that the Articles of Confederation failed because…",choices:["The national government was too weak to address national problems","There were too many constitutional amendments","Courts were too powerful","States had no power at all"],answer:0,
+   explanation:"Federalists believed the Articles created a weak central government unable to solve national issues."},
+  {cs:"CS7",skill:"Informal practice",q:"Which is an example of an informal practice that has expanded over time?",choices:["Presidents using executive agreements more frequently","Ratifying the Bill of Rights","Changing the number of branches","Repealing the Constitution"],answer:0,
+   explanation:"Executive agreements and expanded executive norms are examples of informal practices that can grow over time."},
+  {cs:"CS7",skill:"Legislation vs amendment",q:"Which change is MOST likely to require a constitutional amendment rather than a law?",choices:["Changing who can vote in federal elections","Creating a new federal agency","Changing a tax rate","Approving a budget"],answer:0,
+   explanation:"Changing voter eligibility in federal elections typically requires constitutional amendment (e.g., 15th, 19th, 26th)."},
+  {cs:"CS7",skill:"Living document",q:"Calling the Constitution a “living document” most closely refers to…",choices:["Its ability to be interpreted and adapted through amendments and court decisions","The idea that it never changes","The idea that states can ignore it","The idea that it is only symbolic"],answer:0,
+   explanation:"The Constitution adapts through amendments and interpretation as society changes."}
+];
+
+/* ========= Helpers ========= */
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+
+function shuffleChoicesKeepAnswer(q){
+  const pairs = q.choices.map((text, idx) => ({ text, idx }));
+  for(let i=pairs.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+  q.choices = pairs.map(p => p.text);
+  q.answer = pairs.findIndex(p => p.idx === q.answer);
+  return q;
+}
+
+function formatDT(d){
+  return d.toLocaleString(undefined, {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit"});
+}
+
+function formatTimer(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+
+/* ========= Engine ========= */
+let QUESTIONS = [];
+let idx = 0;
+let attempts = 0;
+let misses = 0;
+let startStamp = null;
+let endStamp = null;
+let seconds = 0;
+let timerInterval = null;
+let nowInterval = null;
+
+function showRules(){
+  document.getElementById("modalText").textContent =
+    "Rules: 1) Enter your name. 2) Correct answers advance automatically. 3) Wrong answers show an explanation; retry until correct. 4) Ticket ONLY if Misses = 0 (perfect run).";
+  document.getElementById("modal").classList.remove("hidden");
+}
+
+function startGame(){
+  const name = document.getElementById("studentName").value.trim();
+  if(!name){ alert("Please enter your full name."); return; }
+
+  QUESTIONS = shuffle(
+    QUESTIONS_RAW.map(q => shuffleChoicesKeepAnswer({ ...q }))
+  );
+
+  idx = 0;
+  attempts = 0;
+  misses = 0;
+  seconds = 0;
+
+  startStamp = new Date();
+  document.getElementById("nameOut").textContent = name;
+  document.getElementById("startOut").textContent = formatDT(startStamp);
+  document.getElementById("nowOut").textContent = formatDT(new Date());
+
+  document.getElementById("attemptsOut").textContent = attempts;
+  document.getElementById("missesOut").textContent = misses;
+  document.getElementById("perfectOut").textContent = "YES";
+  document.getElementById("progressOut").textContent = `0/${QUESTIONS.length}`;
+
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
+  document.getElementById("endScreen").classList.add("hidden");
+
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+
+  timerInterval = setInterval(()=>{
+    seconds++;
+    document.getElementById("timerOut").textContent = formatTimer(seconds);
+  }, 1000);
+
+  nowInterval = setInterval(()=>{
+    document.getElementById("nowOut").textContent = formatDT(new Date());
+  }, 1000);
+
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const q = QUESTIONS[idx];
+  document.getElementById("csTag").textContent = q.cs;
+  document.getElementById("skillTag").textContent = q.skill;
+  document.getElementById("questionText").textContent = q.q;
+  document.getElementById("progressOut").textContent = `${idx+1}/${QUESTIONS.length}`;
+
+  const box = document.getElementById("choicesBox");
+  box.innerHTML = "";
+
+  q.choices.forEach((text, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = text;
+    btn.onclick = ()=>checkAnswer(i, btn);
+    box.appendChild(btn);
+  });
+}
+
+function lockChoices(lock=true){
+  document.querySelectorAll(".choice").forEach(b=>b.disabled = lock);
+}
+
+function checkAnswer(choiceIndex, btn){
+  attempts++;
+  document.getElementById("attemptsOut").textContent = attempts;
+
+  const q = QUESTIONS[idx];
+
+  if(choiceIndex === q.answer){
+    btn.classList.add("correct");
+    lockChoices(true);
+    setTimeout(()=>{
+      idx++;
+      if(idx >= QUESTIONS.length){
+        finishGame();
+      }else{
+        lockChoices(false);
+        loadQuestion();
+      }
+    }, 350);
+  } else {
+    misses++;
+    document.getElementById("missesOut").textContent = misses;
+    document.getElementById("perfectOut").textContent = "NO";
+    btn.classList.add("wrong");
+
+    document.getElementById("modalText").textContent = q.explanation;
+    document.getElementById("modal").classList.remove("hidden");
+  }
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.add("hidden");
+}
+
+function finishGame(){
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+  endStamp = new Date();
+
+  const name = document.getElementById("nameOut").textContent;
+  const perfect = QUESTIONS.length > 0 && misses === 0 && attempts === QUESTIONS.length && idx >= QUESTIONS.length;
+
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.remove("hidden");
+
+  document.getElementById("tName").textContent = name;
+  document.getElementById("tStart").textContent = formatDT(startStamp);
+  document.getElementById("tFinish").textContent = formatDT(endStamp);
+  document.getElementById("tTotal").textContent = formatTimer(seconds);
+  document.getElementById("tAttempts").textContent = String(attempts);
+  document.getElementById("tMisses").textContent = String(misses);
+
+  if(perfect){
+  WeberRun.finish(name, startStamp, QUESTIONS.length, QUESTIONS.length, attempts);
+    document.getElementById("endTitle").textContent = "SUBMIT TICKET — PERFECT (100%)";
+    document.getElementById("tAcc").textContent = "100%";
+  }else{
+    document.getElementById("endTitle").textContent = "NO TICKET — NOT PERFECT (RESTART REQUIRED)";
+    document.getElementById("tAcc").textContent = "Not Eligible (Misses > 0)";
+  }
+}
+
+function restartGame(){
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+
+  document.getElementById("modal").classList.add("hidden");
+  document.getElementById("startScreen").classList.remove("hidden");
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.add("hidden");
+
+  document.getElementById("timerOut").textContent = "0:00";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CS3 Game 4 — Source Credibility Check</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --border:rgba(255,255,255,0.12);
+  --radius:18px;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0e1530);color:var(--text);}
+.container{max-width:980px;margin:auto;padding:24px;}
+.card{background:#121a33;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+h1,h2{text-align:center;margin:8px 0 14px;}
+p{line-height:1.35}
+input{
+  width:100%;padding:12px;border-radius:12px;border:none;
+  margin-bottom:12px;font-size:1rem;
+}
+.btn{
+  background:#1b2a55;color:white;border:1px solid var(--border);
+  padding:14px;border-radius:14px;cursor:pointer;width:100%;
+  margin:8px 0;font-size:1rem;text-align:left;
+}
+.btn:hover{background:#243a77}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.correct{background:rgba(43,213,118,.15);border:1px solid var(--good);padding:12px;border-radius:14px;margin-top:10px;}
+.incorrect{background:rgba(255,92,122,.15);border:1px solid var(--bad);padding:12px;border-radius:14px;margin-top:10px;}
+.hint{background:rgba(255,209,102,.12);border:1px solid var(--warn);padding:12px;border-radius:14px;margin-top:10px;color:var(--text);}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:10px}
+.stat{background:#0f1630;padding:10px 14px;border-radius:12px}
+.toggle{cursor:pointer;color:var(--warn);user-select:none}
+.hidden{display:none}
+.footer{text-align:center;margin-top:10px;color:var(--muted)}
+.small{color:var(--muted);font-size:.95rem}
+hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+.tagrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.tag{
+  display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;color:var(--muted);font-size:.9rem;
+}
+.quote{
+  background:#0f1630;border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;padding:14px;margin-top:10px;
+}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- START -->
+  <div class="card" id="start">
+    <h1>CS3 — Game 4: Source Credibility Check</h1>
+    <p class="small" style="text-align:center">
+      For each scenario, choose the <b>BEST reason</b> the source is <b>credible</b> or <b>not credible</b>.
+      <br><br><b>Note:</b> We are NOT using “internal consistency” in this game (focus is on the other credibility factors).
+      <br><br>Hints can be turned on by the teacher and will appear <b>only after an incorrect answer</b>.
+    </p>
+    <hr>
+    <p style="text-align:center">Enter your name to begin.</p>
+    <input id="studentName" placeholder="Your Name">
+    <button class="btn" onclick="startGame()" style="text-align:center">Start Game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="card hidden" id="game">
+    <div class="topbar">
+      <!-- ✅ VISIBLE DATE/TIME STAMP DURING GAME -->
+      <div class="stat">Started: <span id="startedTop">--</span></div>
+
+      <div class="stat">Time: <span id="time">0</span>s</div>
+      <div class="stat">Attempts: <span id="attempts">0</span></div>
+      <div class="stat">Accuracy: <span id="accuracy">0%</span></div>
+      <div class="stat toggle" onclick="toggleHints()">Hints: <span id="hintState">OFF</span></div>
+    </div>
+
+    <h2 id="qnum"></h2>
+
+    <div class="tagrow" id="tags"></div>
+
+    <div class="quote">
+      <p id="scenario" style="margin:0;"></p>
+    </div>
+
+    <div id="choices"></div>
+
+    <div id="feedback"></div>
+
+    <button class="btn hidden" id="nextBtn" onclick="nextQuestion()" style="text-align:center">Next</button>
+  </div>
+
+  <!-- END -->
+  <div class="card hidden" id="end">
+    <h2>Completed!</h2>
+    <p><b>Name:</b> <span id="finalName"></span></p>
+    <p><b>Started:</b> <span id="finalTimestamp"></span></p>
+    <p><b>Time:</b> <span id="finalTime"></span>s</p>
+    <p><b>Attempts:</b> <span id="finalAttempts"></span></p>
+    <p><b>Accuracy:</b> <span id="finalAccuracy"></span></p>
+    <p><b>Receipt:</b> <span class="mono" id="receipt"></span></p>
+    <p class="footer">Take a screenshot and submit.</p>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   Teacher Controls
+========================= */
+let hintsOn = false;
+function toggleHints(){
+  hintsOn = !hintsOn;
+  document.getElementById("hintState").textContent = hintsOn ? "ON" : "OFF";
+}
+
+/* =========================
+   ✅ DATE/TIME STAMP (REAL)
+========================= */
+let startTime = null;
+let startStampText = "";
+
+function setStartStamp(){
+  startTime = new Date();
+  startStampText = startTime.toLocaleString();
+}
+
+/* =========================
+   ✅ RECEIPT
+========================= */
+function generateReceipt(){
+  const nameClean = (nameValue || "").replace(/\s+/g,"");
+  const dt = startTime || new Date();
+
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  const yy = String(dt.getFullYear()).slice(2);
+
+  const hh = String(dt.getHours()).padStart(2,"0");
+  const min = String(dt.getMinutes()).padStart(2,"0");
+  const ss = String(dt.getSeconds()).padStart(2,"0");
+
+  const accuracyPct = attempts ? Math.round((correct/attempts)*100) : 0;
+
+  return `${nameClean}${mm}${dd}${yy}-${hh}${min}${ss}-${correct}Q-${accuracyPct}A`;
+}
+
+/* =========================
+   Credibility Factors Used (NO internal consistency)
+   - qualifications/reputation of writer/org
+   - circumstances of creation (purpose, timing, sponsorship)
+   - agreement with other credible sources (corroboration)
+   - supporting evidence + logical conclusions
+   - bias/unstated assumptions
+========================= */
+
+/* =========================
+   Question Bank (20)
+   Each item:
+   - scenario (short + realistic)
+   - tags (the main factor(s) involved)
+   - choices (4)
+   - a (correct index)
+   - explain
+   - hint
+========================= */
+const questions = [
+  {
+    tags:["Qualifications/Reputation"],
+    scenario:"A peer-reviewed medical journal article is written by researchers from a major university and includes their credentials and funding disclosures.",
+    choices:[
+      "Credible because the authors’ qualifications and the journal’s reputation support reliability",
+      "Not credible because it is too long for the public to understand",
+      "Not credible because it uses graphs and data",
+      "Credible only if it supports what you already believe"
+    ],
+    a:0,
+    explain:"Author expertise and reputable publication standards increase credibility (credentials + peer review).",
+    hint:"Look for qualifications and the reputation of the publisher."
+  },
+  {
+    tags:["Bias/Unstated Assumptions"],
+    scenario:"A social media influencer claims a new law will 'destroy freedom' but provides no sources and uses emotionally loaded language throughout.",
+    choices:[
+      "Credible because strong language shows confidence",
+      "Not credible because it shows bias and relies on emotion instead of evidence",
+      "Credible because it is shared widely",
+      "Credible because the influencer has many followers"
+    ],
+    a:1,
+    explain:"Emotion-heavy claims without evidence often signal bias or unstated assumptions and weaken credibility.",
+    hint:"Ask: evidence or emotion? Any sourcing?"
+  },
+  {
+    tags:["Supporting Evidence","Logical Conclusions"],
+    scenario:"A local newspaper article includes direct quotes from city officials, links to public budget documents, and explains how the numbers support its conclusion.",
+    choices:[
+      "Not credible because it cites official documents",
+      "Credible because it uses supporting evidence and a logical conclusion",
+      "Not credible because it is written for a local audience",
+      "Credible only if it has no quotations"
+    ],
+    a:1,
+    explain:"Evidence (documents/quotes) plus reasoning strengthens credibility.",
+    hint:"Which choice rewards evidence + logical reasoning?"
+  },
+  {
+    tags:["Circumstances of Creation"],
+    scenario:"A website about a ballot issue is paid for by a political campaign committee, but the site does not clearly disclose who funded it.",
+    choices:[
+      "Credible because campaign committees always tell the whole truth",
+      "Not credible because the circumstances and hidden sponsorship can shape the message",
+      "Credible because it is about a current issue",
+      "Not credible because it includes photographs"
+    ],
+    a:1,
+    explain:"When funding/sponsorship is unclear, circumstances may create a motive to persuade rather than inform.",
+    hint:"Who made it and why? Is sponsorship transparent?"
+  },
+  {
+    tags:["Corroboration"],
+    scenario:"Three independent sources—state data, a university study, and a nonpartisan think tank—report similar findings about graduation rates.",
+    choices:[
+      "Not credible because the sources are different",
+      "Credible because multiple credible sources corroborate the same claim",
+      "Not credible because graduation rates are opinions",
+      "Credible only if the sources are all from the same website"
+    ],
+    a:1,
+    explain:"Agreement across credible, independent sources increases confidence in the information.",
+    hint:"Look for multiple credible sources agreeing."
+  },
+  {
+    tags:["Bias/Unstated Assumptions"],
+    scenario:"An article about immigration only interviews people from one political viewpoint and describes the other side as 'evil' without evidence.",
+    choices:[
+      "Credible because it takes a clear position",
+      "Not credible because it shows bias and ignores other perspectives",
+      "Credible because it uses strong opinions",
+      "Not credible because it contains quotes"
+    ],
+    a:1,
+    explain:"One-sided sourcing and demonizing language indicate bias and reduce credibility.",
+    hint:"Does it fairly represent perspectives or attack one side?"
+  },
+  {
+    tags:["Qualifications/Reputation"],
+    scenario:"A student blog post interprets Supreme Court decisions but the author has no legal training and provides no citations to actual cases.",
+    choices:[
+      "Credible because anyone can interpret law",
+      "Not credible because the author lacks qualifications and does not cite reliable sources",
+      "Credible because it is written by a student",
+      "Not credible because it is online"
+    ],
+    a:1,
+    explain:"Lack of expertise plus no citations weakens credibility for technical claims.",
+    hint:"Think author expertise + use of reliable references."
+  },
+  {
+    tags:["Circumstances of Creation","Bias/Unstated Assumptions"],
+    scenario:"A 'news' site sells dietary supplements and publishes an article claiming its own products are the only safe option.",
+    choices:[
+      "Credible because the site is a business",
+      "Not credible because it has a conflict of interest and incentive to persuade",
+      "Credible because it mentions health",
+      "Not credible because it uses simple language"
+    ],
+    a:1,
+    explain:"A financial incentive can bias the message; circumstances matter.",
+    hint:"Who profits if you believe the claim?"
+  },
+  {
+    tags:["Supporting Evidence","Logical Conclusions"],
+    scenario:"A report claims 'crime is rising everywhere' but provides no data, no time frame, and no explanation of how it reached the conclusion.",
+    choices:[
+      "Credible because crime is always rising",
+      "Not credible because it lacks evidence and logical support",
+      "Credible because it uses a strong claim",
+      "Credible because it is easy to read"
+    ],
+    a:1,
+    explain:"Broad claims without data or reasoning are not credible.",
+    hint:"No data + no reasoning = weak credibility."
+  },
+  {
+    tags:["Corroboration"],
+    scenario:"A rumor on a message board says the city is removing a popular program, but no official documents or reputable outlets mention it.",
+    choices:[
+      "Credible because message boards are honest",
+      "Not credible because it is not corroborated by other credible sources",
+      "Credible because it spreads quickly",
+      "Credible because it is anonymous"
+    ],
+    a:1,
+    explain:"If credible sources cannot confirm it, treat it as unreliable.",
+    hint:"Look for confirmation by reputable sources."
+  },
+  {
+    tags:["Circumstances of Creation"],
+    scenario:"A poll about a local issue was conducted by calling only landlines during work hours, and the method is not explained in the article.",
+    choices:[
+      "Not credible because the circumstances and method can skew who is included",
+      "Credible because all polls are accurate",
+      "Credible because it involves statistics",
+      "Not credible because it is about local issues"
+    ],
+    a:0,
+    explain:"How/when a poll is conducted affects who responds and can bias results; methodology matters.",
+    hint:"Think about who was included/excluded based on how it was created."
+  },
+  {
+    tags:["Qualifications/Reputation","Supporting Evidence"],
+    scenario:"A nonpartisan government office releases a report with citations, data tables, and clear explanations of methods used to estimate costs.",
+    choices:[
+      "Credible because it provides evidence and comes from a reputable official source",
+      "Not credible because it uses numbers",
+      "Not credible because it is nonpartisan",
+      "Credible only if it supports your opinion"
+    ],
+    a:0,
+    explain:"Reputable official sources plus transparent evidence/methods increase credibility.",
+    hint:"Look for a reliable source + evidence + method."
+  },
+  {
+    tags:["Bias/Unstated Assumptions"],
+    scenario:"A commentator claims, 'Everyone knows this policy fails,' but gives no evidence and assumes the conclusion is obvious.",
+    choices:[
+      "Credible because it sounds confident",
+      "Not credible because it relies on an unstated assumption without evidence",
+      "Credible because it is short",
+      "Not credible because it uses the word 'everyone'"
+    ],
+    a:1,
+    explain:"Statements that assume agreement without proof rely on unstated assumptions and weaken credibility.",
+    hint:"Does it prove the claim or assume it?"
+  },
+  {
+    tags:["Supporting Evidence","Logical Conclusions"],
+    scenario:"A chart is shown on TV to argue taxes are skyrocketing, but the chart has no labels, no source, and unclear time periods.",
+    choices:[
+      "Credible because charts are scientific",
+      "Not credible because it lacks sourcing and clear evidence",
+      "Credible because it is on TV",
+      "Not credible because taxes are complicated"
+    ],
+    a:1,
+    explain:"Evidence must be sourced and clearly presented; unlabeled charts are not credible support.",
+    hint:"No source + unclear chart = unreliable evidence."
+  },
+  {
+    tags:["Corroboration","Supporting Evidence"],
+    scenario:"A claim about voting fraud is presented in a video, but official audits and multiple court rulings found no supporting evidence for that claim.",
+    choices:[
+      "Credible because it is in a video",
+      "Not credible because it conflicts with corroborated findings from credible official reviews",
+      "Credible because it is controversial",
+      "Not credible because it is about elections"
+    ],
+    a:1,
+    explain:"When multiple credible reviews contradict a claim, credibility is low unless strong evidence is provided.",
+    hint:"Compare against credible audits/reviews."
+  },
+  {
+    tags:["Circumstances of Creation","Bias/Unstated Assumptions"],
+    scenario:"A 'study' about a school policy is funded by a group openly campaigning against that policy, and the report highlights only negative outcomes.",
+    choices:[
+      "Credible because it is called a study",
+      "Not credible because funding and selective framing suggest bias",
+      "Credible because it mentions outcomes",
+      "Not credible because it uses statistics"
+    ],
+    a:1,
+    explain:"Funding source and selective framing can introduce bias; circumstances matter.",
+    hint:"Who funded it and do they have a motive?"
+  },
+  {
+    tags:["Qualifications/Reputation"],
+    scenario:"A post says, 'Trust me, I’m an expert,' but provides no credentials, no organization, and no way to verify the claim.",
+    choices:[
+      "Credible because it says 'expert'",
+      "Not credible because the author’s qualifications cannot be verified",
+      "Credible because it is confident",
+      "Credible because it is shared"
+    ],
+    a:1,
+    explain:"Credibility requires verifiable qualifications, not just a self-claim.",
+    hint:"Can you verify who they are and what expertise they have?"
+  },
+  {
+    tags:["Supporting Evidence","Logical Conclusions"],
+    scenario:"A city budget summary explains trade-offs, shows the numbers for each program, and clearly distinguishes facts from opinions.",
+    choices:[
+      "Not credible because it includes opinions",
+      "Credible because it uses evidence and clear reasoning, separating facts from opinions",
+      "Not credible because budgets are confusing",
+      "Credible because it is long"
+    ],
+    a:1,
+    explain:"Clear evidence and reasoning, with facts separated from opinion, improves credibility.",
+    hint:"Look for transparent evidence + clear reasoning."
+  },
+  {
+    tags:["Circumstances of Creation"],
+    scenario:"A headline claims 'New law bans all speech,' but the article is actually a sponsored ad and the sponsorship label is small and easy to miss.",
+    choices:[
+      "Credible because headlines are always accurate",
+      "Not credible because the content is sponsored and designed to persuade",
+      "Credible because it is online",
+      "Not credible because it mentions law"
+    ],
+    a:1,
+    explain:"Sponsored content is created to persuade; circumstances of creation matter.",
+    hint:"Is it journalism or paid persuasion?"
+  },
+  {
+    tags:["Corroboration"],
+    scenario:"A student finds one website claiming a new policy will save billions, but every independent budget office estimate shows only small savings.",
+    choices:[
+      "Credible because one source is enough",
+      "Not credible because it is not corroborated and conflicts with multiple credible estimates",
+      "Credible because it promises big savings",
+      "Not credible because budgets are political"
+    ],
+    a:1,
+    explain:"When one source conflicts with many credible sources, treat it as weak unless strong evidence is shown.",
+    hint:"Compare one claim against multiple credible estimates."
+  }
+];
+
+/* =========================
+   Game State
+========================= */
+let index = 0;
+let attempts = 0;
+let correct = 0;
+let time = 0;
+let timer = null;
+
+let locked = false;
+let nameValue = "";
+
+/* =========================
+   Start / Timer
+========================= */
+function startGame(){
+  const nm = document.getElementById("studentName").value.trim();
+  if(!nm) return alert("Enter name");
+  nameValue = nm;
+
+  setStartStamp();
+
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  // ✅ visible stamp during game
+  document.getElementById("startedTop").textContent = startStampText;
+
+  timer = setInterval(() => {
+    time++;
+    document.getElementById("time").textContent = time;
+  }, 1000);
+
+  loadQ();
+}
+
+/* =========================
+   Render Question
+========================= */
+function loadQ(){
+  locked = false;
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  const q = questions[index];
+  document.getElementById("qnum").textContent = `Question ${index+1}/20`;
+
+  // tags
+  const tagHolder = document.getElementById("tags");
+  tagHolder.innerHTML = "";
+  q.tags.forEach(t=>{
+    const s = document.createElement("span");
+    s.className = "tag";
+    s.textContent = t;
+    tagHolder.appendChild(s);
+  });
+
+  document.getElementById("scenario").textContent = q.scenario;
+
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+
+  q.choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${String.fromCharCode(65+i)}. ${c}`;
+    b.onclick = () => check(i);
+    holder.appendChild(b);
+  });
+
+  updateStats();
+}
+
+function disableChoices(disabled){
+  document.querySelectorAll("#choices .btn").forEach(btn => btn.disabled = disabled);
+}
+
+/* =========================
+   Answer Check
+========================= */
+function check(choice){
+  if(locked) return;
+
+  attempts++;
+  const q = questions[index];
+  const fb = document.getElementById("feedback");
+
+  if(choice === q.a){
+    correct++;
+    locked = true;
+    disableChoices(true);
+
+    fb.innerHTML = `<div class="correct"><b>Correct!</b> ${q.explain}</div>`;
+    document.getElementById("nextBtn").classList.remove("hidden");
+  } else {
+    fb.innerHTML = `<div class="incorrect"><b>Incorrect.</b> Try again.</div>`;
+    if(hintsOn){
+      fb.innerHTML += `<div class="hint"><b>Hint:</b> ${q.hint}</div>`;
+    }
+  }
+
+  updateStats();
+}
+
+/* =========================
+   Stats
+========================= */
+function updateStats(){
+  document.getElementById("attempts").textContent = attempts;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  document.getElementById("accuracy").textContent = acc + "%";
+}
+
+/* =========================
+   Next / End
+========================= */
+function nextQuestion(){
+  if(!locked) return;
+
+  index++;
+  if(index >= questions.length){
+    endGame();
+  } else {
+    loadQ();
+  }
+}
+
+function endGame(){
+  WeberRun.finish(nameValue, startTime, questions.length, correct, attempts);
+
+  clearInterval(timer);
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("end").classList.remove("hidden");
+
+  document.getElementById("finalName").textContent = nameValue;
+  document.getElementById("finalTimestamp").textContent = startStampText;
+  document.getElementById("finalTime").textContent = time;
+  document.getElementById("finalAttempts").textContent = attempts;
+  document.getElementById("finalAccuracy").textContent =
+    (attempts ? Math.round((correct/attempts)*100) : 0) + "%";
+
+  document.getElementById("receipt").textContent = generateReceipt();
+}
+</script>
+</body>
+</html>

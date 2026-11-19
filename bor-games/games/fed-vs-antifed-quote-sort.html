@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Federalist vs Anti-Federalist: Quote Sort</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111b2e;
+      --card:#0f1a2c;
+      --text:#e7eefc;
+      --muted:#a8b4cf;
+      --accent:#7aa2ff;
+      --good:#2bd576;
+      --bad:#ff5c7a;
+      --warn:#ffd166;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(900px 500px at 15% 15%, rgba(122,162,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 85% 25%, rgba(43,213,118,.14), transparent 60%),
+                  radial-gradient(900px 500px at 60% 85%, rgba(255,92,122,.12), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+
+    .app{
+      width: min(980px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow:hidden;
+    }
+
+    header{
+      padding: 18px 18px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .title-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-width: 680px;
+    }
+    h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      gap:6px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .pill b{color: var(--text); font-weight:700}
+
+    main{
+      padding: 18px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 860px){
+      main{grid-template-columns: 1fr}
+    }
+
+    .card{
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 14px;
+    }
+
+    .quote{
+      background: linear-gradient(180deg, rgba(122,162,255,.10), rgba(0,0,0,.18));
+      border:1px solid rgba(122,162,255,.22);
+      border-radius: var(--radius2);
+      padding: 16px;
+      min-height: 160px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      position:relative;
+      overflow:hidden;
+    }
+    .quote::after{
+      content:"";
+      position:absolute;
+      inset:-60px -80px auto auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(122,162,255,.22), transparent 60%);
+      transform: rotate(18deg);
+    }
+    .quote-label{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(231,238,252,.75);
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .badge{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color: var(--muted);
+      background: rgba(0,0,0,.18);
+    }
+    .quote-text{
+      font-size: 18px;
+      line-height: 1.35;
+      margin:0;
+      position:relative;
+      z-index:1;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      margin-top: 12px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      padding: 12px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    button:hover{ background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      border-color: rgba(122,162,255,.35);
+      background: rgba(122,162,255,.12);
+    }
+    button.primary:hover{ background: rgba(122,162,255,.18); }
+    button.good{
+      border-color: rgba(43,213,118,.40);
+      background: rgba(43,213,118,.14);
+    }
+    button.bad{
+      border-color: rgba(255,92,122,.40);
+      background: rgba(255,92,122,.14);
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .feedback{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      min-height: 54px;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .feedback .icon{
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size: 12px;
+      margin-top:2px;
+      flex: 0 0 auto;
+    }
+    .icon.good{ background: rgba(43,213,118,.16); color: var(--good); border:1px solid rgba(43,213,118,.35); }
+    .icon.bad{ background: rgba(255,92,122,.16); color: var(--bad); border:1px solid rgba(255,92,122,.35); }
+    .icon.warn{ background: rgba(255,209,102,.16); color: var(--warn); border:1px solid rgba(255,209,102,.35); }
+
+    .explain{
+      margin-top: 12px;
+      display:none;
+      border-radius: 14px;
+      border:1px solid rgba(43,213,118,.30);
+      background: linear-gradient(180deg, rgba(43,213,118,.10), rgba(0,0,0,.18));
+      padding: 12px;
+    }
+    .explain h3{
+      margin:0 0 8px;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .explain ul{
+      margin:0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height:1.35;
+      font-size: 13px;
+    }
+    .explain li{ margin: 6px 0; }
+    .mini{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(231,238,252,.70);
+      margin-top: 8px;
+    }
+
+    .sidebar h2{
+      margin:0 0 10px;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .help{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      margin:0 0 12px;
+    }
+
+    .rulebox{
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .rule{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .rule b{ color: var(--text); }
+    .dot{
+      width:10px;height:10px;border-radius:3px;margin-top:5px;flex:0 0 auto;
+      border:1px solid var(--border);
+    }
+    .dot.f{ background: rgba(122,162,255,.25); border-color: rgba(122,162,255,.35); }
+    .dot.a{ background: rgba(255,92,122,.20); border-color: rgba(255,92,122,.35); }
+
+    .footer{
+      padding: 14px 18px 18px;
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .linkish{
+      color: rgba(231,238,252,.75);
+      text-decoration: underline;
+      cursor:pointer;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+    .modal .box{
+      width: min(780px, 100%);
+      background: #0f172a;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .modal h3{ margin:0 0 10px; }
+    .modal pre{
+      margin: 10px 0 0;
+      padding: 12px;
+      background: rgba(0,0,0,.20);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      overflow:auto;
+      color: rgba(231,238,252,.9);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+    }
+    .modal .row{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top: 12px;
+      flex-wrap:wrap;
+    }
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-wrap">
+        <h1>Federalist vs Anti-Federalist — “Who Said It?”</h1>
+        <div class="sub">Choose the side that matches the quote. You can’t move on until you get it right — then you’ll see the explanation tied to the belief bullets.</div>
+      </div>
+      <div class="stats">
+        <div class="pill">Question <b id="qNum">1</b>/<b id="qTotal">0</b></div>
+        <div class="pill">Correct <b id="correctCt">0</b></div>
+        <div class="pill">Attempts <b id="attemptCt">0</b></div>
+        <div class="pill">Accuracy <b id="accPct">—</b></div>
+        <div class="pill">Time <b id="timeEl">0:00</b></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="quote">
+          <div class="quote-label">
+            <span class="badge" id="difficulty">Level: OST Practice</span>
+            <span class="badge" id="streak">Streak: 0</span>
+          </div>
+          <p class="quote-text" id="quoteText">Loading…</p>
+        </div>
+
+        <div class="controls">
+          <button class="primary" id="btnFed">Federalist</button>
+          <button class="primary" id="btnAnti">Anti-Federalist</button>
+          <button id="btnHint">Hint</button>
+          <button id="btnSkip" title="Teacher tool: move on (optional)">Teacher Skip</button>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <span class="icon warn">!</span>
+          <div>
+            <div><b>Directions:</b> Pick the side that would most likely say this.</div>
+            <div style="margin-top:4px">You’ll see the belief-bullets explanation only after the correct choice.</div>
+          </div>
+        </div>
+
+        <div class="explain" id="explainBox">
+          <h3 id="explainTitle">Why this is Federalist</h3>
+          <ul id="explainBullets"></ul>
+          <div class="mini" id="explainMini"></div>
+          <div class="controls" style="margin-top:10px">
+            <button class="good" id="btnNext">Next Quote</button>
+            <button id="btnRestart">Restart</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card sidebar">
+        <h2>3 Quick “Tells” (OST-ready)</h2>
+        <p class="help">Students can get these right fast by spotting what the quote is worried about.</p>
+
+        <div class="rulebox">
+          <div class="rule">
+            <span class="dot f"></span>
+            <div><b>Federalist fear:</b> chaos / weak union / can’t tax-enforce / foreign threats → needs strong national power.</div>
+          </div>
+          <div class="rule">
+            <span class="dot a"></span>
+            <div><b>Anti-Federalist fear:</b> tyranny / distant rulers / power concentration → wants stronger states + written rights.</div>
+          </div>
+          <div class="rule">
+            <span class="dot f"></span>
+            <div><b>Clause tell:</b> “Necessary & Proper” and “Supremacy” praised = Federalist; attacked = Anti-Fed.</div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <h2>Teacher Tools</h2>
+        <p class="help">
+          Use <span class="linkish" id="openBank">View / copy the quote bank</span> to edit quotes or add your own.
+          You can also turn off “Teacher Skip” by disabling it in code.
+        </p>
+
+        <div class="rulebox">
+          <div class="rule">
+            <span class="dot f"></span>
+            <div><b>How “Hint” works:</b> It does not give the answer — it points students to one of the bullet-beliefs (national vs state, Bill of Rights, Necessary & Proper, Supremacy, etc.).</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <div class="footer">
+      <div>Single-file classroom game • runs offline • no student data saved</div>
+      <div>
+        <span class="linkish" id="toggleShuffle">Shuffle: ON</span> ·
+        <span class="linkish" id="toggleStrict">Must be correct to advance: ON</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="box">
+      <h3>Quote Bank (edit in the file)</h3>
+      <div class="sub">These are OST-faithful paraphrase-style excerpts (short “quote voice”).</div>
+      <pre id="bankText"></pre>
+      <div class="row">
+        <button id="btnClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /********************************************************************
+     * QUOTE BANK
+     * side: "F" for Federalist, "A" for Anti-Federalist
+     * beliefTags: which bullet-beliefs the quote points to
+     ********************************************************************/
+    const quoteBank = [
+      // FEDERALIST (ratification, national supremacy, more powers, N&P + Supremacy)
+      {
+        side: "F",
+        quote: "A government that cannot raise revenue or enforce its laws is no government at all.",
+        beliefTags: ["ratify", "more_national_power", "tax_enforce"]
+      },
+      {
+        side: "F",
+        quote: "Without a strong national authority, the Union will dissolve into rival states acting only in their own interest.",
+        beliefTags: ["ratify", "national_supremacy"]
+      },
+      {
+        side: "F",
+        quote: "The failures of the Articles prove that energy in government is essential to liberty.",
+        beliefTags: ["ratify", "more_national_power"]
+      },
+      {
+        side: "F",
+        quote: "The national government must possess the means necessary to carry out the powers it is assigned.",
+        beliefTags: ["necessary_proper", "more_national_power"]
+      },
+      {
+        side: "F",
+        quote: "Laws made by the United States must take precedence over conflicting state laws, or the Union will be meaningless.",
+        beliefTags: ["supremacy_clause", "national_supremacy"]
+      },
+      {
+        side: "F",
+        quote: "Liberty is not protected by weakness, but by a well-constructed government capable of governing.",
+        beliefTags: ["ratify", "more_national_power"]
+      },
+      {
+        side: "F",
+        quote: "A large republic can best control factions by preventing any single interest from dominating.",
+        beliefTags: ["ratify"]
+      },
+      {
+        side: "F",
+        quote: "The Constitution strengthens the whole while dividing power among branches to prevent abuse.",
+        beliefTags: ["ratify", "more_national_power"]
+      },
+
+      // ANTI-FEDERALIST (against ratification, state supremacy, Bill of Rights, against N&P + Supremacy)
+      {
+        side: "A",
+        quote: "A government too far removed from the people will always become a threat to their freedom.",
+        beliefTags: ["against_ratify", "state_supremacy"]
+      },
+      {
+        side: "A",
+        quote: "The proposed Constitution places dangerous and undefined powers in the hands of the national government.",
+        beliefTags: ["against_ratify", "against_necessary_proper"]
+      },
+      {
+        side: "A",
+        quote: "Without a bill of rights, nothing prevents Congress from infringing upon the liberties of the people.",
+        beliefTags: ["bill_of_rights", "against_ratify"]
+      },
+      {
+        side: "A",
+        quote: "State governments best understand and protect the needs of their citizens.",
+        beliefTags: ["state_supremacy"]
+      },
+      {
+        side: "A",
+        quote: "The supremacy of national law will reduce the states to mere administrative districts.",
+        beliefTags: ["against_supremacy_clause", "state_supremacy"]
+      },
+      {
+        side: "A",
+        quote: "The 'necessary and proper' clause opens the door to unlimited federal power.",
+        beliefTags: ["against_necessary_proper"]
+      },
+      {
+        side: "A",
+        quote: "History teaches that liberty is lost when power is concentrated in distant rulers.",
+        beliefTags: ["against_ratify", "state_supremacy"]
+      },
+      {
+        side: "A",
+        quote: "This Constitution risks replacing one set of rulers with another that is harder for the people to restrain.",
+        beliefTags: ["against_ratify", "bill_of_rights"]
+      }
+    ];
+
+    /********************************************************************
+     * BELIEF BULLETS (your OST list)
+     ********************************************************************/
+    const beliefs = {
+      F: {
+        label: "Federalist",
+        bullets: [
+          "Supported Constitutional ratification.",
+          "Argued for supremacy of the national government.",
+          "Wanted more national powers to fix Articles’ weaknesses (taxing, enforcement, national executive/judiciary).",
+          "Supported the “necessary and proper” and “supremacy” clauses."
+        ]
+      },
+      A: {
+        label: "Anti-Federalist",
+        bullets: [
+          "Opposed Constitutional ratification (wanted changes before approval).",
+          "Argued for supremacy of state governments.",
+          "Insisted on a national Bill of Rights to protect citizens from national power.",
+          "Opposed the “necessary and proper” and “supremacy” clauses as threats to liberty/states."
+        ]
+      }
+    };
+
+    /********************************************************************
+     * Tag → explanation mapping (to tie feedback to the bullet beliefs)
+     ********************************************************************/
+    const tagToExplain = {
+      ratify: "This supports ratifying the Constitution (Federalist).",
+      against_ratify: "This argues against ratification as written (Anti-Federalist).",
+      national_supremacy: "This favors national supremacy over conflicting state actions (Federalist).",
+      state_supremacy: "This favors stronger states and local control (Anti-Federalist).",
+      more_national_power: "This calls for expanding national power to fix weaknesses of the Articles (Federalist).",
+      tax_enforce: "This focuses on the Articles’ weakness: no effective power to tax/enforce laws (Federalist).",
+      necessary_proper: "This defends the Necessary & Proper Clause as needed to carry out enumerated powers (Federalist).",
+      against_necessary_proper: "This attacks the Necessary & Proper Clause as a pathway to unlimited power (Anti-Federalist).",
+      supremacy_clause: "This defends the Supremacy Clause: federal law overrides conflicting state law (Federalist).",
+      against_supremacy_clause: "This attacks the Supremacy Clause as weakening the states (Anti-Federalist).",
+      bill_of_rights: "This demands a Bill of Rights to protect citizens from national government power (Anti-Federalist)."
+    };
+
+    /********************************************************************
+     * GAME STATE
+     ********************************************************************/
+    let deck = [];
+    let index = 0;
+
+    let totalAttempts = 0;
+    let totalCorrect = 0;
+    let streak = 0;
+
+    let strictMode = true;   // must be correct to advance (your requirement)
+    let shuffleOn = true;
+
+    let startTs = Date.now();
+    let timerId = null;
+
+    // per-question attempts
+    let thisQuestionAttempts = 0;
+    let locked = false; // lock choices while showing explanation
+
+    const el = (id) => document.getElementById(id);
+
+    function formatTime(ms){
+      const s = Math.floor(ms / 1000);
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${m}:${String(r).padStart(2,"0")}`;
+    }
+
+    function computeAccuracy(){
+      if(totalAttempts === 0) return "—";
+      const pct = Math.round((totalCorrect / totalAttempts) * 100);
+      return pct + "%";
+    }
+
+    function updateStats(){
+      el("qNum").textContent = String(index + 1);
+      el("qTotal").textContent = String(deck.length);
+      el("correctCt").textContent = String(totalCorrect);
+      el("attemptCt").textContent = String(totalAttempts);
+      el("accPct").textContent = computeAccuracy();
+      el("streak").textContent = `Streak: ${streak}`;
+    }
+
+    function setFeedback(kind, title, msg){
+      const box = el("feedback");
+      box.innerHTML = "";
+      const icon = document.createElement("span");
+      icon.className = `icon ${kind}`;
+      icon.textContent = kind === "good" ? "✓" : kind === "bad" ? "✕" : "!";
+      const wrap = document.createElement("div");
+      wrap.innerHTML = `<div><b>${title}</b></div><div style="margin-top:4px">${msg}</div>`;
+      box.appendChild(icon);
+      box.appendChild(wrap);
+    }
+
+    function showExplanation(card){
+      const side = card.side;
+      el("explainTitle").textContent = `Why this is ${beliefs[side].label}`;
+      const ul = el("explainBullets");
+      ul.innerHTML = "";
+      beliefs[side].bullets.forEach(b=>{
+        const li = document.createElement("li");
+        li.textContent = b;
+        ul.appendChild(li);
+      });
+
+      // Tie to tag(s)
+      const tags = card.beliefTags || [];
+      const tagLines = tags.map(t => tagToExplain[t]).filter(Boolean);
+      el("explainMini").textContent = tagLines.length
+        ? "Tied to beliefs: " + tagLines.join(" ")
+        : "Tied to beliefs: (general Federalist/Anti-Federalist stance)";
+
+      el("explainBox").style.display = "block";
+      locked = true;
+      // Disable choices while explanation is visible
+      el("btnFed").disabled = true;
+      el("btnAnti").disabled = true;
+      el("btnHint").disabled = true;
+      el("btnSkip").disabled = false; // teacher can still skip if desired
+    }
+
+    function hideExplanation(){
+      el("explainBox").style.display = "none";
+      locked = false;
+      el("btnFed").disabled = false;
+      el("btnAnti").disabled = false;
+      el("btnHint").disabled = false;
+      el("btnSkip").disabled = false;
+    }
+
+    function render(){
+      const card = deck[index];
+      el("quoteText").textContent = `“${card.quote}”`;
+      thisQuestionAttempts = 0;
+      hideExplanation();
+      setFeedback("warn", "Directions", "Pick Federalist or Anti-Federalist. You must be correct to advance.");
+      updateStats();
+    }
+
+    function answer(choiceSide){
+      if(locked) return;
+
+      totalAttempts++;
+      thisQuestionAttempts++;
+
+      const card = deck[index];
+      const correct = (choiceSide === card.side);
+
+      if(correct){
+        totalCorrect++;
+        streak++;
+        setFeedback("good", "Correct!", `Nice. You got it in ${thisQuestionAttempts} attempt(s). Now read the belief-bullets explanation.`);
+        showExplanation(card);
+        updateStats();
+      } else {
+        streak = 0;
+        updateStats();
+
+        // strict mode: must retry until correct
+        const hint = buildMicroHint(card);
+        setFeedback(
+          "bad",
+          "Try again.",
+          strictMode
+            ? `Not that side. ${hint}`
+            : `Not that side. ${hint} (You can still move on if strict mode is OFF.)`
+        );
+      }
+    }
+
+    function buildMicroHint(card){
+      // Give a belief-centered nudge WITHOUT revealing answer outright
+      // If the quote contains N&P or Supremacy language, point there; else use tag hints
+      const q = card.quote.toLowerCase();
+      if(q.includes("necessary") || q.includes("proper")){
+        return "Hint: Focus on the Necessary & Proper Clause — praise vs fear of “unlimited power.”";
+      }
+      if(q.includes("suprem") || q.includes("precedence") || q.includes("take precedence")){
+        return "Hint: Look for national law overriding state law — who supports that?";
+      }
+      if(q.includes("bill of rights") || q.includes("rights")){
+        return "Hint: Does the speaker demand a written Bill of Rights, or trust structure alone?";
+      }
+      const tags = card.beliefTags || [];
+      // choose one tag to hint
+      const tag = tags[Math.floor(Math.random() * tags.length)];
+      if(tag === "tax_enforce") return "Hint: Think Articles’ weakness: no effective power to tax/enforce.";
+      if(tag === "state_supremacy") return "Hint: Ask: is this pro-state power and local control?";
+      if(tag === "national_supremacy") return "Hint: Ask: is this pro-national supremacy and unity?";
+      if(tag === "more_national_power") return "Hint: Ask: is this arguing the national government needs more power to fix the Articles?";
+      if(tag === "bill_of_rights") return "Hint: Ask: is the speaker insisting on a Bill of Rights before trusting government power?";
+      if(tag === "against_ratify") return "Hint: Ask: is the speaker warning against ratifying as written?";
+      if(tag === "ratify") return "Hint: Ask: is the speaker pushing ratification to solve weaknesses/chaos?";
+      return "Hint: Identify the fear: weak government/chaos vs powerful government/tyranny.";
+    }
+
+    function next(){
+      // In strict mode, only allow Next if explanation shown (i.e., correct)
+      if(strictMode && el("explainBox").style.display !== "block"){
+        setFeedback("warn","Not yet.","You must answer correctly before moving on.");
+        return;
+      }
+      if(index < deck.length - 1){
+        index++;
+        render();
+      } else {
+        endScreen();
+      }
+    }
+
+    function endScreen(){
+  WeberRun.finish("", startTs, deck.length, totalCorrect, totalAttempts);
+      hideExplanation();
+      el("quoteText").textContent = "Finish! Great work.";
+      const accuracy = computeAccuracy();
+      const elapsed = formatTime(Date.now() - startTs);
+      setFeedback("good","Session Complete",
+        `Score: ${totalCorrect}/${totalAttempts} attempts (${accuracy}) • Time: ${elapsed}. Click Restart to play again or open the quote bank to edit/add quotes.`
+      );
+
+      // Lock choices at end
+      el("btnFed").disabled = true;
+      el("btnAnti").disabled = true;
+      el("btnHint").disabled = true;
+
+      // Show a “restart” area
+      el("explainBox").style.display = "block";
+      el("explainTitle").textContent = "What next?";
+      const ul = el("explainBullets");
+      ul.innerHTML = "";
+      [
+        "Replay for speed + accuracy.",
+        "Edit the quote bank to match your exact classroom phrasing.",
+        "Add OST-style distractor lines (ex: “Bill of Rights” vs “structure protects rights”)."
+      ].forEach(t=>{
+        const li = document.createElement("li");
+        li.textContent = t;
+        ul.appendChild(li);
+      });
+      el("explainMini").textContent = "Teacher note: You can paste in real excerpts later — just keep them short.";
+      el("btnNext").textContent = "Play Again";
+      el("btnNext").onclick = () => restart();
+    }
+
+    function restart(){
+      // reset
+      index = 0;
+      totalAttempts = 0;
+      totalCorrect = 0;
+      streak = 0;
+      startTs = Date.now();
+
+      buildDeck();
+      render();
+
+      el("btnFed").disabled = false;
+      el("btnAnti").disabled = false;
+      el("btnHint").disabled = false;
+
+      el("btnNext").textContent = "Next Quote";
+      el("btnNext").onclick = () => next();
+    }
+
+    function buildDeck(){
+      deck = [...quoteBank];
+      if(shuffleOn){
+        // Fisher-Yates
+        for(let i = deck.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+      }
+    }
+
+    function startTimer(){
+      if(timerId) clearInterval(timerId);
+      timerId = setInterval(()=>{
+        el("timeEl").textContent = formatTime(Date.now() - startTs);
+      }, 500);
+    }
+
+    // UI toggles
+    function toggleShuffle(){
+      shuffleOn = !shuffleOn;
+      el("toggleShuffle").textContent = `Shuffle: ${shuffleOn ? "ON" : "OFF"}`;
+      restart();
+    }
+    function toggleStrict(){
+      strictMode = !strictMode;
+      el("toggleStrict").textContent = `Must be correct to advance: ${strictMode ? "ON" : "OFF"}`;
+      // If strict mode turns OFF, enable skip-like flow
+      setFeedback("warn","Mode changed", strictMode
+        ? "Strict mode ON: students must answer correctly before moving on."
+        : "Strict mode OFF: students can move on even if wrong (not recommended for your goal)."
+      );
+    }
+
+    // Modal with bank
+    function openBank(){
+      el("modal").style.display = "flex";
+      el("bankText").textContent = JSON.stringify(quoteBank, null, 2);
+    }
+    function closeBank(){
+      el("modal").style.display = "none";
+    }
+
+    // Buttons
+    el("btnFed").addEventListener("click", ()=> answer("F"));
+    el("btnAnti").addEventListener("click", ()=> answer("A"));
+
+    el("btnHint").addEventListener("click", ()=>{
+      if(locked) return;
+      const card = deck[index];
+      setFeedback("warn","Hint", buildMicroHint(card));
+    });
+
+    // Teacher skip: advances even if wrong (you can disable this by setting disabled=true below)
+    el("btnSkip").addEventListener("click", ()=>{
+      if(strictMode){
+        // allow teacher to bypass strictness
+        index = Math.min(index + 1, deck.length - 1);
+        render();
+      } else {
+        next();
+      }
+    });
+
+    el("btnNext").addEventListener("click", ()=> next());
+    el("btnRestart").addEventListener("click", ()=> restart());
+
+    el("toggleShuffle").addEventListener("click", toggleShuffle);
+    el("toggleStrict").addEventListener("click", toggleStrict);
+
+    el("openBank").addEventListener("click", openBank);
+    el("btnClose").addEventListener("click", closeBank);
+    el("modal").addEventListener("click", (e)=>{
+      if(e.target === el("modal")) closeBank();
+    });
+
+    // init
+    buildDeck();
+    el("qTotal").textContent = String(quoteBank.length);
+    render();
+    startTimer();
+  </script>
+</body>
+</html>

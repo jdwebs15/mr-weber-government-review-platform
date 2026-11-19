@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CS13 — Checks & Balances (Mastery Game)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111a2f;
+      --text:#e7eefc;
+      --muted:#a8b4cf;
+      --accent:#7aa2ff;
+      --good:#2bd576;
+      --bad:#ff5c7a;
+      --warn:#ffd166;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(122,162,255,0.18), transparent 55%),
+                  radial-gradient(1200px 700px at 80% 20%, rgba(43,213,118,0.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      padding:24px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{ width:min(980px, 100%); }
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .title h1{
+      font-size:20px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .title .sub{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding:16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    label{ font-size:13px; color:var(--muted); }
+    input[type="text"]{
+      background: rgba(255,255,255,0.05);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius: 12px;
+      padding:10px 12px;
+      outline:none;
+      width:260px;
+    }
+    input[type="text"]:focus{
+      border-color: rgba(122,162,255,.6);
+      box-shadow: 0 0 0 3px rgba(122,162,255,.18);
+    }
+
+    .statbox{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .stat{
+      background: rgba(0,0,0,0.18);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:10px 12px;
+    }
+    .stat .k{ font-size:12px; color:var(--muted); }
+    .stat .v{ font-size:15px; font-family:var(--mono); margin-top:4px; }
+
+    .qwrap{
+      padding:16px;
+      border-radius: var(--radius);
+      border:1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+    }
+    .qhead{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .qnum{ font-size:13px; color:var(--muted); }
+    .qtext{
+      font-size:18px;
+      line-height:1.25;
+      margin:0;
+    }
+    .choices{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius: 14px;
+      padding:12px 14px;
+      font-weight:650;
+      color:var(--text);
+      background: rgba(122,162,255,0.16);
+      border:1px solid rgba(122,162,255,0.25);
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      text-align:left;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(122,162,255,0.22); border-color: rgba(122,162,255,0.42); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .rightActions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,0.18);
+      font-family:var(--mono);
+    }
+
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+      min-height:44px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .msg .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: rgba(255,255,255,0.25);
+    }
+    .msg.good{ border-color: rgba(43,213,118,0.35); }
+    .msg.good .dot{ background: var(--good); }
+    .msg.bad{ border-color: rgba(255,92,122,0.35); }
+    .msg.bad .dot{ background: var(--bad); }
+    .msg.warn{ border-color: rgba(255,209,102,0.35); }
+    .msg.warn .dot{ background: var(--warn); }
+
+    .hint{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px dashed rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      display:none;
+      text-align:left;
+      line-height:1.25;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .toggle input{ transform: scale(1.15); }
+
+    .submitBox{
+      margin-top:12px;
+      display:none;
+      text-align:left;
+    }
+    textarea{
+      width:100%;
+      min-height:140px;
+      resize:none;
+      background: rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius: 14px;
+      padding:12px;
+      font-family:var(--mono);
+      font-size:12.5px;
+      line-height:1.35;
+      outline:none;
+    }
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+      line-height:1.25;
+    }
+
+    .primary{
+      background: rgba(43,213,118,0.18);
+      border:1px solid rgba(43,213,118,0.30);
+    }
+    .primary:hover{
+      background: rgba(43,213,118,0.24);
+      border-color: rgba(43,213,118,0.44);
+    }
+    .danger{
+      background: rgba(255,92,122,0.16);
+      border:1px solid rgba(255,92,122,0.26);
+    }
+    .danger:hover{
+      background: rgba(255,92,122,0.22);
+      border-color: rgba(255,92,122,0.40);
+    }
+    .ghost{
+      background: rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+    .ghost:hover{
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.18);
+    }
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>CS13 — Checks & Balances (Mastery)</h1>
+        <div class="sub">Identify which branch is checking which. Hit <b>100%</b> accuracy to unlock the Submit Code.</div>
+      </div>
+      <div class="pill" id="clockNow">Clock: --</div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;">
+          <div class="row">
+            <label for="studentName">Student Name</label>
+            <input id="studentName" type="text" placeholder="Type first + last name" />
+          </div>
+
+          <div class="toggle">
+            <input id="hintToggle" type="checkbox" />
+            <label for="hintToggle" style="margin:0;">Teacher Hint Toggle (ON allows hints after incorrect)</label>
+          </div>
+        </div>
+
+        <div class="statbox">
+          <div class="stat">
+            <div class="k">Start Timestamp</div>
+            <div class="v" id="startStamp">--</div>
+          </div>
+          <div class="stat">
+            <div class="k">Elapsed Time</div>
+            <div class="v" id="elapsed">00:00</div>
+          </div>
+          <div class="stat">
+            <div class="k">Correct / Attempts</div>
+            <div class="v" id="scoreLine">0 / 0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Accuracy</div>
+            <div class="v" id="accuracy">0%</div>
+          </div>
+        </div>
+
+        <div class="qwrap" style="margin-top:14px;">
+          <div class="qhead">
+            <div>
+              <div class="qnum" id="qnum">Question 1 of 1</div>
+              <p class="qtext" id="qtext">--</p>
+            </div>
+          </div>
+
+          <div class="choices" id="choices"></div>
+
+          <div class="msg" id="feedback">
+            <span class="dot"></span>
+            <span id="feedbackText">Answer a question to begin.</span>
+          </div>
+
+          <div class="hint" id="hintBox"></div>
+
+          <div class="actions">
+            <div class="row">
+              <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+            </div>
+
+            <div class="rightActions">
+              <button class="btn" id="nextBtn" type="button" disabled>Next</button>
+              <button class="btn primary" id="finishBtn" type="button" disabled>Finish / Submit Code</button>
+            </div>
+          </div>
+
+          <div class="submitBox" id="submitBox">
+            <div class="small"><b>Submission:</b> Screenshot this box (or copy/paste) after you reach <b>100%</b>.</div>
+            <textarea id="submitText" readonly></textarea>
+            <div class="row" style="justify-content:space-between; margin-top:10px;">
+              <button class="btn primary" id="copyBtn" type="button">Copy Submit Code</button>
+              <div class="pill" id="endStamp">End: --</div>
+            </div>
+            <div class="small">No data is stored or sent anywhere. Your teacher verifies by screenshot or paste.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="panel" style="text-align:left;">
+        <h3 style="margin:0 0 10px 0; font-size:16px;">Directions</h3>
+        <div class="small" style="font-size:13px; color:var(--muted);">
+          <ol style="margin:0; padding-left:18px; line-height:1.4;">
+            <li>Enter your name.</li>
+            <li>Answer each prompt: <b>Which branch is checking which?</b></li>
+            <li>You must reach <b>100%</b> accuracy to unlock the submit code.</li>
+            <li>If the teacher hint toggle is ON, hints appear <b>only after an incorrect answer</b>.</li>
+          </ol>
+          <p style="margin:12px 0 0 0;">
+            <b>Branch check examples included:</b> veto override, impeachment, approval of appointments/treaties, nominations,
+            pardons, judicial review, declaring laws/executive acts unconstitutional.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // ---------- Utilities ----------
+  const pad2 = n => String(n).padStart(2,'0');
+  const formatHMS = (sec) => {
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return `${pad2(m)}:${pad2(s)}`;
+  };
+  const nowStamp = () => {
+    const d = new Date();
+    return d.toLocaleString();
+  };
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  };
+
+  // ---------- Bank ----------
+  const GAME_TITLE = "CS13 — Checks & Balances (Mastery)";
+  const bank = [
+    { q:"Congress overrides a presidential veto.", a:"Legislative checking Executive",
+      h:"Congress (Legislative) can override the President’s veto (Executive)." },
+    { q:"Congress approves presidential appointments or treaties (e.g., Senate confirmation / treaty approval).", a:"Legislative checking Executive",
+      h:"Appointments/treaties are Executive actions, but the Legislative branch must approve many of them." },
+    { q:"Congress impeaches and removes a civil officer (executive official).", a:"Legislative checking Executive",
+      h:"Impeachment/removal is done by Congress (Legislative) against Executive officials." },
+    { q:"Congress impeaches and removes a federal judge.", a:"Legislative checking Judicial",
+      h:"Federal judges are Judicial, but Congress can remove them through impeachment." },
+    { q:"Congress proposes a constitutional amendment in response to a Court ruling or national issue.", a:"Legislative checking Judicial",
+      h:"Amendments can override court interpretations; proposing them is a Legislative power." },
+    { q:"The President vetoes legislation passed by Congress.", a:"Executive checking Legislative",
+      h:"The President (Executive) can veto bills passed by Congress (Legislative)." },
+    { q:"The President nominates federal judges.", a:"Executive checking Judicial",
+      h:"The President (Executive) selects nominees for the Judicial branch." },
+    { q:"The President grants pardons or reprieves.", a:"Executive checking Judicial",
+      h:"Pardons/reprieves reduce or cancel court penalties (Judicial outcomes)." },
+    { q:"The Supreme Court declares an act of Congress unconstitutional.", a:"Judicial checking Legislative",
+      h:"Judicial review allows courts to strike down laws passed by the Legislative branch." },
+    { q:"The Supreme Court reviews and interprets a law (clarifies / extends meaning).", a:"Judicial checking Legislative",
+      h:"Courts interpret statutes passed by Congress (Legislative) and decide what they mean in cases." },
+    { q:"The Supreme Court declares an executive action (like an executive order) unconstitutional.", a:"Judicial checking Executive",
+      h:"Courts can strike down Executive actions that violate the Constitution." },
+    { q:"Federal judges are not subject to removal by the President.", a:"Judicial checking Executive",
+      h:"Judicial independence limits the President’s control; judges can’t be fired by the President." }
+  ];
+
+  const options = [
+    "Legislative checking Executive",
+    "Legislative checking Judicial",
+    "Executive checking Legislative",
+    "Executive checking Judicial",
+    "Judicial checking Legislative",
+    "Judicial checking Executive"
+  ];
+
+  // ---------- State ----------
+  let questions = shuffle(bank);
+  let idx = 0;
+
+  let correct = 0;
+  let attempts = 0;
+
+  let started = false;
+  let startTimeMs = null;
+  let elapsedSec = 0;
+  let timerId = null;
+
+  let answeredThisQuestion = false;
+  let locked = false; // lock input after answer until Next
+
+  // ---------- Elements ----------
+  const elName = document.getElementById('studentName');
+  const elHintToggle = document.getElementById('hintToggle');
+
+  const elStartStamp = document.getElementById('startStamp');
+  const elElapsed = document.getElementById('elapsed');
+  const elScoreLine = document.getElementById('scoreLine');
+  const elAcc = document.getElementById('accuracy');
+
+  const elQnum = document.getElementById('qnum');
+  const elQtext = document.getElementById('qtext');
+  const elChoices = document.getElementById('choices');
+
+  const elFeedback = document.getElementById('feedback');
+  const elFeedbackText = document.getElementById('feedbackText');
+  const elHintBox = document.getElementById('hintBox');
+
+  const elNext = document.getElementById('nextBtn');
+  const elFinish = document.getElementById('finishBtn');
+  const elReset = document.getElementById('resetBtn');
+
+  const elSubmitBox = document.getElementById('submitBox');
+  const elSubmitText = document.getElementById('submitText');
+  const elCopy = document.getElementById('copyBtn');
+  const elEndStamp = document.getElementById('endStamp');
+
+  const elClockNow = document.getElementById('clockNow');
+
+  // ---------- Clock ----------
+  setInterval(()=>{ elClockNow.textContent = "Clock: " + new Date().toLocaleTimeString(); }, 500);
+
+  // ---------- Core ----------
+  function ensureStarted(){
+    if(started) return;
+    started = true;
+    startTimeMs = Date.now();
+    elStartStamp.textContent = nowStamp();
+    timerId = setInterval(()=>{
+      elapsedSec = Math.floor((Date.now()-startTimeMs)/1000);
+      elElapsed.textContent = formatHMS(elapsedSec);
+    }, 250);
+  }
+
+  function updateStats(){
+    elScoreLine.textContent = `${correct} / ${attempts}`;
+    const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+    elAcc.textContent = `${acc}%`;
+
+    // unlock Finish only at 100% and at least 1 attempt
+    const mastery = questions.length > 0 && attempts === questions.length && correct === questions.length;
+    elFinish.disabled = !mastery;
+    if(mastery){
+      elFeedback.className = "msg good";
+      elFeedbackText.textContent = "Mastery reached (100%). Click Finish / Submit Code.";
+      elHintBox.style.display = "none";
+    }
+  }
+
+  function setFeedback(type, text){
+    elFeedback.className = `msg ${type}`;
+    elFeedbackText.textContent = text;
+  }
+
+  function showHint(text){
+    if(!elHintToggle.checked){
+      elHintBox.style.display = "none";
+      return;
+    }
+    elHintBox.style.display = "block";
+    elHintBox.textContent = "Hint: " + text;
+  }
+
+  function renderQuestion(){
+    answeredThisQuestion = false;
+    locked = false;
+    elNext.disabled = true;
+    elSubmitBox.style.display = "none";
+
+    const q = questions[idx];
+    elQnum.textContent = `Question ${idx+1} of ${questions.length}`;
+    elQtext.textContent = q.q;
+
+    elChoices.innerHTML = "";
+    elHintBox.style.display = "none";
+
+    setFeedback("warn", "Choose the best answer.");
+
+    // shuffle choices each question
+    const shuffledOptions = shuffle(options);
+    for(const opt of shuffledOptions){
+      const b = document.createElement('button');
+      b.type = "button";
+      b.className = "btn";
+      b.textContent = opt;
+      b.addEventListener('click', ()=>handleAnswer(opt));
+      elChoices.appendChild(b);
+    }
+  }
+
+  function disableChoiceButtons(){
+    [...elChoices.querySelectorAll('button')].forEach(b=>b.disabled = true);
+  }
+
+  function enableChoiceButtons(){
+    [...elChoices.querySelectorAll('button')].forEach(b=>b.disabled = false);
+  }
+
+  function handleAnswer(choice){
+    if(locked) return;
+    ensureStarted();
+
+    attempts++;
+    const q = questions[idx];
+
+    if(choice === q.a){
+      correct++;
+      setFeedback("good", "Correct.");
+      elHintBox.style.display = "none";
+    }else{
+      setFeedback("bad", "Incorrect.");
+      showHint(q.h);
+    }
+
+    answeredThisQuestion = true;
+    locked = true;
+    disableChoiceButtons();
+    elNext.disabled = false;
+
+    updateStats();
+  }
+
+  function nextQuestion(){
+    if (attempts >= questions.length) { elNext.disabled = true; if(correct !== questions.length) setFeedback("warn", "Restart for a perfect run."); return; }
+    if(!answeredThisQuestion) return;
+    idx = (idx + 1) % questions.length;
+    // re-enable choices for next question
+    enableChoiceButtons();
+    renderQuestion();
+  }
+
+  function finish(){
+    // only if mastery
+    const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+    if(!(questions.length > 0 && attempts === questions.length && correct === questions.length)){
+      setFeedback("warn", "You must reach 100% accuracy to unlock the Submit Code.");
+      return;
+    }
+
+    // stop timer for "end" snapshot but keep clock running
+    const endStamp = nowStamp();
+    elEndStamp.textContent = "End: " + endStamp;
+
+    const name = (elName.value || "").trim() || "NAME NOT ENTERED";
+  WeberRun.finish(elName.value.trim(), startTimeMs, questions.length, correct, attempts);
+    const submit =
+`SUBMIT CODE — ${GAME_TITLE}
+STUDENT: ${name}
+
+START: ${elStartStamp.textContent}
+END:   ${endStamp}
+ELAPSED: ${formatHMS(elapsedSec)}
+
+SCORE: ${correct} / ${attempts}
+ACCURACY: ${acc}%
+
+INSTRUCTIONS: Screenshot this box OR copy/paste into your assignment submission.`;
+
+    elSubmitText.value = submit;
+    elSubmitBox.style.display = "block";
+    setFeedback("good", "Submit Code generated. Screenshot or copy/paste.");
+  }
+
+  function resetAll(){
+    // stop timer
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+
+    // reset state
+    questions = shuffle(bank);
+    idx = 0;
+    correct = 0;
+    attempts = 0;
+
+    started = false;
+    startTimeMs = null;
+    elapsedSec = 0;
+
+    answeredThisQuestion = false;
+    locked = false;
+
+    // reset UI
+    elStartStamp.textContent = "--";
+    elElapsed.textContent = "00:00";
+    elScoreLine.textContent = "0 / 0";
+    elAcc.textContent = "0%";
+    elEndStamp.textContent = "End: --";
+
+    elSubmitBox.style.display = "none";
+    elHintBox.style.display = "none";
+    elNext.disabled = true;
+    elFinish.disabled = true;
+
+    // allow choices again
+    enableChoiceButtons();
+
+    renderQuestion();
+  }
+
+  async function copySubmit(){
+    const text = elSubmitText.value;
+    if(!text) return;
+    try{
+      await navigator.clipboard.writeText(text);
+      setFeedback("good", "Copied to clipboard.");
+    }catch(e){
+      setFeedback("warn", "Copy blocked by browser. Highlight the text and copy manually.");
+    }
+  }
+
+  // ---------- Events ----------
+  elNext.addEventListener('click', nextQuestion);
+  elFinish.addEventListener('click', finish);
+  elReset.addEventListener('click', resetAll);
+  elCopy.addEventListener('click', copySubmit);
+
+  // Start timestamp is set on first answer, not on page load (prevents idle-start cheating).
+  renderQuestion();
+  updateStats();
+})();
+</script>
+</body>
+</html>

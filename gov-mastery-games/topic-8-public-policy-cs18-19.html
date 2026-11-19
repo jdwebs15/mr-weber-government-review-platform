@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Topic 8 — Public Policy (CS18–19)</title>
+
+<style>
+:root{
+  --bg:#0b1220; --text:#e7eefc; --muted:#a8b4cf; --border:rgba(255,255,255,.12);
+  --accent:#7aa2ff; --good:#2bd576; --bad:#ff5c7a; --shadow:0 18px 55px rgba(0,0,0,.35);
+  --radius:18px; --radius2:14px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New";
+  --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.app{
+  width:min(980px,100%);
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+header{padding:18px;border-bottom:1px solid var(--border)}
+h1{margin:0;font-size:18px}
+.sub{color:var(--muted);font-size:13px;margin-top:6px}
+main{padding:18px}
+
+.card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+
+label{font-size:13px;color:var(--muted)}
+input{
+  width:100%; padding:12px; border-radius:12px; border:1px solid var(--border);
+  background:rgba(0,0,0,.3); color:var(--text);
+}
+
+button{
+  padding:12px 14px; border-radius:14px; border:1px solid var(--border);
+  background:rgba(122,162,255,.15); color:var(--text); font-weight:700; cursor:pointer;
+}
+button:hover{background:rgba(122,162,255,.25)}
+
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.stat{
+  flex:1 1 180px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(255,255,255,.04);
+}
+.stat .k{color:var(--muted);font-size:12px}
+.stat .v{font-family:var(--mono)}
+
+.qbox{margin-top:16px}
+.qtop{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;gap:10px;flex-wrap:wrap}
+.qtext{font-size:16px;margin-top:10px}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media(max-width:760px){.choices{grid-template-columns:1fr}}
+
+.choice{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  background:rgba(0,0,0,.25);
+  cursor:pointer;
+  text-align:left;
+}
+.choice:hover{border-color:var(--accent)}
+.choice .tag{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:6px}
+
+.modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center; padding:18px;
+}
+.modal.hidden{display:none!important}
+.modalBox{
+  background:#0b1220; border:1px solid var(--border); border-radius:18px; padding:18px; width:min(650px,100%);
+}
+.modalBox h3{margin-top:0}
+
+.ticket{
+  margin-top:18px;
+  border:1px dashed rgba(255,255,255,.3);
+  border-radius:14px;
+  padding:14px;
+  font-family:var(--mono);
+  font-size:12px;
+  white-space:pre-wrap;
+}
+
+.hidden{display:none!important}
+small{color:var(--muted)}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="app">
+<header>
+  <h1>Topic 8 — Public Policy (CS18–19)</h1>
+  <div class="sub">100% first-try accuracy required • Wrong answers trigger an explanation until corrected • Auto-advance on correct</div>
+</header>
+
+<main>
+  <!-- SETUP -->
+  <div class="card" id="setup">
+    <div class="grid2">
+      <div>
+        <label>Student Name</label>
+        <input id="name" placeholder="Type first + last name" autocomplete="off"/>
+      </div>
+      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+        <button id="startBtn">Start Game</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </div>
+    <small>After starting, the stats will stay visible on the game screen.</small>
+  </div>
+
+  <!-- GAME (STATS LIVE HERE) -->
+  <div class="card qbox hidden" id="game">
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><div class="k">Name</div><div class="v" id="nameOut">—</div></div>
+      <div class="stat"><div class="k">Date</div><div class="v" id="dateS">—</div></div>
+      <div class="stat"><div class="k">Start</div><div class="v" id="startT">—</div></div>
+      <div class="stat"><div class="k">Finish</div><div class="v" id="finishT">—</div></div>
+      <div class="stat"><div class="k">Timer</div><div class="v" id="timer">00:00</div></div>
+      <div class="stat"><div class="k">Accuracy (First-Try)</div><div class="v" id="acc">—</div></div>
+      <div class="stat"><div class="k">Progress</div><div class="v" id="prog">—</div></div>
+    </div>
+
+    <div class="qtop" style="margin-top:14px">
+      <div id="qnum"></div>
+      <div id="cs"></div>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div class="choices" id="choices"></div>
+
+    <div class="ticket hidden" id="ticket"></div>
+  </div>
+</main>
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="modalBox">
+    <h3>Not Correct — Explanation</h3>
+    <p id="exp"></p>
+    <button id="closeM">Try Again</button>
+  </div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+function pad(n){return String(n).padStart(2,"0")}
+function timeFmt(s){return pad(Math.floor(s/60))+":"+pad(s%60)}
+function formatDate(d){ return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+function formatTime(d){ return d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",second:"2-digit"}); }
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+
+/* ---------- QUESTIONS (28) ---------- */
+const QUESTIONS = [
+  {cs:"CS18", q:"Which statement best defines a public policy issue?", c:[
+    "A matter of discussion and debate about government functions and consequences of decisions",
+    "A personal decision that affects only one individual",
+    "A court case that can never involve the other branches",
+    "A law that applies only to private businesses"
+  ], a:0, e:"Public policy issues involve government action, debate, and projected consequences of decisions."},
+
+  {cs:"CS18", q:"Which example is a FEDERAL EXECUTIVE entity addressing public policy in foreign affairs?", c:[
+    "U.S. Department of State advising the president and directing embassy activities",
+    "Congressional Budget Office writing a budget bill",
+    "Ohio Legislative Service Commission voting on bills",
+    "Ohio Courts of Common Pleas passing a local ordinance"
+  ], a:0, e:"The Department of State is in the federal executive branch and supports foreign policy."},
+
+  {cs:"CS18", q:"Which example is a FEDERAL LEGISLATIVE entity addressing public policy through analysis?", c:[
+    "Congressional Budget Office providing economic and budget analysis",
+    "Department of State negotiating a cease-fire",
+    "Ohio Courts of Common Pleas applying sentencing guidelines",
+    "County commission granting tax abatements"
+  ], a:0, e:"The CBO supports Congress by analyzing economic and budget data."},
+
+  {cs:"CS18", q:"Which example best matches a STATE LEGISLATIVE entity helping create policy?", c:[
+    "Ohio Legislative Service Commission assisting in drafting legislation",
+    "U.S. Supreme Court reviewing constitutionality",
+    "City council enforcing a law",
+    "Federal agency issuing a pardon"
+  ], a:0, e:"The Ohio Legislative Service Commission supports the state legislature by drafting legislation."},
+
+  {cs:"CS18", q:"Which is a STATE JUDICIAL example of public policy being applied?", c:[
+    "Ohio Courts of Common Pleas applying sentencing guidelines to convicted felons",
+    "Governor signing a treaty",
+    "City council negotiating an international trade agreement",
+    "Congress appointing federal judges"
+  ], a:0, e:"Courts apply laws/policies through sentencing and judicial decisions."},
+
+  {cs:"CS18", q:"Which is a LOCAL legislative/executive example of public policy action?", c:[
+    "County commission determining and granting tax abatements",
+    "U.S. Senate approving a treaty",
+    "CBO issuing an executive order",
+    "Ohio Supreme Court drafting a bill"
+  ], a:0, e:"County commissions can make local decisions like tax abatements."},
+
+  {cs:"CS18", q:"Why can public policy become complex?", c:[
+    "It may involve multiple levels and branches that collaborate or conflict",
+    "Only one branch is ever involved",
+    "It is always decided by direct democracy",
+    "It is limited to international issues only"
+  ], a:0, e:"Many policy issues require multiple levels/branches and can involve collaboration or conflict."},
+
+  {cs:"CS18", q:"Which example shows public policy created through collaboration among branches?", c:[
+    "Senate approves a treaty negotiated by the president",
+    "A governor threatens to veto a bill",
+    "A court ruling is appealed",
+    "An agency writes a report only for internal use"
+  ], a:0, e:"Treaties are negotiated by the executive and approved by the Senate—two branches working together."},
+
+  {cs:"CS18", q:"A city wants a new park. The city council holds a public hearing and then votes to fund it. This is best described as:", c:[
+    "Local government addressing a domestic public policy issue",
+    "The federal judicial branch creating foreign policy",
+    "State courts negotiating a treaty",
+    "A private company making a personal choice"
+  ], a:0, e:"Local legislative/executive bodies handle community issues like parks through policy decisions."},
+
+  {cs:"CS18", q:"A new federal environmental rule is challenged in court, then Congress holds hearings about it. This example best shows:", c:[
+    "Different branches interacting around the same policy issue",
+    "Only local government involvement",
+    "No role for the judiciary",
+    "That policy issues cannot involve conflict"
+  ], a:0, e:"Executive regulates, judiciary reviews challenges, and legislature can respond via hearings/laws."},
+
+  {cs:"CS18", q:"Which scenario best illustrates CONFLICT among levels of government?", c:[
+    "A city adopts rules that are blocked by a state law",
+    "A governor signs a state law and agencies carry it out",
+    "Congress requests budget analysis from the CBO",
+    "A county commission votes to grant a tax abatement"
+  ], a:0, e:"Conflict can occur when local and state policies clash (preemption)."},
+
+  {cs:"CS18", q:"Which scenario best illustrates COLLABORATION among levels of government?", c:[
+    "Federal grants fund a state highway project administered by the state transportation agency",
+    "A city refuses to follow any state regulations",
+    "A court overturns a law with no further action",
+    "A private group boycotts a store"
+  ], a:0, e:"Collaboration happens when levels coordinate funding and implementation."},
+
+  {cs:"CS19", q:"Which action best fits influencing policy at a CITY/LOCAL level?", c:[
+    "Offer comments at a city council public meeting",
+    "File a brief at the U.S. Supreme Court",
+    "Testify before Congress about a federal bill",
+    "Campaign for the governor’s re-election to change city zoning"
+  ], a:0, e:"City council meetings are direct local input."},
+
+  {cs:"CS19", q:"Which action would most effectively influence officials deciding whether to build a neighborhood park?", c:[
+    "Attend the city council meeting and present the benefits of a park",
+    "Send an email to your U.S. senators",
+    "Participate in the governor’s re-election campaign",
+    "File a brief in the Ohio Supreme Court"
+  ], a:0, e:"Park decisions are local—city council input is targeted."},
+
+  {cs:"CS19", q:"Which method best matches influencing LEGISLATORS directly on a proposed bill?", c:[
+    "Lobby members of a legislature",
+    "Issue an executive order",
+    "Grant a pardon",
+    "Declare a law unconstitutional"
+  ], a:0, e:"Lobbying targets legislators who vote on bills."},
+
+  {cs:"CS19", q:"Which method best matches influencing policy during committee review of a bill?", c:[
+    "Provide testimony before legislative committees",
+    "Negotiate a treaty with a foreign nation",
+    "Write a court ruling",
+    "Create a new county commission"
+  ], a:0, e:"Committees hear testimony as part of the legislative process."},
+
+  {cs:"CS19", q:"Which method best fits trying to shape how an EXECUTIVE AGENCY writes rules/regulations?", c:[
+    "Provide information to executive branch officials about impacts of potential rules",
+    "Impeach a judge",
+    "Override a veto",
+    "File a criminal indictment"
+  ], a:0, e:"Agencies consider impact information when drafting regulations."},
+
+  {cs:"CS19", q:"Which method best fits influencing the JUDICIAL branch during a court case?", c:[
+    "Prepare briefs to present during judicial proceedings",
+    "Hold a vote in Congress",
+    "Issue a proclamation",
+    "Collect signatures to place an issue on a ballot"
+  ], a:0, e:"Briefs provide legal arguments during judicial proceedings."},
+
+  {cs:"CS19", q:"Which method best fits building public pressure on officials through mass participation?", c:[
+    "Hold public demonstrations",
+    "Write an executive order",
+    "Appoint ambassadors",
+    "Create a tax abatement"
+  ], a:0, e:"Demonstrations create public pressure."},
+
+  {cs:"CS19", q:"Which method best fits organized communication to policymakers over time?", c:[
+    "Conduct letter-writing campaigns",
+    "Declare war",
+    "Issue sentencing guidelines",
+    "Negotiate a treaty"
+  ], a:0, e:"Letter-writing campaigns target officials repeatedly."},
+
+  {cs:"CS19", q:"A community group wants a FEDERAL law changed. Which action is most targeted?", c:[
+    "Testify before Congress and lobby members of Congress",
+    "Attend a city council meeting",
+    "Ask the county commission to vote",
+    "File a brief in a state trial court"
+  ], a:0, e:"Federal laws are made by Congress—testimony and lobbying are direct."},
+
+  {cs:"CS18", q:"Which scenario best represents an INTERNATIONAL public policy issue?", c:[
+    "The Department of State advising the president on foreign policy",
+    "A county commission granting a tax abatement",
+    "A city council debating a park",
+    "A state agency issuing a driver’s license rule"
+  ], a:0, e:"Foreign policy advising is international and handled in federal executive."}
+];
+
+/* ---------- state ---------- */
+let state = {
+  i:0,
+  sec:0,
+  timer:null,
+  name:"",
+  firstTryCorrect:0,
+  hadMiss:false,
+  startedAt:null,
+  finishedAt:null
+};
+
+const elSetup = document.getElementById("setup");
+const elGame  = document.getElementById("game");
+
+const nameI   = document.getElementById("name");
+const nameOut = document.getElementById("nameOut");
+const startBtn= document.getElementById("startBtn");
+const resetBtn= document.getElementById("resetBtn");
+
+const qnum    = document.getElementById("qnum");
+const cs      = document.getElementById("cs");
+const qtext   = document.getElementById("qtext");
+const choices = document.getElementById("choices");
+
+const timerEl = document.getElementById("timer");
+const accEl   = document.getElementById("acc");
+const progEl  = document.getElementById("prog");
+
+const dateS   = document.getElementById("dateS");
+const startT  = document.getElementById("startT");
+const finishT = document.getElementById("finishT");
+
+const modal   = document.getElementById("modal");
+const exp     = document.getElementById("exp");
+const closeM  = document.getElementById("closeM");
+const ticket  = document.getElementById("ticket");
+
+function updateStats(){
+  const total = QUESTIONS.length;
+  const shown = Math.min(state.i + 1, total);
+  progEl.textContent = `${shown}/${total}`;
+  accEl.textContent = `${Math.round((state.firstTryCorrect/total)*100)}%`;
+  qnum.textContent = `Question ${shown}/${total}`;
+}
+
+function render(){
+  const q = QUESTIONS[state.i];
+  state.hadMiss = false;
+
+  cs.textContent = q.cs;
+  qtext.textContent = q.q;
+
+  const opts = q.c.map((t,i)=>({t,i}));
+  shuffle(opts);
+  const correctPos = opts.findIndex(o=>o.i===q.a);
+
+  choices.innerHTML = "";
+  opts.forEach((o,pos)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.type = "button";
+    btn.innerHTML = `<div class="tag">${String.fromCharCode(65+pos)}</div>${o.t}`;
+
+    btn.onclick = ()=>{
+      if(pos === correctPos){
+        if(!state.hadMiss) state.firstTryCorrect++;
+        state.i++;
+        if(state.i < QUESTIONS.length){
+          updateStats();
+          render();
+        }else{
+          finish();
+        }
+      }else{
+        state.hadMiss = true;
+        exp.textContent = q.e;
+        modal.classList.remove("hidden");
+      }
+      updateStats();
+    };
+
+    choices.appendChild(btn);
+  });
+
+  updateStats();
+}
+
+function start(){
+  const nm = nameI.value.trim();
+  if(!nm) return alert("Enter your name.");
+
+  // reset
+  state.name = nm;
+  state.i = 0;
+  state.sec = 0;
+  state.firstTryCorrect = 0;
+  state.hadMiss = false;
+  state.startedAt = new Date();
+  state.finishedAt = null;
+
+  // shuffle order each run
+  shuffle(QUESTIONS);
+
+  // stamps + outputs
+  nameOut.textContent = state.name;
+  dateS.textContent = formatDate(state.startedAt);
+  startT.textContent = formatTime(state.startedAt);
+  finishT.textContent = "—";
+  timerEl.textContent = "00:00";
+  ticket.classList.add("hidden");
+  ticket.textContent = "";
+
+  // swap screens
+  elSetup.classList.add("hidden");
+  elGame.classList.remove("hidden");
+
+  if(state.timer) clearInterval(state.timer);
+  state.timer = setInterval(()=>{
+    state.sec++;
+    timerEl.textContent = timeFmt(state.sec);
+  },1000);
+
+  render();
+}
+
+function finish(){
+  clearInterval(state.timer);
+  state.finishedAt = new Date();
+  finishT.textContent = formatTime(state.finishedAt);
+
+  if(state.firstTryCorrect !== QUESTIONS.length){
+    alert("You finished, but mastery requires 100% FIRST-TRY accuracy. Hit Reset and try again.");
+    return;
+  }
+
+  ticket.classList.remove("hidden");
+  WeberRun.finish(state.name, state.startedAt, QUESTIONS.length, state.firstTryCorrect, QUESTIONS.length);
+  ticket.textContent =
+`TOPIC 8 — SUBMIT TICKET
+Name: ${state.name}
+Date: ${formatDate(state.startedAt)}
+Start: ${formatTime(state.startedAt)}
+Finish: ${formatTime(state.finishedAt)}
+Time: ${timerEl.textContent}
+Accuracy: 100% (First-Try Mastery)
+Questions: ${QUESTIONS.length}/${QUESTIONS.length}`;
+}
+
+startBtn.onclick = start;
+resetBtn.onclick = ()=>location.reload();
+closeM.onclick = ()=>modal.classList.add("hidden");
+</script>
+</body>
+</html>

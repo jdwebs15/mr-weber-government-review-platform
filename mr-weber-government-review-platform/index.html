@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mr. Weber's Government Review Platform Home</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --border:rgba(255,255,255,.12);
+  --accent:#7aa2ff;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(22px,4vw,48px);
+}
+.app{
+  width:min(1500px,100%);
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  border-radius:22px;
+  overflow:hidden;
+}
+header{
+  padding:clamp(22px,4vw,48px);
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+}
+h1{margin:0;font-size:clamp(28px,4vw,52px)}
+.sub{margin-top:6px;color:var(--muted);font-size:clamp(16px,1.6vw,22px);line-height:1.35}
+main{padding:clamp(22px,4vw,48px)}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(16px,2vw,28px);
+}
+@media(max-width:760px){ .grid{grid-template-columns:1fr;} }
+
+a.card{
+  display:block;
+  text-decoration:none;
+  color:var(--text);
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  border-radius:var(--radius);
+  padding:clamp(22px,3vw,38px);
+  transition:transform .05s ease, border-color .12s ease;
+}
+a.card:hover{ transform:translateY(-1px); border-color:rgba(122,162,255,.55); }
+
+.title{font-size:clamp(19px,2.2vw,28px);font-weight:800;margin:0 0 6px 0}
+.desc{margin:0;color:var(--muted);font-size:clamp(15px,1.4vw,19px);line-height:1.35}
+
+.footer{
+  margin-top:14px;
+  color:var(--muted);
+  font-size:clamp(15px,1.4vw,19px);
+  border-top:1px solid var(--border);
+  padding-top:14px;
+  line-height:1.45;
+}
+.badge{
+  display:inline-block;
+  font-size:12px;
+  padding:4px 10px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:rgba(122,162,255,.12);
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <h1>Mr. Weber's Government Review Platform Home</h1>
+      <div class="sub">
+        Choose the hub you need. Each hub contains multiple games and activities.<br>
+        Most games require a <b>100% mastery ticket</b> for submission.
+      </div>
+      <div class="badge">Norton • American Government</div>
+    </header>
+
+    <main>
+      <div class="grid">
+        <a class="card" href="https://jdwebs15.github.io/gov-mastery-games/">
+          <div class="title">Government Mastery Games Hub</div>
+          <p class="desc">Topic-based mastery games (Civic Involvement → Economy) with ticket requirements.</p>
+        </a>
+
+        <a class="card" href="https://jdwebs15.github.io/bor-games/">
+          <div class="title">Bill of Rights Practice Games Hub</div>
+          <p class="desc">Bill of Rights mastery + amendment practice + related skill games (quotes, rights scenarios, etc.).</p>
+        </a>
+
+        <a class="card" href="https://jdwebs15.github.io/econ-policy-games/">
+          <div class="title">Fiscal & Monetary Policy Games Hub</div>
+          <p class="desc">Economy policy tools practice (multi-file JS simulations).</p>
+        </a>
+
+        <a class="card" href="https://jdwebs15.github.io/gov-mastery-games/">
+          <div class="title">Start Here: Assigned Topic</div>
+          <p class="desc">If you're not sure where to go, start in the Government Mastery Hub and click the assigned topic.</p>
+        </a>
+      </div>
+
+      <div class="footer">
+        Tip: Bookmark this page. Teachers can post this single link in Google Classroom for a “one-stop” entry point.
+      </div>
+    </main>
+  </div>
+</body>
+</html>

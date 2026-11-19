@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bill of Rights + 14th — Which Right Is Being Violated?</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --text:#e7eefc;
+      --muted:#a8b4cf;
+      --accent:#7aa2ff;
+      --good:#2bd576;
+      --bad:#ff5c7a;
+      --warn:#ffd166;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(900px 500px at 15% 15%, rgba(122,162,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 85% 25%, rgba(43,213,118,.14), transparent 60%),
+                  radial-gradient(900px 500px at 60% 85%, rgba(255,92,122,.12), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+
+    .app{
+      width: min(1040px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow:hidden;
+    }
+
+    header{
+      padding: 18px 18px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .title-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-width: 740px;
+    }
+    h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      gap:6px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .pill b{color: var(--text); font-weight:700}
+
+    /* Name pill */
+    .pill.name-pill{
+      gap:8px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill.name-pill:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.16);
+    }
+    .edit-dot{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:18px;
+      border-radius: 6px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color: rgba(231,238,252,.8);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    main{
+      padding: 18px;
+      display:grid;
+      grid-template-columns: 1.10fr .90fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 900px){
+      main{grid-template-columns: 1fr}
+    }
+
+    .card{
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 14px;
+    }
+
+    .scenario{
+      background: linear-gradient(180deg, rgba(122,162,255,.10), rgba(0,0,0,.18));
+      border:1px solid rgba(122,162,255,.22);
+      border-radius: var(--radius2);
+      padding: 16px;
+      min-height: 170px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      position:relative;
+      overflow:hidden;
+    }
+    .scenario::after{
+      content:"";
+      position:absolute;
+      inset:-60px -80px auto auto;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(122,162,255,.22), transparent 60%);
+      transform: rotate(18deg);
+    }
+
+    .scenario-label{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(231,238,252,.75);
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+
+    .badge{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color: var(--muted);
+      background: rgba(0,0,0,.18);
+      white-space:nowrap;
+    }
+
+    .scenario-text{
+      font-size: 17px;
+      line-height: 1.35;
+      margin:0;
+      position:relative;
+      z-index:1;
+    }
+
+    .choices{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 540px){
+      .choices{grid-template-columns: repeat(2, minmax(0,1fr))}
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      padding: 12px 10px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      text-align:left;
+    }
+    button:hover{ background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      border-color: rgba(122,162,255,.35);
+      background: rgba(122,162,255,.12);
+    }
+    button.good{
+      border-color: rgba(43,213,118,.40);
+      background: rgba(43,213,118,.14);
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+
+    .feedback{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      min-height: 54px;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .feedback .icon{
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size: 12px;
+      margin-top:2px;
+      flex: 0 0 auto;
+    }
+    .icon.good{ background: rgba(43,213,118,.16); color: var(--good); border:1px solid rgba(43,213,118,.35); }
+    .icon.bad{ background: rgba(255,92,122,.16); color: var(--bad); border:1px solid rgba(255,92,122,.35); }
+    .icon.warn{ background: rgba(255,209,102,.16); color: var(--warn); border:1px solid rgba(255,209,102,.35); }
+
+    .explain{
+      margin-top: 12px;
+      display:none;
+      border-radius: 14px;
+      border:1px solid rgba(43,213,118,.30);
+      background: linear-gradient(180deg, rgba(43,213,118,.10), rgba(0,0,0,.18));
+      padding: 12px;
+    }
+    .explain h3{ margin:0 0 8px; font-size: 14px; }
+    .explain .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .explain b{ color: var(--text); }
+    .mini{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(231,238,252,.70);
+      margin-top: 8px;
+    }
+
+    .sidebar h2{
+      margin:0 0 10px;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .help{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      margin:0 0 12px;
+    }
+
+    .rulebox{
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .rule{display:flex;gap:10px;align-items:flex-start}
+    .dot{
+      width:10px;height:10px;border-radius:3px;margin-top:5px;flex:0 0 auto;
+      border:1px solid var(--border);
+      background: rgba(122,162,255,.22);
+      border-color: rgba(122,162,255,.32);
+    }
+
+    .footer{
+      padding: 14px 18px 18px;
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .linkish{ color: rgba(231,238,252,.75); text-decoration: underline; cursor:pointer; }
+
+    /* Name modal */
+    .modal{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index: 9999;
+    }
+    .modal .box{
+      width: min(520px, 100%);
+      background: #0f172a;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .modal h3{ margin:0 0 8px; font-size: 16px; }
+    .modal p{
+      margin:0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .field{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    input[type="text"]{
+      flex: 1 1 220px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      padding: 12px 12px;
+      font-size: 14px;
+      outline:none;
+    }
+    input[type="text"]:focus{
+      border-color: rgba(122,162,255,.35);
+      box-shadow: 0 0 0 3px rgba(122,162,255,.14);
+    }
+    .modal .row{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top: 12px;
+      flex-wrap:wrap;
+    }
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="title-wrap">
+        <h1>Bill of Rights + 14th — Which Specific Right Is Being Violated?</h1>
+        <div class="sub">
+          Expanded version: You’re choosing the <b>exact sub-right/part</b> (speech vs press, counsel vs confrontation, etc.)
+          and also key <b>14th Amendment</b> rubric items (citizenship, due process, equal protection, incorporation).
+        </div>
+      </div>
+
+      <div class="stats">
+        <!-- NAME PILL (click to edit) -->
+        <div class="pill name-pill" id="namePill" title="Click to enter/edit name">
+          Name <b id="playerName">—</b> <span class="edit-dot">✎</span>
+        </div>
+
+        <div class="pill">Scenario <b id="qNum">1</b>/<b id="qTotal">0</b></div>
+        <div class="pill">Correct <b id="correctCt">0</b></div>
+        <div class="pill">Total Attempts <b id="attemptCt">0</b></div>
+        <div class="pill">This Scenario Attempts <b id="attemptThis">0</b></div>
+        <div class="pill">Accuracy <b id="accPct">—</b></div>
+        <div class="pill">Timer <b id="timeEl">0:00</b></div>
+        <div class="pill">Now <b id="nowStamp">—</b></div>
+        <div class="pill">Started <b id="startStamp">—</b></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="scenario">
+          <div class="scenario-label">
+            <span class="badge" id="modeBadge">Mode: Strict (must be correct)</span>
+            <span class="badge" id="streakBadge">Streak: 0</span>
+            <span class="badge" id="attemptBadge">Attempt #: 0</span>
+          </div>
+          <p class="scenario-text" id="scenarioText">Loading…</p>
+        </div>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="controls">
+          <button class="primary" id="btnHint">Hint</button>
+          <button id="btnSkip" title="Teacher tool: skip this scenario">Teacher Skip</button>
+          <button id="btnRestart">Restart</button>
+          <button id="btnToggleSet" class="primary">Choices: Expanded</button>
+          <button id="btnName" class="primary" title="Enter/Edit Name">Name</button>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <span class="icon warn">!</span>
+          <div>
+            <div><b>Directions:</b> Pick the most precise right/part that applies.</div>
+            <div style="margin-top:4px">You’ll see the explanation only after the correct choice.</div>
+          </div>
+        </div>
+
+        <div class="explain" id="explainBox">
+          <h3 id="explainTitle">Correct</h3>
+          <div class="grid" id="explainGrid"></div>
+          <div class="mini" id="explainMini"></div>
+          <div class="controls" style="margin-top:10px">
+            <button class="good" id="btnNext">Next Scenario</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card sidebar">
+        <h2>Quick “Tells” (sub-right level)</h2>
+        <p class="help">Goal: students identify the exact protection being applied, not just the amendment number.</p>
+
+        <div class="rulebox">
+          <div class="rule"><span class="dot"></span><div><b>1A:</b> Speech vs Press vs Religion vs Assembly vs Petition</div></div>
+          <div class="rule"><span class="dot"></span><div><b>4A:</b> Search vs Seizure vs Warrant/Probable Cause</div></div>
+          <div class="rule"><span class="dot"></span><div><b>5A:</b> Self-incrimination vs Double Jeopardy</div></div>
+          <div class="rule"><span class="dot"></span><div><b>6A:</b> Speedy • Public • Jury • Charges • Confrontation • Counsel</div></div>
+          <div class="rule"><span class="dot"></span><div><b>8A:</b> Cruel/Unusual • Excessive Bail • Excessive Fines</div></div>
+          <div class="rule"><span class="dot"></span><div><b>10A:</b> Reserved Powers / federalism</div></div>
+          <div class="rule"><span class="dot"></span><div><b>14A:</b> Citizenship • Due Process • Equal Protection • Incorporation</div></div>
+        </div>
+
+        <div style="height:12px"></div>
+        <h2>Choice Set Toggle</h2>
+        <p class="help">
+          Use <b>Choices: Expanded</b> (default) for sub-right mastery.
+          Toggle to <b>Choices: Simple</b> if you want a quicker warm-up (just amendment numbers).
+        </p>
+
+        <div class="rulebox">
+          <div class="rule">
+            <span class="dot"></span>
+            <div><b>Name entry:</b> Click the <b>Name</b> pill (top-right) to enter/edit. Saved only on this device (localStorage).</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <div class="footer">
+      <div>Single-file classroom game • name saved only on this device</div>
+      <div>
+        <span class="linkish" id="toggleShuffle">Shuffle: ON</span> ·
+        <span class="linkish" id="toggleStrict">Strict: ON</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAME MODAL -->
+  <div class="modal" id="nameModal" aria-hidden="true">
+    <div class="box" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+      <h3 id="nameTitle">Enter Your Name</h3>
+      <p>This shows on-screen during your session. It’s saved on <b>this device only</b>.</p>
+      <div class="field">
+        <input id="nameInput" type="text" maxlength="28" placeholder="e.g., Jordan" autocomplete="off" />
+      </div>
+      <div class="row">
+        <button id="btnClearName" title="Remove saved name">Clear</button>
+        <button id="btnCancelName">Cancel</button>
+        <button class="good" id="btnSaveName">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /********************************************************************
+     * NAME ENTRY (localStorage)
+     ********************************************************************/
+    const NAME_KEY = "bor_player_name_v1";
+
+    function getSavedName(){
+      try{
+        const n = localStorage.getItem(NAME_KEY);
+        return (n && n.trim()) ? n.trim() : "";
+      } catch(e){
+        return "";
+      }
+    }
+
+    function saveName(name){
+      const clean = String(name || "").trim().slice(0,28);
+      try{
+        if(clean){
+          localStorage.setItem(NAME_KEY, clean);
+        } else {
+          localStorage.removeItem(NAME_KEY);
+        }
+      } catch(e){}
+      setNameUI(clean);
+    }
+
+    function setNameUI(name){
+      const show = name ? name : "—";
+      document.getElementById("playerName").textContent = show;
+    }
+
+    function openNameModal(force=false){
+      const modal = document.getElementById("nameModal");
+      const input = document.getElementById("nameInput");
+      input.value = getSavedName();
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden","false");
+      setTimeout(()=> input.focus(), 30);
+
+      // If forced (first load), disable cancel by clicking outside? Keep simple: still allow cancel.
+      if(force){
+        // no-op (kept flexible)
+      }
+    }
+
+    function closeNameModal(){
+      const modal = document.getElementById("nameModal");
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden","true");
+    }
+
+    /********************************************************************
+     * CHOICE SETS
+     ********************************************************************/
+    const SIMPLE = [
+      { key:"1", label:"1st Amendment" },
+      { key:"2", label:"2nd Amendment" },
+      { key:"4", label:"4th Amendment" },
+      { key:"5", label:"5th Amendment" },
+      { key:"6", label:"6th Amendment" },
+      { key:"8", label:"8th Amendment" },
+      { key:"10", label:"10th Amendment" },
+      { key:"14", label:"14th Amendment" },
+    ];
+
+    const EXPANDED = [
+      { key:"1_speech", label:"1A — Speech" },
+      { key:"1_press", label:"1A — Press" },
+      { key:"1_religion", label:"1A — Religion" },
+      { key:"1_assembly", label:"1A — Assembly" },
+      { key:"1_petition", label:"1A — Petition" },
+
+      { key:"2_arms", label:"2A — Bear Arms" },
+
+      { key:"4_search", label:"4A — Unreasonable Search" },
+      { key:"4_seizure", label:"4A — Unreasonable Seizure" },
+      { key:"4_warrant", label:"4A — Warrant / Probable Cause" },
+
+      { key:"5_self", label:"5A — Self-Incrimination" },
+      { key:"5_dj", label:"5A — Double Jeopardy" },
+
+      { key:"6_speedy", label:"6A — Speedy Trial" },
+      { key:"6_public", label:"6A — Public Trial" },
+      { key:"6_jury", label:"6A — Impartial Jury" },
+      { key:"6_charges", label:"6A — Informed of Charges" },
+      { key:"6_confront", label:"6A — Confront Witnesses" },
+      { key:"6_counsel", label:"6A — Counsel (Lawyer)" },
+
+      { key:"8_cruel", label:"8A — Cruel & Unusual" },
+      { key:"8_bail", label:"8A — Excessive Bail" },
+      { key:"8_fines", label:"8A — Excessive Fines" },
+
+      { key:"10_reserved", label:"10A — Reserved Powers" },
+
+      { key:"14_cit", label:"14A — Citizenship Clause" },
+      { key:"14_dp", label:"14A — Due Process (states)" },
+      { key:"14_ep", label:"14A — Equal Protection" },
+      { key:"14_incorp", label:"14A — Incorporation Doctrine" },
+    ];
+
+    let useExpandedChoices = true;
+    let strictMode = true;
+    let shuffleOn = true;
+
+    /********************************************************************
+     * SCENARIO BANK
+     ********************************************************************/
+    const scenarioBank = [
+      { correctKey:"1_speech", scenario:"A public school suspends a student for peacefully criticizing the mayor on a T-shirt, even though it causes no disruption.", right:"Freedom of speech (expression).", limit:"Government cannot punish speech just because officials dislike the message (especially without disruption).", why:"The punishment targets protected expression and viewpoint." },
+      { correctKey:"1_speech", scenario:"A city threatens fines against citizens who speak at a public meeting in favor of a controversial policy.", right:"Freedom of speech.", limit:"Government may set neutral time/place/manner rules, but cannot punish viewpoints.", why:"Officials are retaliating against a viewpoint expressed in a public forum." },
+      { correctKey:"1_press", scenario:"A mayor orders the local paper to stop publishing stories that criticize city hall or face closure.", right:"Freedom of the press.", limit:"Government cannot censor or punish the press for criticizing officials (prior restraint concerns).", why:"The order is censorship tied to criticism." },
+      { correctKey:"1_religion", scenario:"A public school requires students to participate in a specific religious prayer at the start of the day.", right:"Freedom of religion (no government establishment/compelled practice).", limit:"Government cannot establish an official religion or force religious observance through public institutions.", why:"The policy compels religious practice in a public school." },
+      { correctKey:"1_assembly", scenario:"A city denies a permit for a peaceful march only because it dislikes the group’s message, not because of safety concerns.", right:"Freedom of assembly.", limit:"Government cannot deny peaceful assembly based on viewpoint; rules must be neutral and applied fairly.", why:"The denial is viewpoint-based." },
+      { correctKey:"1_petition", scenario:"A government employee is fired for signing a petition asking the city council to fix unsafe sidewalks.", right:"Right to petition the government (and related speech).", limit:"Government cannot retaliate against citizens for petitioning officials about public issues.", why:"The firing punishes petitioning government for redress." },
+      { correctKey:"2_arms", scenario:"A city bans all law-abiding adults from owning any firearms in their homes for self-defense.", right:"Right to keep and bear arms.", limit:"Government may regulate firearms, but sweeping bans on lawful home possession raise major constitutional issues.", why:"The policy is an across-the-board ban on lawful possession." },
+      { correctKey:"4_warrant", scenario:"Police enter a home and search it without a warrant and without any emergency.", right:"No unreasonable search; warrants require probable cause.", limit:"Government generally needs a warrant based on probable cause to search a home (absent a real exception).", why:"A home search without a warrant/exception is the classic 4th Amendment violation." },
+      { correctKey:"4_search", scenario:"Officers stop a driver and search the trunk even though they have no evidence, consent, or reason to suspect a crime.", right:"Protection against unreasonable searches.", limit:"Searches generally require probable cause, consent, or a recognized exception.", why:"The search lacks legal justification." },
+      { correctKey:"4_seizure", scenario:"Police take a person’s backpack and keep it for a week without charges or legal justification.", right:"Protection against unreasonable seizures.", limit:"Government needs lawful justification to seize and hold personal property.", why:"Property is being taken/held without legal basis." },
+      { correctKey:"5_self", scenario:"During questioning, police threaten a suspect with harm unless he confesses, and he signs a confession to make it stop.", right:"Protection against compelled self-incrimination (and due process).", limit:"Government cannot compel a person to incriminate themselves through coercion.", why:"The confession is compelled rather than voluntary." },
+      { correctKey:"5_dj", scenario:"After a jury finds a defendant not guilty, the prosecutor tries to put the same person on trial again for the same crime.", right:"Protection against double jeopardy.", limit:"Government cannot try someone twice for the same offense after acquittal.", why:"A second prosecution after a not-guilty verdict is double jeopardy." },
+      { correctKey:"6_counsel", scenario:"A defendant is put on trial for a serious crime but is not allowed to have a lawyer even though he cannot afford one.", right:"Right to counsel.", limit:"Government must provide counsel in serious criminal cases if the defendant cannot afford one.", why:"Denial of counsel undermines a fair trial." },
+      { correctKey:"6_speedy", scenario:"A person is arrested and waits 18 months for trial even though the case is simple and delays are not justified.", right:"Right to a speedy trial.", limit:"Government must bring criminal cases to trial within a reasonable time.", why:"Unjustified long delays violate the speedy trial guarantee." },
+      { correctKey:"6_confront", scenario:"At trial, the judge refuses to let the defense question the main witness who accused the defendant.", right:"Right to confront witnesses (cross-examination).", limit:"Government must allow defendants to confront and question adverse witnesses in criminal trials.", why:"Blocking confrontation prevents testing credibility." },
+      { correctKey:"6_charges", scenario:"A defendant is never told what crime he is charged with, but the trial proceeds anyway.", right:"Right to be informed of the charges.", limit:"Government must clearly inform defendants of accusations so they can prepare a defense.", why:"You cannot defend yourself against unknown charges." },
+      { correctKey:"6_jury", scenario:"A judge refuses a jury trial and decides guilt alone in a case where the defendant has a right to a jury.", right:"Right to an impartial jury.", limit:"Government must provide a jury in qualifying criminal prosecutions.", why:"The defendant is denied the jury protection." },
+      { correctKey:"6_public", scenario:"A judge closes the courtroom to the public with no lawful reason during a criminal trial.", right:"Right to a public trial.", limit:"Trials are generally public to ensure fairness and accountability (with limited exceptions).", why:"Closing the trial without justification violates the public trial protection." },
+      { correctKey:"8_bail", scenario:"A judge sets bail so high that it is clearly meant to keep the accused jailed for a minor, nonviolent offense.", right:"Protection against excessive bail.", limit:"Government cannot use bail amounts that are excessive relative to the circumstances.", why:"Bail is being used as punishment rather than ensuring court appearance." },
+      { correctKey:"8_cruel", scenario:"A prison uses punishments that cause severe, unnecessary physical suffering for minor rule violations.", right:"Protection against cruel and unusual punishment.", limit:"Government cannot impose inhumane or grossly disproportionate punishment.", why:"The punishment is unnecessarily harsh." },
+      { correctKey:"8_fines", scenario:"A court imposes a massive fine far beyond what is reasonable for a minor offense to bankrupt the defendant.", right:"Protection against excessive fines.", limit:"Government cannot impose excessive financial penalties.", why:"The fine is grossly disproportionate." },
+      { correctKey:"10_reserved", scenario:"The federal government orders states to run local schools in a specific way even though the Constitution does not delegate that power.", right:"Reserved powers to states/people.", limit:"Powers not delegated to the federal government are reserved to the states or the people.", why:"The scenario centers on federal overreach into a non-delegated area." },
+      { correctKey:"14_cit", scenario:"A state refuses to recognize a person born in the U.S. as a citizen and denies all legal status because their parents are immigrants.", right:"14th Amendment — Citizenship Clause.", limit:"States must recognize citizenship for persons born or naturalized in the United States.", why:"The scenario is about defining and extending citizenship." },
+      { correctKey:"14_ep", scenario:"A state law allows only one race to vote in local elections, denying others the same right.", right:"14th Amendment — Equal Protection.", limit:"States cannot deny equal protection of the laws to any person.", why:"The law discriminates by treating groups differently under the law." },
+      { correctKey:"14_dp", scenario:"A state takes away a person’s driver’s license without any hearing, notice, or process to challenge it.", right:"14th Amendment — Due Process (state action).", limit:"States must follow fair procedures before depriving people of life, liberty, or property.", why:"The state deprives a liberty/property interest without procedural safeguards." },
+      { correctKey:"14_incorp", scenario:"A state police department searches homes without warrants. A student argues the 4th Amendment should apply to state police too.", right:"14th Amendment — Incorporation Doctrine (applies Bill of Rights to states).", limit:"The 14th Amendment has been used to apply many Bill of Rights protections to the states.", why:"This scenario is about the Bill of Rights being enforced against state governments." },
+    ];
+
+    /********************************************************************
+     * GAME STATE
+     ********************************************************************/
+    let deck = [];
+    let index = 0;
+    let totalAttempts = 0;
+    let totalCorrect = 0;
+    let streak = 0;
+    let thisScenarioAttempts = 0;
+    let locked = false;
+
+    let sessionStart = new Date();
+    let startTs = Date.now();
+    let timerId = null;
+    let nowId = null;
+
+    const el = (id) => document.getElementById(id);
+
+    function formatTime(ms){
+      const s = Math.floor(ms / 1000);
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${m}:${String(r).padStart(2,"0")}`;
+    }
+
+    function formatDateTime(d){
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      let hh = d.getHours();
+      const ampm = hh >= 12 ? "PM" : "AM";
+      hh = hh % 12; if(hh === 0) hh = 12;
+      const mi = String(d.getMinutes()).padStart(2,"0");
+      const ss = String(d.getSeconds()).padStart(2,"0");
+      return `${mm}/${dd}/${yyyy} ${hh}:${mi}:${ss} ${ampm}`;
+    }
+
+    function computeAccuracy(){
+      if(totalAttempts === 0) return "—";
+      const pct = Math.round((totalCorrect / totalAttempts) * 100);
+      return pct + "%";
+    }
+
+    function buildDeck(){
+      deck = [...scenarioBank];
+      if(shuffleOn){
+        for(let i = deck.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function setFeedback(kind, title, msg){
+      const box = el("feedback");
+      box.innerHTML = "";
+      const icon = document.createElement("span");
+      icon.className = `icon ${kind}`;
+      icon.textContent = kind === "good" ? "✓" : kind === "bad" ? "✕" : "!";
+      const wrap = document.createElement("div");
+      wrap.innerHTML = `<div><b>${escapeHtml(title)}</b></div><div style="margin-top:4px">${escapeHtml(msg)}</div>`;
+      box.appendChild(icon);
+      box.appendChild(wrap);
+    }
+
+    function updateStats(){
+      el("qNum").textContent = String(index + 1);
+      el("qTotal").textContent = String(deck.length);
+      el("correctCt").textContent = String(totalCorrect);
+      el("attemptCt").textContent = String(totalAttempts);
+      el("attemptThis").textContent = String(thisScenarioAttempts);
+      el("accPct").textContent = computeAccuracy();
+      el("streakBadge").textContent = `Streak: ${streak}`;
+      el("attemptBadge").textContent = `Attempt #: ${thisScenarioAttempts}`;
+      el("modeBadge").textContent = `Mode: ${strictMode ? "Strict (must be correct)" : "Practice"}`;
+    }
+
+    function hideExplanation(){
+      el("explainBox").style.display = "none";
+      locked = false;
+      document.querySelectorAll("#choices button").forEach(b=> b.disabled = false);
+      el("btnHint").disabled = false;
+      el("btnSkip").disabled = false;
+    }
+
+    function showExplanation(card){
+      el("explainTitle").textContent = "Correct";
+      const grid = el("explainGrid");
+      grid.innerHTML = `
+        <div><b>Right/Clause:</b> ${escapeHtml(card.right)}</div>
+        <div><b>Limit on Government:</b> ${escapeHtml(card.limit)}</div>
+        <div><b>Why this applies:</b> ${escapeHtml(card.why)}</div>
+      `;
+      el("explainMini").textContent =
+        "OST habit: Identify the government action → name the precise right/part → state the limit on government.";
+
+      el("explainBox").style.display = "block";
+      locked = true;
+      document.querySelectorAll("#choices button").forEach(b=> b.disabled = true);
+      el("btnHint").disabled = true;
+    }
+
+    function getChoiceSet(){
+      return useExpandedChoices ? EXPANDED : SIMPLE;
+    }
+
+    function simpleKeyFromExpandedKey(expKey){
+      return expKey.split("_")[0];
+    }
+
+    function isCorrect(choiceKey, card){
+      if(useExpandedChoices){
+        return choiceKey === card.correctKey;
+      }
+      return choiceKey === simpleKeyFromExpandedKey(card.correctKey);
+    }
+
+    function renderChoices(){
+      const wrap = el("choices");
+      wrap.innerHTML = "";
+      const choices = getChoiceSet();
+
+      const pool = [...choices];
+      for(let i = pool.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      pool.forEach(c=>{
+        const btn = document.createElement("button");
+        btn.className = "primary";
+        btn.textContent = c.label;
+        btn.addEventListener("click", ()=> answer(c.key));
+        wrap.appendChild(btn);
+      });
+    }
+
+    function buildHint(card){
+      const k = card.correctKey;
+      if(k.startsWith("1_")) return "Hint: 1A has 5 freedoms—speech, press, religion, assembly, petition. Which one is it?";
+      if(k.startsWith("2_")) return "Hint: 2A is the right to bear arms.";
+      if(k.startsWith("4_")) return "Hint: 4A = search/seizure/warrant/probable cause. Which part is most precise?";
+      if(k.startsWith("5_")) return "Hint: 5A = self-incrimination or double jeopardy.";
+      if(k.startsWith("6_")) return "Hint: 6A = trial rights (speedy, public, jury, charges, confrontation, counsel).";
+      if(k.startsWith("8_")) return "Hint: 8A = cruel/unusual OR excessive bail/fines.";
+      if(k.startsWith("10_")) return "Hint: 10A = powers not delegated to the federal gov are reserved to states/people.";
+      if(k.startsWith("14_")) return "Hint: 14A = citizenship, due process (states), equal protection, and incorporation.";
+      return "Hint: Identify the government action first, then match the precise protection.";
+    }
+
+    function render(){
+      const card = deck[index];
+      el("scenarioText").textContent = card.scenario;
+      thisScenarioAttempts = 0;
+      hideExplanation();
+      setFeedback("warn","Directions","Pick the most precise right/part that applies. You must be correct to move on.");
+      renderChoices();
+      updateStats();
+    }
+
+    function answer(choiceKey){
+      if(locked) return;
+
+      totalAttempts++;
+      thisScenarioAttempts++;
+
+      const card = deck[index];
+      const correct = isCorrect(choiceKey, card);
+
+      if(correct){
+        totalCorrect++;
+        streak++;
+        setFeedback("good","Correct!",`Nice. You got it in ${thisScenarioAttempts} attempt(s). Read the explanation, then click Next.`);
+        updateStats();
+        showExplanation(card);
+      } else {
+        streak = 0;
+        setFeedback("bad","Try again.", buildHint(card));
+        updateStats();
+      }
+    }
+
+    function next(){
+      if(strictMode && el("explainBox").style.display !== "block"){
+        setFeedback("warn","Not yet.","You must answer correctly before moving on.");
+        return;
+      }
+      if(index < deck.length - 1){
+        index++;
+        render();
+      } else {
+        endScreen();
+      }
+    }
+
+    function endScreen(){
+      hideExplanation();
+      const accuracy = computeAccuracy();
+      const elapsed = formatTime(Date.now() - startTs);
+      const name = getSavedName() || "—";
+  WeberRun.finish(name, sessionStart, deck.length, totalCorrect, totalAttempts);
+
+      el("scenarioText").textContent = "Finish! Great work.";
+      setFeedback("good","Session Complete",
+        `Name: ${name} • Score: ${totalCorrect} correct • Attempts: ${totalAttempts} • Accuracy: ${accuracy} • Time: ${elapsed}. Click Restart to play again.`
+      );
+
+      document.querySelectorAll("#choices button").forEach(b=> b.disabled = true);
+      el("btnHint").disabled = true;
+
+      el("explainTitle").textContent = "Next step";
+      el("explainGrid").innerHTML = `
+        <div><b>Mastery goal:</b> get each scenario correct on the first click.</div>
+        <div><b>OST alignment:</b> apply the right/limit to the scenario, not just naming the amendment number.</div>
+        <div><b>Name on screen:</b> helps students “own” their attempt.</div>
+      `;
+      el("explainMini").textContent = "Teacher note: Add more scenarios in scenarioBank for each sub-right.";
+      el("explainBox").style.display = "block";
+
+      el("btnNext").textContent = "Play Again";
+      el("btnNext").onclick = () => restart();
+    }
+
+    function restart(){
+      index = 0;
+      totalAttempts = 0;
+      totalCorrect = 0;
+      streak = 0;
+
+      sessionStart = new Date();
+      startTs = Date.now();
+
+      el("startStamp").textContent = formatDateTime(sessionStart);
+      buildDeck();
+      render();
+
+      el("btnNext").textContent = "Next Scenario";
+      el("btnNext").onclick = () => next();
+
+      el("btnHint").disabled = false;
+    }
+
+    function toggleShuffle(){
+      shuffleOn = !shuffleOn;
+      document.getElementById("toggleShuffle").textContent = `Shuffle: ${shuffleOn ? "ON" : "OFF"}`;
+      restart();
+    }
+
+    function toggleStrict(){
+      strictMode = !strictMode;
+      document.getElementById("toggleStrict").textContent = `Strict: ${strictMode ? "ON" : "OFF"}`;
+      setFeedback("warn","Mode changed",
+        strictMode
+          ? "Strict mode ON: you must be correct before moving on."
+          : "Practice mode ON: you can move on even if wrong."
+      );
+      updateStats();
+    }
+
+    function toggleChoiceSet(){
+      useExpandedChoices = !useExpandedChoices;
+      document.getElementById("btnToggleSet").textContent = `Choices: ${useExpandedChoices ? "Expanded" : "Simple"}`;
+      setFeedback("warn","Choice set changed",
+        useExpandedChoices
+          ? "Expanded ON: students choose the exact sub-right/part."
+          : "Simple ON: students choose just the amendment number."
+      );
+      restart();
+    }
+
+    function startTimers(){
+      if(timerId) clearInterval(timerId);
+      timerId = setInterval(()=> {
+        el("timeEl").textContent = formatTime(Date.now() - startTs);
+      }, 500);
+
+      if(nowId) clearInterval(nowId);
+      nowId = setInterval(()=> {
+        el("nowStamp").textContent = formatDateTime(new Date());
+      }, 1000);
+    }
+
+    /********************************************************************
+     * WIRE CONTROLS
+     ********************************************************************/
+    document.getElementById("btnHint").addEventListener("click", ()=>{
+      if(locked) return;
+      setFeedback("warn","Hint", buildHint(deck[index]));
+    });
+
+    document.getElementById("btnSkip").addEventListener("click", ()=>{
+      if(index < deck.length - 1){
+        index++;
+        render();
+      } else {
+        endScreen();
+      }
+    });
+
+    document.getElementById("btnRestart").addEventListener("click", restart);
+    document.getElementById("btnNext").addEventListener("click", ()=> next());
+    document.getElementById("toggleShuffle").addEventListener("click", toggleShuffle);
+    document.getElementById("toggleStrict").addEventListener("click", toggleStrict);
+    document.getElementById("btnToggleSet").addEventListener("click", toggleChoiceSet);
+
+    // Name open buttons
+    document.getElementById("namePill").addEventListener("click", ()=> openNameModal(false));
+    document.getElementById("btnName").addEventListener("click", ()=> openNameModal(false));
+
+    // Name modal actions
+    document.getElementById("btnSaveName").addEventListener("click", ()=>{
+      const v = document.getElementById("nameInput").value;
+      saveName(v);
+      closeNameModal();
+    });
+    document.getElementById("btnCancelName").addEventListener("click", closeNameModal);
+    document.getElementById("btnClearName").addEventListener("click", ()=>{
+      saveName("");
+      closeNameModal();
+    });
+
+    // Close modal by clicking backdrop
+    document.getElementById("nameModal").addEventListener("click", (e)=>{
+      if(e.target.id === "nameModal") closeNameModal();
+    });
+
+    // Enter key saves; Esc closes
+    document.addEventListener("keydown", (e)=>{
+      const modalOpen = document.getElementById("nameModal").style.display === "flex";
+      if(!modalOpen) return;
+      if(e.key === "Escape"){
+        closeNameModal();
+      }
+      if(e.key === "Enter"){
+        e.preventDefault();
+        const v = document.getElementById("nameInput").value;
+        saveName(v);
+        closeNameModal();
+      }
+    });
+
+    /********************************************************************
+     * INIT
+     ********************************************************************/
+    buildDeck();
+    el("qTotal").textContent = String(scenarioBank.length);
+    el("startStamp").textContent = formatDateTime(sessionStart);
+    el("nowStamp").textContent = formatDateTime(new Date());
+
+    // Load saved name (and optionally prompt if empty)
+    const initialName = getSavedName();
+    setNameUI(initialName);
+    if(!initialName){
+      // gentle prompt on first load
+      openNameModal(true);
+    }
+
+    render();
+    startTimers();
+  </script>
+</body>
+</html>

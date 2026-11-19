@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CS18–19 — Public Policy (Mastery Game)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111a2f;
+      --text:#e7eefc;
+      --muted:#a8b4cf;
+      --accent:#7aa2ff;
+      --good:#2bd576;
+      --bad:#ff5c7a;
+      --warn:#ffd166;
+      --border: rgba(255,255,255,0.10);
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(122,162,255,0.18), transparent 55%),
+                  radial-gradient(1200px 700px at 80% 20%, rgba(43,213,118,0.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      padding:24px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{ width:min(980px, 100%); }
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .title h1{
+      font-size:20px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .title .sub{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding:16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    label{ font-size:13px; color:var(--muted); }
+    input[type="text"]{
+      background: rgba(255,255,255,0.05);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius: 12px;
+      padding:10px 12px;
+      outline:none;
+      width:260px;
+    }
+    input[type="text"]:focus{
+      border-color: rgba(122,162,255,.6);
+      box-shadow: 0 0 0 3px rgba(122,162,255,.18);
+    }
+
+    .statbox{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .stat{
+      background: rgba(0,0,0,0.18);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:10px 12px;
+    }
+    .stat .k{ font-size:12px; color:var(--muted); }
+    .stat .v{ font-size:15px; font-family:var(--mono); margin-top:4px; }
+
+    .qwrap{
+      padding:16px;
+      border-radius: var(--radius);
+      border:1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+    }
+    .qhead{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .qnum{ font-size:13px; color:var(--muted); }
+    .qtext{
+      font-size:18px;
+      line-height:1.25;
+      margin:0;
+    }
+    .choices{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius: 14px;
+      padding:12px 14px;
+      font-weight:650;
+      color:var(--text);
+      background: rgba(122,162,255,0.16);
+      border:1px solid rgba(122,162,255,0.25);
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      text-align:left;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(122,162,255,0.22); border-color: rgba(122,162,255,0.42); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .rightActions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,0.18);
+      font-family:var(--mono);
+    }
+
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+      min-height:44px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .msg .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: rgba(255,255,255,0.25);
+    }
+    .msg.good{ border-color: rgba(43,213,118,0.35); }
+    .msg.good .dot{ background: var(--good); }
+    .msg.bad{ border-color: rgba(255,92,122,0.35); }
+    .msg.bad .dot{ background: var(--bad); }
+    .msg.warn{ border-color: rgba(255,209,102,0.35); }
+    .msg.warn .dot{ background: var(--warn); }
+
+    .hint{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px dashed rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      display:none;
+      text-align:left;
+      line-height:1.25;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .toggle input{ transform: scale(1.15); }
+
+    .submitBox{
+      margin-top:12px;
+      display:none;
+      text-align:left;
+    }
+    textarea{
+      width:100%;
+      min-height:140px;
+      resize:none;
+      background: rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius: 14px;
+      padding:12px;
+      font-family:var(--mono);
+      font-size:12.5px;
+      line-height:1.35;
+      outline:none;
+    }
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+      line-height:1.25;
+    }
+
+    .primary{
+      background: rgba(43,213,118,0.18);
+      border:1px solid rgba(43,213,118,0.30);
+    }
+    .primary:hover{
+      background: rgba(43,213,118,0.24);
+      border-color: rgba(43,213,118,0.44);
+    }
+    .danger{
+      background: rgba(255,92,122,0.16);
+      border:1px solid rgba(255,92,122,0.26);
+    }
+    .danger:hover{
+      background: rgba(255,92,122,0.22);
+      border-color: rgba(255,92,122,0.40);
+    }
+    .ghost{
+      background: rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+    .ghost:hover{
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.18);
+    }
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>CS18–19 — Public Policy (Mastery)</h1>
+        <div class="sub">Identify the <b>level</b>, <b>branch/entity</b>, and (CS18) <b>collaboration vs conflict</b>, or (CS19) the <b>influence method</b>. Hit <b>100%</b> accuracy to unlock the Submit Code.</div>
+      </div>
+      <div class="pill" id="clockNow">Clock: --</div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;">
+          <div class="row">
+            <label for="studentName">Student Name</label>
+            <input id="studentName" type="text" placeholder="Type first + last name" />
+          </div>
+
+          <div class="toggle">
+            <input id="hintToggle" type="checkbox" />
+            <label for="hintToggle" style="margin:0;">Teacher Hint Toggle (ON allows hints after incorrect)</label>
+          </div>
+        </div>
+
+        <div class="statbox">
+          <div class="stat">
+            <div class="k">Start Timestamp</div>
+            <div class="v" id="startStamp">--</div>
+          </div>
+          <div class="stat">
+            <div class="k">Elapsed Time</div>
+            <div class="v" id="elapsed">00:00</div>
+          </div>
+          <div class="stat">
+            <div class="k">Correct / Attempts</div>
+            <div class="v" id="scoreLine">0 / 0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Accuracy</div>
+            <div class="v" id="accuracy">0%</div>
+          </div>
+        </div>
+
+        <div class="qwrap" style="margin-top:14px;">
+          <div class="qhead">
+            <div>
+              <div class="qnum" id="qnum">Question 1 of 1</div>
+              <p class="qtext" id="qtext">--</p>
+            </div>
+          </div>
+
+          <div class="choices" id="choices"></div>
+
+          <div class="msg" id="feedback">
+            <span class="dot"></span>
+            <span id="feedbackText">Answer a question to begin.</span>
+          </div>
+
+          <div class="hint" id="hintBox"></div>
+
+          <div class="actions">
+            <div class="row">
+              <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+            </div>
+
+            <div class="rightActions">
+              <button class="btn" id="nextBtn" type="button" disabled>Next</button>
+              <button class="btn primary" id="finishBtn" type="button" disabled>Finish / Submit Code</button>
+            </div>
+          </div>
+
+          <div class="submitBox" id="submitBox">
+            <div class="small"><b>Submission:</b> Screenshot this box (or copy/paste) after you reach <b>100%</b>.</div>
+            <textarea id="submitText" readonly></textarea>
+            <div class="row" style="justify-content:space-between; margin-top:10px;">
+              <button class="btn primary" id="copyBtn" type="button">Copy Submit Code</button>
+              <div class="pill" id="endStamp">End: --</div>
+            </div>
+            <div class="small">No data is stored or sent anywhere. Your teacher verifies by screenshot or paste.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="panel" style="text-align:left;">
+        <h3 style="margin:0 0 10px 0; font-size:16px;">Directions</h3>
+        <div class="small" style="font-size:13px; color:var(--muted);">
+          <ol style="margin:0; padding-left:18px; line-height:1.4;">
+            <li>Enter your name.</li>
+            <li>Answer each prompt by picking the <b>best match</b>.</li>
+            <li>You must reach <b>100%</b> accuracy to unlock the submit code.</li>
+            <li>If the teacher hint toggle is ON, hints appear <b>only after an incorrect answer</b>.</li>
+          </ol>
+          <p style="margin:12px 0 0 0;">
+            <b>What you’re practicing:</b><br/>
+            <b>CS18</b> — levels/branches/entities address public policy; may involve <b>collaboration</b> or <b>conflict</b>.<br/>
+            <b>CS19</b> — individuals/organizations influence policy by lobbying, testimony, briefs, comments, campaigns, etc.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // ---------- Utilities ----------
+  const pad2 = n => String(n).padStart(2,'0');
+  const formatHMS = (sec) => {
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return `${pad2(m)}:${pad2(s)}`;
+  };
+  const nowStamp = () => new Date().toLocaleString();
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  };
+
+  // ---------- Game Title ----------
+  const GAME_TITLE = "CS18–19 — Public Policy (Mastery)";
+
+  // ---------- Bank ----------
+  // Added "type" to control which option pool is used per question:
+  // type: "entity" | "relationship" | "method"
+  const bank = [
+    // ---------------- CS18: Entities ----------------
+    { type:"entity",
+      q:"(CS18) The President asks an agency to advise on foreign policy and oversee U.S. embassies abroad. Which option best matches?",
+      a:"Federal Executive — Department of State",
+      h:"Department of State is a federal executive agency that advises the President on foreign policy and directs embassy activities." },
+
+    { type:"entity",
+      q:"(CS18) Lawmakers want a nonpartisan analysis of how a proposed bill will affect the budget deficit and the economy. Which option best matches?",
+      a:"Federal Legislative — Congressional Budget Office (CBO)",
+      h:"The CBO supports Congress (legislative) by providing economic and budget analyses." },
+
+    { type:"entity",
+      q:"(CS18) Ohio representatives need help drafting the actual language of a bill and comparing policy options. Which option best matches?",
+      a:"State Legislative — Ohio Legislative Service Commission (LSC)",
+      h:"Ohio’s LSC assists the state legislature by drafting legislation and providing research/support." },
+
+    { type:"entity",
+      q:"(CS18) After a felony conviction, a judge applies state sentencing guidelines to decide the penalty. Which option best matches?",
+      a:"State Judicial — Ohio Courts of Common Pleas",
+      h:"Ohio Courts of Common Pleas are state trial courts that apply law (including sentencing guidelines) in criminal cases." },
+
+    { type:"entity",
+      q:"(CS18) A county commission votes to approve a tax abatement to attract a new manufacturing plant. Which option best matches?",
+      a:"Local Legislative/Executive — County Commission tax abatements",
+      h:"County commissions (local level) can determine and grant tax abatements—local legislative/executive public policy action." },
+
+    // ---------------- CS18: Collaboration / Conflict ----------------
+    { type:"relationship",
+      q:"(CS18) The Department of State negotiates a diplomatic agreement, but the Senate refuses to approve it. Which option best matches the relationship?",
+      a:"Conflict (Executive vs Legislative)",
+      h:"Executive branch may negotiate; legislative branch (Senate) can approve/deny treaties—this can create conflict." },
+
+    { type:"relationship",
+      q:"(CS18) Congress asks the CBO for analysis, then rewrites its bill based on the data before voting. Which option best matches the relationship?",
+      a:"Collaboration (Legislative uses analysis)",
+      h:"Using CBO analysis to revise a bill is an example of collaboration within the legislative policymaking process." },
+
+    { type:"relationship",
+      q:"(CS18) Ohio lawmakers pass a sentencing law; later, an Ohio Court of Common Pleas must apply it in a specific case. Which relationship best matches?",
+      a:"Collaboration (Legislative sets policy; Judicial applies)",
+      h:"Legislature makes laws; courts apply them in cases. That’s typically collaboration within a constitutional system." },
+
+    { type:"relationship",
+      q:"(CS18) A state law offers tax credits, but a county commission rejects a requested abatement, so the project stalls. Which relationship best matches?",
+      a:"Conflict (State vs Local disagreement)",
+      h:"Different levels (state vs local) can disagree about policy tools like abatements; that creates conflict across levels." },
+
+    { type:"relationship",
+      q:"(CS18) A county commission grants abatements to boost jobs, but state legislators criticize it as unfair and try to restrict it by statute. Which relationship best matches?",
+      a:"Conflict (Local vs State)",
+      h:"Local economic policy can conflict with state legislative priorities; state can attempt to limit local authority." },
+
+    { type:"relationship",
+      q:"(CS18) The President relies on State Department expertise; Congress relies on CBO projections while debating funding for embassy security. Which relationship best matches?",
+      a:"Collaboration (Multiple branches/levels addressing one issue)",
+      h:"Complex public policy often involves multiple branches/entities contributing expertise and analysis—collaboration." },
+
+    { type:"relationship",
+      q:"(CS18) A judge must follow sentencing guidelines set by state law, even though the judge personally disagrees with the policy. Which relationship best matches?",
+      a:"Collaboration (Judicial applies enacted policy)",
+      h:"Courts apply laws as written; disagreement doesn’t change the constitutional role—policy is still applied through the judicial process." },
+
+    // ---------------- CS19: Methods ----------------
+    { type:"method",
+      q:"(CS19) A teachers’ union meets with state legislators to urge support for a school funding bill. Which method best matches?",
+      a:"Lobby members of a legislature",
+      h:"Directly persuading legislators is lobbying." },
+
+    { type:"method",
+      q:"(CS19) A parent group writes dozens of messages to the mayor and city council about traffic safety near a school. Which method best matches?",
+      a:"Conduct letter-writing campaigns",
+      h:"Coordinated messages to officials to influence decisions = letter-writing campaign." },
+
+    { type:"method",
+      q:"(CS19) A business association testifies during a committee hearing about how a proposed regulation would affect small businesses. Which method best matches?",
+      a:"Provide testimony before legislative committees",
+      h:"Speaking at hearings to influence lawmakers is testimony before committees." },
+
+    { type:"method",
+      q:"(CS19) Residents speak during a city’s open microphone period about zoning changes. Which method best matches?",
+      a:"Offer comments during public meetings",
+      h:"Public meetings often invite citizen comment—this is a direct method of engagement." },
+
+    { type:"method",
+      q:"(CS19) A civil liberties group files a written argument for a court to consider in a major case. Which method best matches?",
+      a:"Prepare briefs to present during judicial proceedings",
+      h:"Briefs (often amicus briefs) are written arguments submitted to courts." },
+
+    { type:"method",
+      q:"(CS19) An organization helps write a draft bill and delivers it to a lawmaker to introduce. Which method best matches?",
+      a:"Propose laws to legislators",
+      h:"Providing a draft proposal and asking a legislator to introduce it = proposing laws to legislators." },
+
+    { type:"method",
+      q:"(CS19) A neighborhood coalition works for a candidate who promises to support stricter building codes. Which method best matches?",
+      a:"Campaign for candidates who will support their positions once in office",
+      h:"Working to elect supportive officials is campaigning for candidates aligned to their position." },
+
+    { type:"method",
+      q:"(CS19) A health nonprofit submits research to a state agency about the expected impact of a new rule on hospitals. Which method best matches?",
+      a:"Provide information to executive branch officials on impacts of potential rules/regulations",
+      h:"Agencies in the executive branch write/implement rules; groups can provide data during that process." },
+
+    { type:"method",
+      q:"(CS19) Community members march outside the courthouse and state capitol to draw attention to sentencing reform. Which method best matches?",
+      a:"Hold public demonstrations",
+      h:"Public demonstrations are organized public actions to influence opinion and policy." },
+
+    { type:"method",
+      q:"(CS19) A student group wants a federal change, so they focus their messages on members of Congress rather than the Ohio legislature. What’s the key idea?",
+      a:"Know the proper level/branch to engage at each stage of policymaking",
+      h:"To influence policy effectively, groups must target the right level (federal/state/local) and branch (legislative/executive/judicial)." },
+
+    { type:"method",
+      q:"(CS19) A company submits a detailed comment during a federal agency’s public comment window on a proposed regulation. Which method best matches?",
+      a:"Provide information to executive branch officials on impacts of potential rules/regulations",
+      h:"Regulations are typically created/implemented by executive agencies; public comments provide input on impacts." },
+
+    { type:"method",
+      q:"(CS19) A veterans’ organization asks to speak at a legislative hearing and presents data, then follows up with legislators’ offices afterward. Which method best matches best overall?",
+      a:"Provide testimony before legislative committees",
+      h:"The most direct named method in the scenario is testimony before committees (even if they also lobby afterward)." }
+  ];
+
+  // ---------- Option Pools (NO scrolling) ----------
+  const ENTITY_OPTIONS = [
+    "Federal Executive — Department of State",
+    "Federal Legislative — Congressional Budget Office (CBO)",
+    "State Legislative — Ohio Legislative Service Commission (LSC)",
+    "State Judicial — Ohio Courts of Common Pleas",
+    "Local Legislative/Executive — County Commission tax abatements"
+  ];
+
+  const REL_OPTIONS = [
+    "Collaboration (Multiple branches/levels addressing one issue)",
+    "Collaboration (Legislative uses analysis)",
+    "Collaboration (Judicial applies enacted policy)",
+    "Collaboration (Legislative sets policy; Judicial applies)",
+    "Conflict (Executive vs Legislative)",
+    "Conflict (Local vs State)",
+    "Conflict (State vs Local disagreement)"
+  ];
+
+  const METHOD_OPTIONS = [
+    "Campaign for candidates who will support their positions once in office",
+    "Provide information to executive branch officials on impacts of potential rules/regulations",
+    "Lobby members of a legislature",
+    "Provide testimony before legislative committees",
+    "Propose laws to legislators",
+    "Prepare briefs to present during judicial proceedings",
+    "Offer comments during public meetings",
+    "Conduct letter-writing campaigns",
+    "Hold public demonstrations",
+    "Know the proper level/branch to engage at each stage of policymaking"
+  ];
+
+  function poolForType(type){
+    if(type === "entity") return ENTITY_OPTIONS;
+    if(type === "relationship") return REL_OPTIONS;
+    return METHOD_OPTIONS; // "method"
+  }
+
+  // Build 4-choice set: correct + 3 distractors from same pool
+  function getChoiceSet(q){
+    const pool = poolForType(q.type);
+    const distractors = pool.filter(x => x !== q.a);
+    const picked = shuffle(distractors).slice(0, 3);
+    return shuffle([q.a, ...picked]);
+  }
+
+  // ---------- State ----------
+  let questions = shuffle(bank);
+  let idx = 0;
+
+  let correct = 0;
+  let attempts = 0;
+
+  let started = false;
+  let startTimeMs = null;
+  let elapsedSec = 0;
+  let timerId = null;
+
+  let answeredThisQuestion = false;
+  let locked = false; // lock input after answer until Next
+
+  // ---------- Elements ----------
+  const elName = document.getElementById('studentName');
+  const elHintToggle = document.getElementById('hintToggle');
+
+  const elStartStamp = document.getElementById('startStamp');
+  const elElapsed = document.getElementById('elapsed');
+  const elScoreLine = document.getElementById('scoreLine');
+  const elAcc = document.getElementById('accuracy');
+
+  const elQnum = document.getElementById('qnum');
+  const elQtext = document.getElementById('qtext');
+  const elChoices = document.getElementById('choices');
+
+  const elFeedback = document.getElementById('feedback');
+  const elFeedbackText = document.getElementById('feedbackText');
+  const elHintBox = document.getElementById('hintBox');
+
+  const elNext = document.getElementById('nextBtn');
+  const elFinish = document.getElementById('finishBtn');
+  const elReset = document.getElementById('resetBtn');
+
+  const elSubmitBox = document.getElementById('submitBox');
+  const elSubmitText = document.getElementById('submitText');
+  const elCopy = document.getElementById('copyBtn');
+  const elEndStamp = document.getElementById('endStamp');
+
+  const elClockNow = document.getElementById('clockNow');
+
+  // ---------- Clock ----------
+  setInterval(()=>{ elClockNow.textContent = "Clock: " + new Date().toLocaleTimeString(); }, 500);
+
+  // ---------- Core ----------
+  function ensureStarted(){
+    if(started) return;
+    started = true;
+    startTimeMs = Date.now();
+    elStartStamp.textContent = nowStamp();
+    timerId = setInterval(()=>{
+      elapsedSec = Math.floor((Date.now()-startTimeMs)/1000);
+      elElapsed.textContent = formatHMS(elapsedSec);
+    }, 250);
+  }
+
+  function updateStats(){
+  elScoreLine.textContent = `${correct} / ${attempts}`;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  elAcc.textContent = `${acc}%`;
+
+  // ✅ Only show mastery at the END of the game (all questions attempted) AND perfect accuracy
+  const mastery = questions.length > 0 && attempts === questions.length && correct === questions.length;
+
+  elFinish.disabled = !mastery;
+
+  if(mastery){
+    elFeedback.className = "msg good";
+    elFeedbackText.textContent = "Mastery reached (100%). Click Finish / Submit Code.";
+    elHintBox.style.display = "none";
+  }
+}
+
+
+  function setFeedback(type, text){
+    elFeedback.className = `msg ${type}`;
+    elFeedbackText.textContent = text;
+  }
+
+  function showHint(text){
+    if(!elHintToggle.checked){
+      elHintBox.style.display = "none";
+      return;
+    }
+    elHintBox.style.display = "block";
+    elHintBox.textContent = "Hint: " + text;
+  }
+
+  function renderQuestion(){
+    answeredThisQuestion = false;
+    locked = false;
+    elNext.disabled = true;
+    elSubmitBox.style.display = "none";
+
+    const q = questions[idx];
+    elQnum.textContent = `Question ${idx+1} of ${questions.length}`;
+    elQtext.textContent = q.q;
+
+    elChoices.innerHTML = "";
+    elHintBox.style.display = "none";
+
+    setFeedback("warn", "Choose the best answer.");
+
+    // ✅ Only 4 choices per question now
+    const choiceSet = getChoiceSet(q);
+    for(const opt of choiceSet){
+      const b = document.createElement('button');
+      b.type = "button";
+      b.className = "btn";
+      b.textContent = opt;
+      b.addEventListener('click', ()=>handleAnswer(opt));
+      elChoices.appendChild(b);
+    }
+  }
+
+  function disableChoiceButtons(){
+    [...elChoices.querySelectorAll('button')].forEach(b=>b.disabled = true);
+  }
+
+  function enableChoiceButtons(){
+    [...elChoices.querySelectorAll('button')].forEach(b=>b.disabled = false);
+  }
+
+  function handleAnswer(choice){
+    if(locked) return;
+    ensureStarted();
+
+    attempts++;
+    const q = questions[idx];
+
+    if(choice === q.a){
+      correct++;
+      setFeedback("good", "Correct.");
+      elHintBox.style.display = "none";
+    }else{
+      setFeedback("bad", "Incorrect.");
+      showHint(q.h);
+    }
+
+    answeredThisQuestion = true;
+    locked = true;
+    disableChoiceButtons();
+    elNext.disabled = false;
+
+    updateStats();
+  }
+
+  function nextQuestion(){
+    if (attempts >= questions.length) { elNext.disabled = true; if(correct !== questions.length) setFeedback("warn", "Restart for a perfect run."); return; }
+    if(!answeredThisQuestion) return;
+    idx = (idx + 1) % questions.length;
+    enableChoiceButtons();
+    renderQuestion();
+  }
+
+  function finish(){
+    const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+    if(!(questions.length > 0 && attempts === questions.length && correct === questions.length)){
+      setFeedback("warn", "You must reach 100% accuracy to unlock the Submit Code.");
+      return;
+    }
+
+    const endStamp = nowStamp();
+    elEndStamp.textContent = "End: " + endStamp;
+
+    const name = (elName.value || "").trim() || "NAME NOT ENTERED";
+  WeberRun.finish(elName.value.trim(), startTimeMs, questions.length, correct, attempts);
+    const submit =
+`SUBMIT CODE — ${GAME_TITLE}
+STUDENT: ${name}
+
+START: ${elStartStamp.textContent}
+END:   ${endStamp}
+ELAPSED: ${formatHMS(elapsedSec)}
+
+SCORE: ${correct} / ${attempts}
+ACCURACY: ${acc}%
+
+INSTRUCTIONS: Screenshot this box OR copy/paste into your assignment submission.`;
+
+    elSubmitText.value = submit;
+    elSubmitBox.style.display = "block";
+    setFeedback("good", "Submit Code generated. Screenshot or copy/paste.");
+  }
+
+  function resetAll(){
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+
+    questions = shuffle(bank);
+    idx = 0;
+    correct = 0;
+    attempts = 0;
+
+    started = false;
+    startTimeMs = null;
+    elapsedSec = 0;
+
+    answeredThisQuestion = false;
+    locked = false;
+
+    elStartStamp.textContent = "--";
+    elElapsed.textContent = "00:00";
+    elScoreLine.textContent = "0 / 0";
+    elAcc.textContent = "0%";
+    elEndStamp.textContent = "End: --";
+
+    elSubmitBox.style.display = "none";
+    elHintBox.style.display = "none";
+    elNext.disabled = true;
+    elFinish.disabled = true;
+
+    enableChoiceButtons();
+    renderQuestion();
+  }
+
+  async function copySubmit(){
+    const text = elSubmitText.value;
+    if(!text) return;
+    try{
+      await navigator.clipboard.writeText(text);
+      setFeedback("good", "Copied to clipboard.");
+    }catch(e){
+      setFeedback("warn", "Copy blocked by browser. Highlight the text and copy manually.");
+    }
+  }
+
+  // ---------- Events ----------
+  elNext.addEventListener('click', nextQuestion);
+  elFinish.addEventListener('click', finish);
+  elReset.addEventListener('click', resetAll);
+  elCopy.addEventListener('click', copySubmit);
+
+  renderQuestion();
+  updateStats();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bill of Rights — Amendment Blitz (CS8)</title>
+<style>
+:root{
+  --bg:#0b1220; --text:#e7eefc; --muted:#a8b4cf;
+  --border:rgba(255,255,255,.12);
+  --good:#2bd576; --bad:#ff5c7a; --accent:#7aa2ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),var(--bg);
+  color:var(--text);min-height:100vh;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.app{
+  width:min(980px,100%);
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+header{
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  border-bottom:1px solid var(--border);padding-bottom:12px;
+}
+h1{margin:0;font-size:20px}
+.sub{font-size:13px;color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;color:var(--muted);
+}
+.stat b{color:var(--text)}
+
+.metaRow{
+  margin-top:10px;
+  display:flex;gap:10px;flex-wrap:wrap;
+  font-size:12px;color:var(--muted);
+}
+.metaPill{
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:6px 10px;
+  background:rgba(0,0,0,.15);
+}
+.metaPill b{color:var(--text)}
+
+.scenario{
+  margin-top:16px;
+  padding:16px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(122,162,255,.12);
+  font-size:18px;line-height:1.35;
+  min-height:120px;
+}
+
+.choices{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+@media(max-width:760px){
+  .choices{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:520px){
+  .choices{grid-template-columns:repeat(2,1fr)}
+}
+button{
+  padding:14px 10px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.3);
+  color:var(--text);
+  font-size:15px;
+  cursor:pointer;
+}
+button:hover{background:rgba(255,255,255,.06)}
+button.good{background:rgba(43,213,118,.2);border-color:var(--good)}
+button.bad{background:rgba(255,92,122,.2);border-color:var(--bad)}
+button:disabled{opacity:.65;cursor:not-allowed}
+
+.feedback{
+  margin-top:12px;
+  min-height:28px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+.footer{
+  margin-top:12px;
+  display:flex;justify-content:space-between;flex-wrap:wrap;
+  font-size:12px;color:var(--muted);
+  gap:10px;
+}
+.smallLink{
+  color:var(--accent);
+  text-decoration:none;
+  border-bottom:1px dashed rgba(122,162,255,.55);
+}
+.smallLink:hover{opacity:.9}
+
+kbd{
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:12px;
+  border:1px solid var(--border);
+  padding:2px 6px;
+  border-radius:8px;
+  background:rgba(0,0,0,.25);
+}
+
+/* Start overlay */
+.overlay{
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex; align-items:center; justify-content:center;
+  padding:18px;
+}
+.card{
+  width:min(560px,100%);
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:rgba(11,18,32,.95);
+  box-shadow:0 18px 55px rgba(0,0,0,.35);
+  padding:16px;
+}
+.card h2{margin:0 0 6px 0;font-size:18px}
+.card p{
+  margin:0 0 12px 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+}
+.row{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+input[type="text"]{
+  flex:1;
+  min-width:220px;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.35);
+  color:var(--text);
+  font-size:15px;
+  outline:none;
+}
+input[type="text"]::placeholder{color:rgba(168,180,207,.75)}
+.primary{
+  background:rgba(122,162,255,.22);
+  border-color:rgba(122,162,255,.45);
+}
+.primary:hover{background:rgba(122,162,255,.28)}
+.warn{
+  color:var(--bad);
+  font-size:13px;
+  min-height:18px;
+  margin-top:8px;
+}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- Start overlay -->
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <h2>Amendment Blitz ⚡ (CS8)</h2>
+      <p>Enter your name to begin. Final screen includes <b>date/time stamps</b>, <b>accuracy</b>, <b>attempts</b>, and <b>total time</b>.</p>
+      <div class="row">
+        <input id="nameInput" type="text" maxlength="40" placeholder="Student name (required)" autocomplete="name">
+        <button class="primary" id="startBtn">Start</button>
+      </div>
+      <div class="warn" id="nameWarn"></div>
+      <p style="margin-top:10px">Keyboard: <kbd>1</kbd> <kbd>2</kbd> <kbd>4</kbd> <kbd>5</kbd> <kbd>6</kbd> <kbd>8</kbd> <kbd>0</kbd> (0 = 10th)</p>
+    </div>
+  </div>
+
+  <header>
+    <div>
+      <h1>Amendment Blitz ⚡</h1>
+      <div class="sub">Instant recognition. No hints. Go fast.</div>
+
+      <div class="metaRow">
+        <div class="metaPill">Name: <b id="studentName">—</b></div>
+        <div class="metaPill">Started: <b id="startStamp">—</b></div>
+        <div class="metaPill">Finished: <b id="endStamp">—</b></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">Q <b id="qNum">0</b>/<b id="qTotal">0</b></div>
+      <div class="stat">Correct <b id="correct">0</b></div>
+      <div class="stat">Attempts <b id="attempts">0</b></div>
+      <div class="stat">Accuracy <b id="accuracy">0%</b></div>
+      <div class="stat">Streak <b id="streak">0</b></div>
+      <div class="stat">Time <b id="time">0:00</b></div>
+    </div>
+  </header>
+
+  <div class="scenario" id="scenario">Enter your name to start.</div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback" id="feedback"></div>
+
+  <div class="footer">
+    <div>Game 4 • Speed & Fluency • CS8 Bill of Rights</div>
+    <div id="done"></div>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   CS8 answer set only
+   ========================= */
+const amendments = [
+  {k:"1st", a:"1"},
+  {k:"2nd", a:"2"},
+  {k:"4th", a:"4"},
+  {k:"5th", a:"5"},
+  {k:"6th", a:"6"},
+  {k:"8th", a:"8"},
+  {k:"10th", a:"10"},
+];
+
+/* =========================
+   30 scenarios — built to hit every CS8 element
+   ========================= */
+const scenarios = [
+  // 1st Amendment — religion, assembly, press, petition, speech
+  {t:"A city bans peaceful criticism of officials in a public park.", a:"1"},                 // speech
+  {t:"A student is punished for wearing a shirt criticizing government (non-disruptive).", a:"1"}, // speech
+  {t:"The government shuts down a newspaper for publishing an investigation of corruption.", a:"1"}, // press
+  {t:"A school bans students from distributing a lawful flyer about a civic issue.", a:"1"},  // press/speech
+  {t:"A town refuses to accept any citizen petitions about a local policy.", a:"1"},          // petition
+  {t:"Police break up a peaceful meeting where people gather to discuss a community issue.", a:"1"}, // assembly
+  {t:"A law targets one religion by banning only that group’s worship services.", a:"1"},      // religion
+  {t:"Officials punish someone for refusing to participate in a government-sponsored prayer.", a:"1"}, // religion
+
+  // 2nd Amendment — right to bear arms
+  {t:"A state bans all firearms for law-abiding citizens, including in their homes.", a:"2"},
+  {t:"A city prohibits ordinary citizens from owning common firearms used for self-defense.", a:"2"},
+  {t:"A law allows only government officials to own firearms but bans everyone else.", a:"2"},
+
+  // 4th Amendment — unreasonable search/seizure; warrants require probable cause
+  {t:"Police search a home without a warrant and without probable cause.", a:"4"},
+  {t:"Officers search a backpack during a stop with no reasonable suspicion or consent.", a:"4"},
+  {t:"Police seize a person’s phone without legal justification or a proper warrant.", a:"4"},
+  {t:"Officers enter a home to look for evidence with no warrant and no emergency.", a:"4"},
+  {t:"A warrant allows a search but does not list what place or items are involved.", a:"4"},
+  {t:"Police stop people randomly and search cars without any reason.", a:"4"},
+
+  // 5th Amendment — self-incrimination; double jeopardy
+  {t:"Police threaten a suspect to force a confession, and the confession is used in court.", a:"5"}, // self-incrim
+  {t:"A person is tried again after being found not guilty of the same crime.", a:"5"},              // double jeopardy
+  {t:"A defendant is forced to testify against themselves during a criminal trial.", a:"5"},         // self-incrim
+  {t:"A prosecutor files the same criminal charge again after an acquittal to get a new jury.", a:"5"}, // double jeopardy
+
+  // 6th Amendment — speedy/public/impartial jury/charges/confront accuser/counsel
+  {t:"A defendant sits in jail for a long time without being brought to trial.", a:"6"},            // speedy
+  {t:"A judge holds a criminal trial in secret and refuses public access.", a:"6"},                 // public
+  {t:"A defendant is denied a lawyer in a serious criminal case.", a:"6"},                          // counsel
+  {t:"The accused is not told what crime they are being charged with.", a:"6"},                     // informed of charges
+  {t:"Defense is not allowed to question the main witness testifying against the defendant.", a:"6"}, // confront accuser
+  {t:"A jury is chosen in a way that is clearly biased and not impartial.", a:"6"},                 // impartial jury
+  {t:"A defendant is rushed to trial with no meaningful chance to prepare with counsel.", a:"6"},   // counsel/speedy
+  {t:"Prosecutors rely on statements from an accuser, but the accuser is never brought to court to be questioned.", a:"6"}, // confront
+
+  // 8th Amendment — cruel or unusual punishment
+  {t:"A prisoner receives an inhumane punishment that is excessively harsh for the crime.", a:"8"},
+  {t:"A court sentences a person to a barbaric punishment that shocks the conscience.", a:"8"},
+  {t:"Officials use punishment designed to cause unnecessary suffering beyond what is needed.", a:"8"},
+
+  // 10th Amendment — reserved powers to states/people
+  {t:"Congress forces states to follow a purely local policy not delegated to the federal government.", a:"10"},
+  {t:"The federal government claims it can control any state power even if the Constitution never grants that authority.", a:"10"},
+];
+
+/* =========================
+   GAME STATE
+   ========================= */
+let deck = [];
+let i = 0;
+let attempts = 0;
+let correct = 0;
+let streak = 0;
+
+let started = false;
+let startMs = null;
+let startStamp = "";
+let endStamp = "";
+
+const el = id => document.getElementById(id);
+
+function formatStamp(d){
+  return d.toLocaleString(undefined, {
+    year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", second:"2-digit"
+  });
+}
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let j=a.length-1;j>0;j--){
+    const r = Math.floor(Math.random()*(j+1));
+    [a[j],a[r]] = [a[r],a[j]];
+  }
+  return a;
+}
+
+function updateAccuracy(){
+  const acc = attempts === 0 ? 0 : Math.round((correct/attempts)*100);
+  el("accuracy").textContent = acc + "%";
+}
+
+function setHeaderNums(){
+  el("qTotal").textContent = deck.length;
+  el("qNum").textContent = Math.min(i+1, deck.length);
+  el("attempts").textContent = attempts;
+  el("correct").textContent = correct;
+  el("streak").textContent = streak;
+  updateAccuracy();
+}
+
+function render(){
+  setHeaderNums();
+  el("scenario").textContent = deck[i].t;
+  el("feedback").textContent = "";
+  el("choices").innerHTML = "";
+
+  amendments.forEach(m=>{
+    const b = document.createElement("button");
+    b.textContent = m.k;
+    b.onclick = () => check(m.a, b);
+    el("choices").appendChild(b);
+  });
+}
+
+function lockButtons(lock=true){
+  [...el("choices").querySelectorAll("button")].forEach(btn => btn.disabled = lock);
+}
+
+function check(choice, btn){
+  if(!started) return;
+
+  attempts++;
+  el("attempts").textContent = attempts;
+
+  if(choice === deck[i].a){
+    correct++;
+    btn.classList.add("good");
+    streak++;
+    el("correct").textContent = correct;
+    el("streak").textContent = streak;
+    updateAccuracy();
+
+    lockButtons(true);
+    setTimeout(next, 260);
+  }else{
+    btn.classList.add("bad");
+    streak = 0;
+    el("streak").textContent = streak;
+    updateAccuracy();
+    el("feedback").textContent = "Wrong — think the right protection, then the amendment.";
+  }
+}
+
+function next(){
+  i++;
+  if(i < deck.length){
+    render();
+  }else{
+    finish();
+  }
+}
+
+function finish(){
+  WeberRun.finish(el("studentName").textContent, startMs, deck.length, correct, attempts);
+  endStamp = formatStamp(new Date());
+  el("endStamp").textContent = endStamp;
+
+  const totalSeconds = Math.floor((Date.now()-startMs)/1000);
+  const mm = Math.floor(totalSeconds/60);
+  const ss = String(totalSeconds%60).padStart(2,"0");
+
+  const acc = attempts === 0 ? 0 : Math.round((correct/attempts)*100);
+
+  el("scenario").textContent = "Blitz Complete!";
+  el("choices").innerHTML = "";
+  el("feedback").innerHTML =
+    `<b>Student:</b> ${el("studentName").textContent} • ` +
+    `<b>Started:</b> ${startStamp} • ` +
+    `<b>Finished:</b> ${endStamp}<br>` +
+    `<b>Time:</b> ${mm}:${ss} • <b>Correct:</b> ${correct}/${deck.length} • ` +
+    `<b>Attempts:</b> ${attempts} • <b>Accuracy:</b> ${acc}%`;
+
+  el("done").textContent = "Refresh to replay and beat your time.";
+}
+
+function startGame(){
+  const name = el("nameInput").value.trim();
+  if(!name){
+    el("nameWarn").textContent = "Name is required.";
+    return;
+  }
+  el("nameWarn").textContent = "";
+  el("overlay").style.display = "none";
+
+  el("studentName").textContent = name;
+
+  started = true;
+  startMs = Date.now();
+  startStamp = formatStamp(new Date());
+  el("startStamp").textContent = startStamp;
+  el("endStamp").textContent = "—";
+
+  // build deck: 30 items, shuffled each load
+  deck = shuffle(scenarios);
+
+  // reset state
+  i = 0; attempts = 0; correct = 0; streak = 0;
+  el("done").textContent = "";
+  render();
+}
+
+// start button + Enter key
+el("startBtn").addEventListener("click", startGame);
+el("nameInput").addEventListener("keydown", (e)=>{
+  if(e.key === "Enter") startGame();
+});
+
+// keyboard shortcuts for quick play:
+// 1,2,4,5,6,8,0 (0 = 10th)
+document.addEventListener("keydown", (e)=>{
+  if(!started) return;
+  const key = e.key;
+  const map = { "1":"1", "2":"2", "4":"4", "5":"5", "6":"6", "8":"8", "0":"10" };
+  if(!map[key]) return;
+
+  const buttons = [...el("choices").querySelectorAll("button")];
+  const idx = amendments.findIndex(a => a.a === map[key]);
+  if(idx >= 0 && buttons[idx]) buttons[idx].click();
+});
+
+// timer display
+setInterval(()=>{
+  if(!started || !startMs) return;
+  const s = Math.floor((Date.now()-startMs)/1000);
+  el("time").textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+}, 300);
+</script>
+</body>
+</html>

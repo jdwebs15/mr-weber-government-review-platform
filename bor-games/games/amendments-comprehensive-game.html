@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Comprehensive Game — Amendments CS9–11</title>
+  <style>
+    :root{
+      --bg:#0b1220; --text:#e7eefc; --muted:#a8b4cf; --accent:#7aa2ff;
+      --good:#2bd576; --bad:#ff5c7a; --border: rgba(255,255,255,0.10);
+      --shadow: 0 18px 55px rgba(0,0,0,.35); --radius:18px; --radius2:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:var(--sans);color:var(--text);
+      background: radial-gradient(900px 500px at 20% 0%, rgba(122,162,255,.22), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(43,213,118,.12), transparent 60%),
+                  var(--bg);
+      min-height:100vh;padding:24px;
+    }
+    .wrap{max-width:1100px;margin:0 auto;}
+    h1{font-size:1.35rem;margin:0 0 10px 0}
+    .sub{color:var(--muted);margin:0 0 18px 0;line-height:1.35}
+    .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .card{
+      background: rgba(17,26,46,.82);
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding:16px;
+      backdrop-filter: blur(10px);
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .spacer{flex:1}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      background: rgba(255,255,255,.06);border:1px solid var(--border);
+      font-size:.92rem;
+    }
+    .pill strong{font-family:var(--mono);font-weight:900}
+    .btn{
+      cursor:pointer;border:none;border-radius:12px;padding:10px 12px;
+      color:var(--text);background: rgba(122,162,255,.18);
+      border:1px solid rgba(122,162,255,.35);
+      transition: transform .06s ease, background .15s ease;
+      font-weight:900;
+    }
+    .btn:hover{background: rgba(122,162,255,.26)}
+    .btn:active{transform: scale(.98)}
+    .btn.secondary{background: rgba(255,255,255,.06);border:1px solid var(--border);font-weight:800}
+    .btn.danger{background: rgba(255,92,122,.14);border:1px solid rgba(255,92,122,.35);}
+    .label{color:var(--muted);font-size:.85rem}
+    .mono{font-family:var(--mono)}
+    .value{font-weight:900}
+    .qbox h2{margin:0 0 10px 0;font-size:1.08rem}
+    .prompt{font-size:1.03rem;line-height:1.38;margin:8px 0 12px 0}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:700px){.choices{grid-template-columns:1fr}}
+    .choice{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:12px;border-radius: var(--radius2);
+      background: rgba(255,255,255,.05);border:1px solid var(--border);
+      cursor:pointer;user-select:none;
+    }
+    .choice:hover{background: rgba(255,255,255,.075)}
+    .choice .tag{
+      width:28px;height:28px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(122,162,255,.18);
+      border:1px solid rgba(122,162,255,.28);
+      font-weight:900;flex:0 0 auto;
+    }
+    .choice.correct{border-color: rgba(43,213,118,.55);background: rgba(43,213,118,.10)}
+    .choice.wrong{border-color: rgba(255,92,122,.55);background: rgba(255,92,122,.10)}
+    .feedback{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--border);background: rgba(255,255,255,.04);display:none}
+    .feedback.good{display:block;border-color: rgba(43,213,118,.45);background: rgba(43,213,118,.08)}
+    .feedback.bad{display:block;border-color: rgba(255,92,122,.45);background: rgba(255,92,122,.08)}
+    .feedback .title{font-weight:900;margin-bottom:6px}
+    .teacherPanel{display:none;margin-top:12px;padding:12px;border-radius:14px;border:1px dashed rgba(255,255,255,.25);background: rgba(255,255,255,.03)}
+    .teacherPanel.show{display:block}
+    #timeBox .row2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    @media (max-width:860px){#timeBox .row2{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    pre{white-space:pre-wrap;word-break:break-word;margin:0;font-family:var(--mono);font-size:.92rem;line-height:1.35}
+    .tiny{font-size:.86rem;color:var(--muted)}
+    .divider{height:1px;background: var(--border); margin:12px 0;}
+    .input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background: rgba(0,0,0,.18);color:var(--text);outline:none;font-weight:900;}
+  </style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="row">
+      <div>
+        <h1>Comprehensive — CS9–11 Amendments (Reconstruction + Suffrage + Structure)</h1>
+        <p class="sub">All groups in one game. Must reach <strong>100%</strong> to unlock submission screenshot. Teacher Mode: <strong>?teacher=1</strong> or Shift+T.</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn secondary" id="toggleTeacherBtn">Teacher Mode</button>
+      <button class="btn danger" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="startCard" class="row" style="gap:12px;">
+      <div style="flex:1;min-width:260px;">
+        <div class="label">Student Name (required)</div>
+        <input id="nameInput" class="input" placeholder="Type first + last name" autocomplete="off" />
+        <div class="tiny">Name appears in timer + submission summary.</div>
+      </div>
+      <button class="btn" id="startBtn">Start Game</button>
+    </div>
+
+    <div id="timeBox" class="card" style="margin-top:12px;display:none;">
+      <div class="row2">
+        <div><div class="label">Student</div><div id="studentNameDisplay" class="value">—</div></div>
+        <div><div class="label">Start Time</div><div id="startStamp" class="value">—</div></div>
+        <div><div class="label">Elapsed</div><div id="timerClock" class="value mono">00:00</div></div>
+        <div><div class="label">Last Action</div><div id="lastActionStamp" class="value">—</div></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div class="pill">Question: <strong id="qNum">—</strong>/<strong id="qTotal">—</strong></div>
+      <div class="pill">Correct: <strong id="correctCount">0</strong></div>
+      <div class="pill">Attempts: <strong id="attemptCount">0</strong></div>
+      <div class="pill">Accuracy: <strong id="accuracy">0</strong>%</div>
+      <div class="spacer"></div>
+      <button class="btn secondary" id="nextBtn" disabled>Next</button>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px;">
+    <div class="card qbox">
+      <h2>Question</h2>
+      <div id="prompt" class="prompt">Enter your name and click Start.</div>
+      <div class="choices" id="choices"></div>
+
+      <div id="feedback" class="feedback">
+        <div class="title" id="fbTitle"></div>
+        <div id="fbText" class="tiny"></div>
+      </div>
+
+      <div id="teacherPanel" class="teacherPanel">
+        <div class="label">Teacher Mode is ON</div>
+        <div class="tiny">Explanations appear only after an incorrect answer.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 10px 0;font-size:1.08rem;">Rules</h2>
+      <ul class="tiny" style="margin:0 0 10px 18px;line-height:1.5;">
+        <li>Wrong answers recycle until mastered.</li>
+        <li>Teacher Mode shows explanations only after wrong.</li>
+        <li>Submission summary appears only at <strong>100% accuracy</strong>.</li>
+      </ul>
+      <div class="divider"></div>
+      <section id="submissionBox" class="card" style="display:none;">
+        <div class="label">Submission Summary (Screenshot this)</div>
+        <pre id="submissionText" style="margin-top:10px;"></pre>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (sel)=>document.querySelector(sel);
+const shuffle=(arr)=>{
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+};
+
+const Time = (() => {
+  const pad=(n)=>String(n).padStart(2,"0");
+  const fmtClock=(ms)=>{
+    const s=Math.floor(ms/1000), m=Math.floor(s/60), r=s%60;
+    return `${pad(m)}:${pad(r)}`;
+  };
+  const fmtStamp=(d=new Date())=>d.toLocaleString([],{
+    year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"
+  });
+  return { fmtClock, fmtStamp };
+})();
+
+const Run = {
+  startedAt:null,timerId:null,lastActionAt:null,qShownAt:null,log:[],
+  init(studentName){
+    this.startedAt=Date.now();
+    this.lastActionAt=Date.now();
+    this.qShownAt=Date.now();
+    $("#studentNameDisplay").textContent=studentName||"—";
+    $("#startStamp").textContent=Time.fmtStamp(new Date(this.startedAt));
+    $("#lastActionStamp").textContent=Time.fmtStamp(new Date(this.lastActionAt));
+    this.timerId=setInterval(()=>$("#timerClock").textContent=Time.fmtClock(Date.now()-this.startedAt),250);
+    this.pushLog({type:"START",detail:"Game started",stamp:this.lastActionAt});
+  },
+  markAction(type,detail){
+    this.lastActionAt=Date.now();
+    $("#lastActionStamp").textContent=Time.fmtStamp(new Date(this.lastActionAt));
+    this.pushLog({type,detail,stamp:this.lastActionAt});
+  },
+  markQuestionShown(qIndex,qLabel){
+    this.qShownAt=Date.now();
+    this.markAction("Q_SHOWN",`Q${qIndex+1}: ${qLabel||""}`.trim());
+  },
+  recordAnswer({ qIndex, prompt, choiceLabel, choiceText, isCorrect, correctLabel, reasonText }){
+    const now=Date.now();
+    const timeOnQ=Math.max(0, Math.round((now-(this.qShownAt||now))/1000));
+    this.pushLog({
+      type:isCorrect?"ANSWER_CORRECT":"ANSWER_WRONG",
+      stamp:now,qIndex,timeOnQ,prompt,
+      choice:`${choiceLabel}. ${choiceText}`,
+      correct:correctLabel||"",
+      reason:reasonText||""
+    });
+    this.lastActionAt=now;
+    $("#lastActionStamp").textContent=Time.fmtStamp(new Date(now));
+  },
+  pushLog(e){this.log.push(e);},
+  elapsedMs(){return this.startedAt?(Date.now()-this.startedAt):0;},
+  buildSummary({ studentName, accuracy, correctCount, totalCount }){
+    const endTime=new Date();
+    const elapsed=Time.fmtClock(this.elapsedMs());
+    const rows=this.log.filter(e=>e.type==="ANSWER_CORRECT"||e.type==="ANSWER_WRONG")
+      .map(e=>{
+        const stamp=Time.fmtStamp(new Date(e.stamp));
+        const icon=e.type==="ANSWER_CORRECT"?"✅":"❌";
+        return `${icon} ${stamp} | Q${(e.qIndex??0)+1} | +${e.timeOnQ}s | ${e.choice} | Correct: ${e.correct}`;
+      });
+    return [
+      `GAME:    Comprehensive — CS9–11`,
+      `STUDENT: ${studentName||"—"}`,
+      `START:   ${Time.fmtStamp(new Date(this.startedAt))}`,
+      `END:     ${Time.fmtStamp(endTime)}`,
+      `ELAPSED: ${elapsed}`,
+      `SCORE:   ${correctCount}/${totalCount} (${accuracy}%)`,
+      ``,
+      `ANSWER LOG:`,
+      ...(rows.length?rows:[`(no answers logged)`])
+    ].join("\n");
+  }
+};
+
+// 36 questions total (balanced across CS9/10/11)
+const QUESTIONS = [
+  // CS9 (Reconstruction)
+  {id:"C-CS9-13",prompt:"Which amendment abolished slavery nationwide?",choices:["13th","14th","15th","10th"],answer:0,explain:"13th abolished slavery. Your class framing ties this to the 10th Amendment: federal power had to be explicitly added."},
+  {id:"C-CS9-13C",prompt:"Why did the federal government need to amend the Constitution to end slavery?",choices:[
+    "Because the 10th Amendment reserved powers to states unless the Constitution changed",
+    "Because DC needed electors",
+    "Because Vietnam required voting age changes",
+    "Because Jefferson and Burr tied"
+  ],answer:0,explain:"Your class causation: without explicit constitutional language, states claimed control."},
+  {id:"C-CS9-14",prompt:"Which amendment defined citizenship and required due process/equal protection from states?",choices:["14th","15th","13th","22nd"],answer:0,explain:"14th: citizenship + due process + equal protection."},
+  {id:"C-CS9-15",prompt:"Which amendment prevents denying voting rights based on race/color/previous servitude?",choices:["15th","14th","13th","19th"],answer:0,explain:"15th protects voting rights from race-based denial."},
+  {id:"C-CS9-JIM",prompt:"Which best shows continued struggle despite Reconstruction Amendments?",choices:["Jim Crow segregation laws","Term limits","DC electors","Voting age 18"],answer:0,explain:"Jim Crow laws enforced segregation/voter suppression long after Reconstruction."},
+  {id:"C-CS9-EQ",prompt:"A state applies laws differently based on race. Which amendment is most directly violated?",choices:["14th (Equal Protection)","13th","15th","22nd"],answer:0,explain:"Equal Protection Clause is in the 14th Amendment."},
+
+  // CS10 (Voting rights)
+  {id:"C-CS10-19",prompt:"Which amendment extended voting rights by gender (women’s suffrage)?",choices:["19th","26th","24th","15th"],answer:0,explain:"19th: voting rights cannot be denied on the basis of sex."},
+  {id:"C-CS10-19T",prompt:"Your class trigger for the 19th Amendment emphasizes…",choices:[
+    "Women’s WWI homefront contributions shifting support (including Wilson)",
+    "FDR’s four terms",
+    "Jefferson–Burr tie",
+    "DC population growth"
+  ],answer:0,explain:"You teach WWI homefront contributions as a trigger that shifted political support for women’s suffrage."},
+  {id:"C-CS10-24",prompt:"Which amendment banned poll taxes in federal elections?",choices:["24th","26th","19th","15th"],answer:0,explain:"24th: poll tax ban (a Jim Crow voting barrier)."},
+  {id:"C-CS10-24T",prompt:"Your class trigger for the 24th Amendment is…",choices:[
+    "Poll taxes as Jim Crow suppression; needed a constitutional limit on states",
+    "Vietnam draft of 18-year-olds",
+    "Jefferson–Burr tie",
+    "DC gaining electors"
+  ],answer:0,explain:"24th responds to poll taxes as disenfranchisement tools."},
+  {id:"C-CS10-26",prompt:"Which amendment lowered the voting age to 18?",choices:["26th","24th","19th","15th"],answer:0,explain:"26th: age 18+. Trigger: Vietnam-era ‘old enough to fight and die’ argument."},
+  {id:"C-CS10-26T",prompt:"Your class trigger for the 26th Amendment emphasizes…",choices:[
+    "18-year-olds drafted for Vietnam but unable to vote",
+    "FDR’s near-dictatorship",
+    "DC population growth",
+    "Jefferson–Burr tie"
+  ],answer:0,explain:"Vietnam draft fairness argument."},
+
+  // CS11 (Structure/function)
+  {id:"C-CS11-12",prompt:"Which amendment created separate ballots for president and vice president?",choices:["12th","22nd","23rd","25th"],answer:0,explain:"12th: separate balloting (after Jefferson–Burr tie)."},
+  {id:"C-CS11-12T",prompt:"Your class trigger for the 12th Amendment is…",choices:[
+    "Jefferson and Burr tied in electoral votes",
+    "FDR’s four terms",
+    "JFK assassination",
+    "Vietnam draft"
+  ],answer:0,explain:"Jefferson–Burr tie revealed a flaw; 12th corrected procedure."},
+  {id:"C-CS11-22",prompt:"Which amendment established presidential term limits?",choices:["22nd","12th","23rd","25th"],answer:0,explain:"22nd: term limits (your trigger: FDR four terms + fear of expanded executive power)."},
+  {id:"C-CS11-22T",prompt:"Your class trigger for the 22nd Amendment focuses on…",choices:[
+    "FDR’s four terms and fear of growing presidential power",
+    "Jefferson–Burr tie",
+    "DC population growth",
+    "Women’s WWI homefront work"
+  ],answer:0,explain:"You tie it to FDR’s four terms and concerns about executive expansion."},
+  {id:"C-CS11-23",prompt:"Which amendment granted the District of Columbia electoral votes?",choices:["23rd","22nd","12th","25th"],answer:0,explain:"23rd: DC electors (growing population)."},
+  {id:"C-CS11-23TRICK",prompt:"Which statement is MOST accurate about DC under the 23rd Amendment?",choices:[
+    "DC residents vote for electors, not directly for the president",
+    "DC residents vote directly for the president",
+    "DC became a state",
+    "DC votes in Congress like a state"
+  ],answer:0,explain:"Key trap: we vote for electors. DC gained electors; it did not become a state."},
+  {id:"C-CS11-25",prompt:"Which amendment clarified presidential succession and disability procedures?",choices:["25th","23rd","22nd","12th"],answer:0,explain:"25th: succession + disability process; tied to JFK assassination-era concerns."},
+  {id:"C-CS11-25T",prompt:"Your class trigger for the 25th Amendment is…",choices:[
+    "JFK assassination and concerns about disability/succession (LBJ health + no clear process)",
+    "FDR four terms",
+    "DC population growth",
+    "Vietnam draft"
+  ],answer:0,explain:"25th addressed gaps exposed by assassination/disability scenarios."},
+
+  // Mixed “identify the amendment” (extra to reach 36)
+  {id:"C-M1",prompt:"Which set are the Reconstruction Amendments?",choices:["13th, 14th, 15th","15th, 19th, 24th","12th, 22nd, 25th","1st, 4th, 5th"],answer:0,explain:"Reconstruction = 13/14/15."},
+  {id:"C-M2",prompt:"Poll taxes were originally designed mainly to…",choices:["Suppress African American voting under Jim Crow","Give DC electors","Create term limits","Lower voting age"],answer:0,explain:"Poll taxes were used to suppress Black voting and also restricted poor voters."},
+  {id:"C-M3",prompt:"Electoral votes for a state equal…",choices:["Representatives + Senators","Only Representatives","Only Senators","Popular vote total"],answer:0,explain:"Electoral votes = House reps + 2 Senators."},
+  {id:"C-M4",prompt:"To win the presidency, a candidate must secure…",choices:["A majority of total electoral votes","A majority of states’ popular votes","A two-thirds vote in Congress","A Supreme Court vote"],answer:0,explain:"Winner needs a majority of electoral votes."},
+  {id:"C-M5",prompt:"Which amendment matches: gender?",choices:["19th","24th","26th","23rd"],answer:0,explain:"19th: sex/gender."},
+  {id:"C-M6",prompt:"Which amendment matches: age 18+?",choices:["26th","24th","19th","22nd"],answer:0,explain:"26th lowered voting age to 18."},
+  {id:"C-M7",prompt:"Which amendment matches: due process + equal protection?",choices:["14th","13th","15th","12th"],answer:0,explain:"14th: due process + equal protection."},
+  {id:"C-M8",prompt:"Which amendment matches: separate ballots for president and VP?",choices:["12th","23rd","25th","24th"],answer:0,explain:"12th: separate ballots."},
+  {id:"C-M9",prompt:"Which amendment matches: term limits?",choices:["22nd","25th","23rd","19th"],answer:0,explain:"22nd: term limits."},
+  {id:"C-M10",prompt:"Which amendment matches: succession/disability?",choices:["25th","12th","22nd","15th"],answer:0,explain:"25th: succession/disability."},
+  {id:"C-M11",prompt:"Which amendment matches: DC electors?",choices:["23rd","12th","22nd","26th"],answer:0,explain:"23rd: DC electors."},
+  {id:"C-M12",prompt:"Which is NOT a voting rights amendment from CS10?",choices:["22nd","15th","19th","24th"],answer:0,explain:"22nd is term limits, not voting rights expansion."},
+  {id:"C-M13",prompt:"Which is NOT a CS11 structure/function amendment?",choices:["24th","12th","22nd","25th"],answer:0,explain:"24th is poll tax (voting rights), not structure/function of EC/presidency."},
+  {id:"C-M14",prompt:"Which best summarizes Reconstruction Amendments’ goal?",choices:[
+    "Extend new protections to African Americans after the Civil War",
+    "Give DC statehood",
+    "Create term limits",
+    "Lower voting age"
+  ],answer:0,explain:"CS9: extend protections to African Americans, though equality was not immediate."},
+  {id:"C-M15",prompt:"Which best summarizes why equality was not immediate after Reconstruction?",choices:[
+    "Jim Crow systems limited rights in practice despite constitutional amendments",
+    "DC lacked electors",
+    "Presidents had term limits",
+    "Women could not vote until Vietnam"
+  ],answer:0,explain:"Jim Crow/Black Codes and other barriers persisted long after amendments."}
+];
+
+const state = {
+  teacherMode:false, started:false, studentName:"",
+  deck:[], i:0, correct:0, attempts:0,
+  missedQueue:[], answeredCorrectly:new Set(),
+  currentChoices:[], selectedIndex:null, currentCorrectIndex:0
+};
+
+function parseTeacherFromURL(){
+  const u=new URL(location.href);
+  return u.searchParams.get("teacher")==="1";
+}
+function setTeacherMode(on){
+  state.teacherMode=!!on;
+  $("#toggleTeacherBtn").textContent = state.teacherMode ? "Teacher Mode: ON" : "Teacher Mode";
+  $("#teacherPanel").classList.toggle("show", state.teacherMode);
+  if(state.started) Run.markAction("TEACHER_MODE", state.teacherMode ? "ON" : "OFF");
+}
+function resetUI(){
+  $("#qNum").textContent="—";$("#qTotal").textContent="—";
+  $("#correctCount").textContent="0";$("#attemptCount").textContent="0";$("#accuracy").textContent="0";
+  $("#prompt").textContent="Enter your name and click Start.";
+  $("#choices").innerHTML="";
+  $("#feedback").style.display="none";
+  $("#nextBtn").disabled=true;
+  $("#submissionBox").style.display="none";
+  $("#submissionText").textContent="";
+  $("#timeBox").style.display="none";
+  $("#startCard").style.display="flex";
+}
+function accuracyPct(){return state.attempts?Math.round((state.correct/state.attempts)*100):0;}
+function updateHud(){
+  $("#qNum").textContent = state.started ? String(state.i+1) : "—";
+  $("#qTotal").textContent = state.started ? String(state.deck.length) : "—";
+  $("#correctCount").textContent = String(state.correct);
+  $("#attemptCount").textContent = String(state.attempts);
+  $("#accuracy").textContent = String(accuracyPct());
+}
+function buildDeck(){ state.deck = shuffle(QUESTIONS); }
+
+function renderQuestion(){
+  $("#feedback").style.display="none";
+  $("#nextBtn").disabled=true;
+  state.selectedIndex=null;
+
+  const q=state.deck[state.i];
+  $("#prompt").textContent=q.prompt;
+
+  const labeled=q.choices.map((t,idx)=>({text:t,origIndex:idx}));
+  const shuffled=shuffle(labeled);
+  state.currentChoices=shuffled;
+  state.currentCorrectIndex=shuffled.findIndex(x=>x.origIndex===q.answer);
+
+  const letters=["A","B","C","D"];
+  $("#choices").innerHTML="";
+  shuffled.forEach((opt,idx)=>{
+    const div=document.createElement("div");
+    div.className="choice";
+    div.innerHTML=`<div class="tag">${letters[idx]}</div><div><div style="font-weight:850">${opt.text}</div></div>`;
+    div.addEventListener("click",()=>selectChoice(idx));
+    $("#choices").appendChild(div);
+  });
+
+  Run.markQuestionShown(state.i, q.id || "COMP");
+  updateHud();
+}
+function selectChoice(idx){
+  state.selectedIndex=idx;
+  Array.from($("#choices").children).forEach((n,i)=>{
+    n.classList.remove("correct","wrong");
+    n.style.outline = (i===idx) ? "2px solid rgba(122,162,255,.55)" : "none";
+  });
+  $("#nextBtn").disabled=false;
+}
+function grade(){
+  const q=state.deck[state.i];
+  const letters=["A","B","C","D"];
+  const picked=state.selectedIndex;
+  const correct=state.currentCorrectIndex;
+  if(picked==null) return;
+
+  state.attempts++;
+  Array.from($("#choices").children).forEach(n=>n.style.outline="none");
+  const isCorrect = picked===correct;
+
+  Run.recordAnswer({
+    qIndex: state.i,
+    prompt: q.prompt,
+    choiceLabel: letters[picked],
+    choiceText: state.currentChoices[picked].text,
+    isCorrect,
+    correctLabel: letters[correct],
+    reasonText: q.explain || ""
+  });
+
+  const nodes=Array.from($("#choices").children);
+  nodes.forEach((node,idx)=>{
+    node.classList.remove("correct","wrong");
+    if(idx===correct) node.classList.add("correct");
+    if(idx===picked && !isCorrect) node.classList.add("wrong");
+  });
+
+  $("#feedback").style.display="block";
+  if(isCorrect){
+    state.correct++;
+    state.answeredCorrectly.add(q.id);
+    $("#fbTitle").textContent="Correct ✅";
+    $("#fbText").textContent="Click Next.";
+    $("#feedback").className="feedback good";
+  } else {
+    state.missedQueue.push(q);
+    $("#fbTitle").textContent="Incorrect ❌";
+    $("#fbText").textContent = state.teacherMode ? `Explanation: ${q.explain}` : "Try again later. Click Next.";
+    $("#feedback").className="feedback bad";
+  }
+
+  updateHud();
+  maybeUnlockSubmission();
+}
+function maybeUnlockSubmission(){
+  const acc=accuracyPct();
+  if(state.attempts === QUESTIONS.length && state.correct === QUESTIONS.length && state.answeredCorrectly.size === QUESTIONS.length){
+  WeberRun.finish(state.studentName, Run.startedAt, QUESTIONS.length, state.correct, state.attempts);
+    $("#submissionBox").style.display="block";
+    $("#submissionText").textContent = Run.buildSummary({
+      studentName: state.studentName,
+      accuracy: acc,
+      correctCount: state.correct,
+      totalCount: state.attempts
+    });
+  }
+}
+function next(){
+  $("#nextBtn").disabled=true;
+  if(state.i >= state.deck.length-1){
+    if(state.missedQueue.length){
+      const missed=state.missedQueue.slice();
+      state.missedQueue=[];
+      state.deck=shuffle(missed);
+      state.i=0;
+      renderQuestion();
+      return;
+    } else {
+      state.deck=shuffle(QUESTIONS);
+      state.i=0;
+      renderQuestion();
+      return;
+    }
+  } else {
+    state.i++;
+    renderQuestion();
+  }
+}
+function startGame(){
+  const name=($("#nameInput").value||"").trim();
+  if(name.length<3){alert("Please enter your full name (first + last)."); $("#nameInput").focus(); return;}
+  state.studentName=name;
+  state.started=true;
+  $("#startCard").style.display="none";
+  $("#timeBox").style.display="block";
+  buildDeck(); state.i=0;
+  Run.init(name);
+  Run.markAction("START_CLICK","Student started the game");
+  $("#qTotal").textContent=String(state.deck.length);
+  renderQuestion();
+}
+
+$("#startBtn").addEventListener("click", startGame);
+$("#resetBtn").addEventListener("click", ()=>{ if(confirm("Reset local progress?")) location.reload(); });
+$("#toggleTeacherBtn").addEventListener("click", ()=>setTeacherMode(!state.teacherMode));
+$("#nextBtn").addEventListener("click", ()=>{
+  if(!state.started) return;
+  if(state.selectedIndex==null) return;
+  grade();
+  $("#nextBtn").disabled=false;
+  $("#nextBtn").onclick=()=>{ $("#nextBtn").onclick=null; next(); };
+});
+window.addEventListener("keydown",(e)=>{
+  if(e.shiftKey && e.key.toLowerCase()==="t"){ setTeacherMode(!state.teacherMode); }
+  if(state.started && ["1","2","3","4"].includes(e.key)) selectChoice(parseInt(e.key,10)-1);
+});
+
+(function init(){
+  resetUI();
+  setTeacherMode(parseTeacherFromURL());
+})();
+</script>
+</body>
+</html>

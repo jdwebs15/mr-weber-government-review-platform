@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CS2 Game 3 — Party, Interest Group, or Media?</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --border:rgba(255,255,255,0.12);
+  --radius:18px;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body{margin:0;background:linear-gradient(180deg,#0b1220,#0e1530);color:var(--text);}
+.container{max-width:980px;margin:auto;padding:24px;}
+.card{background:#121a33;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+h1,h2{text-align:center;margin:8px 0 14px;}
+p{line-height:1.35}
+input{
+  width:100%;padding:12px;border-radius:12px;border:none;
+  margin-bottom:12px;font-size:1rem;
+}
+.btn{
+  background:#1b2a55;color:white;border:1px solid var(--border);
+  padding:14px;border-radius:14px;cursor:pointer;width:100%;
+  margin:8px 0;font-size:1rem;text-align:left;
+}
+.btn:hover{background:#243a77}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.correct{background:rgba(43,213,118,.15);border:1px solid var(--good);padding:12px;border-radius:14px;margin-top:10px;}
+.incorrect{background:rgba(255,92,122,.15);border:1px solid var(--bad);padding:12px;border-radius:14px;margin-top:10px;}
+.hint{background:rgba(255,209,102,.12);border:1px solid var(--warn);padding:12px;border-radius:14px;margin-top:10px;color:var(--text);}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-bottom:10px}
+.stat{background:#0f1630;padding:10px 14px;border-radius:12px}
+.toggle{cursor:pointer;color:var(--warn);user-select:none}
+.hidden{display:none}
+.footer{text-align:center;margin-top:10px;color:var(--muted)}
+.small{color:var(--muted);font-size:.95rem}
+hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+.pill{
+  display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;color:var(--muted);font-size:.9rem;margin:0 6px 6px 0;
+}
+.stage{
+  text-align:center;margin:4px 0 10px;
+}
+</style>
+<link rel="stylesheet" href="../weber-certificate.css">
+<script src="../weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- START -->
+  <div class="card" id="start">
+    <h1>CS2 — Game 3: Party, Interest Group, or Media?</h1>
+    <p class="small" style="text-align:center">
+      Each question has <b>two parts</b>:
+      <br>1) Identify who is mainly acting: <b>Political Party</b>, <b>Interest Group</b>, or <b>Media</b>
+      <br>2) Identify the <b>best strategy</b> being used.
+      <br><br>Hints can be turned on by the teacher and will appear <b>only after an incorrect answer</b>.
+    </p>
+    <hr>
+    <p style="text-align:center">Enter your name to begin.</p>
+    <input id="studentName" placeholder="Your Name">
+    <button class="btn" onclick="startGame()" style="text-align:center">Start Game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="card hidden" id="game">
+    <div class="topbar">
+      <!-- ✅ VISIBLE DATE/TIME STAMP DURING GAME -->
+      <div class="stat">Started: <span id="startedTop">--</span></div>
+
+      <div class="stat">Time: <span id="time">0</span>s</div>
+      <div class="stat">Attempts: <span id="attempts">0</span></div>
+      <div class="stat">Accuracy: <span id="accuracy">0%</span></div>
+      <div class="stat toggle" onclick="toggleHints()">Hints: <span id="hintState">OFF</span></div>
+    </div>
+
+    <h2 id="qnum"></h2>
+
+    <div class="stage">
+      <span class="pill" id="stagePill">Part 1 of 2</span>
+    </div>
+
+    <p id="question"></p>
+    <div id="choices"></div>
+
+    <div id="feedback"></div>
+
+    <button class="btn hidden" id="nextBtn" onclick="nextQuestion()" style="text-align:center">Next</button>
+  </div>
+
+  <!-- END -->
+  <div class="card hidden" id="end">
+    <h2>Completed!</h2>
+    <p><b>Name:</b> <span id="finalName"></span></p>
+    <p><b>Started:</b> <span id="finalTimestamp"></span></p>
+    <p><b>Time:</b> <span id="finalTime"></span>s</p>
+    <p><b>Attempts:</b> <span id="finalAttempts"></span></p>
+    <p><b>Accuracy:</b> <span id="finalAccuracy"></span></p>
+    <p><b>Receipt:</b> <span class="mono" id="receipt"></span></p>
+    <p class="footer">Take a screenshot and submit.</p>
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   Teacher Controls
+========================= */
+let hintsOn = false;
+function toggleHints(){
+  hintsOn = !hintsOn;
+  document.getElementById("hintState").textContent = hintsOn ? "ON" : "OFF";
+}
+
+/* =========================
+   ✅ DATE/TIME STAMP (REAL)
+========================= */
+let startTime = null;
+let startStampText = "";
+
+function setStartStamp(){
+  startTime = new Date();
+  startStampText = startTime.toLocaleString();
+}
+
+/* =========================
+   ✅ RECEIPT
+========================= */
+function generateReceipt(){
+  const nameClean = (nameValue || "").replace(/\s+/g,"");
+  const dt = startTime || new Date();
+
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  const yy = String(dt.getFullYear()).slice(2);
+
+  const hh = String(dt.getHours()).padStart(2,"0");
+  const min = String(dt.getMinutes()).padStart(2,"0");
+  const ss = String(dt.getSeconds()).padStart(2,"0");
+
+  const accuracyPct = attempts ? Math.round((correct/attempts)*100) : 0;
+
+  return `${nameClean}${mm}${dd}${yy}-${hh}${min}${ss}-${correct}Q-${accuracyPct}A`;
+}
+
+/* =========================
+   Question Bank (20)
+   Each item:
+   - prompt scenario
+   - part1: actor (party / group / media)
+   - part2: strategy (from a fixed set)
+========================= */
+const ACTORS = ["Political Party","Interest Group","Media"];
+const STRATS = [
+  "Campaign ad / messaging",
+  "Endorsement / candidate support",
+  "Voter registration / turnout drive",
+  "Lobbying lawmakers",
+  "Grassroots petition / rally",
+  "Fundraising / PAC support",
+  "Investigative reporting",
+  "Editorial / opinion piece",
+  "Public service announcement (PSA)",
+  "Social media outreach"
+];
+
+// actorIndex: 0 party, 1 interest group, 2 media
+// stratIndex: index into STRATS
+const questions = [
+  {
+    q:"A statewide organization of teachers meets with legislators to push for higher education funding and provides research packets to lawmakers.",
+    actor:1, strat:3,
+    explain1:"An organization united around an issue trying to influence policy is an Interest Group.",
+    explain2:"Meeting with legislators to influence decisions is Lobbying.",
+    hint1:"Is the main goal to win elections, influence policy, or inform the public?",
+    hint2:"Which strategy involves direct contact with lawmakers?"
+  },
+  {
+    q:"A political organization runs TV and YouTube ads supporting its candidates and criticizing the opposing party’s plan on taxes.",
+    actor:0, strat:0,
+    explain1:"Political Parties try to win elections and place members in office.",
+    explain2:"Ads designed to persuade voters are Campaign ads / messaging.",
+    hint1:"Who is trying to win elections and hold office?",
+    hint2:"Think: paid messaging to persuade voters."
+  },
+  {
+    q:"A local newspaper uncovers that city officials steered contracts to friends and publishes documents and interviews.",
+    actor:2, strat:6,
+    explain1:"The Media informs the public through mass communication.",
+    explain2:"Uncovering wrongdoing using evidence is Investigative reporting.",
+    hint1:"Who is publishing information for a broad audience?",
+    hint2:"Which strategy is ‘digging for facts and exposing misconduct’?"
+  },
+  {
+    q:"A community group collects signatures to put an anti-litter ordinance on the city ballot and holds a Saturday rally.",
+    actor:1, strat:4,
+    explain1:"A group organized around an issue trying to influence policy is an Interest Group.",
+    explain2:"Signatures and rallies are Grassroots petition / rally.",
+    hint1:"Is this mainly about electing candidates or pushing an issue?",
+    hint2:"Signatures + rally = what strategy?"
+  },
+  {
+    q:"A party’s volunteers set up booths outside grocery stores to help people register to vote before the deadline.",
+    actor:0, strat:2,
+    explain1:"Parties mobilize voters to win elections.",
+    explain2:"Helping people register and vote is a Turnout drive.",
+    hint1:"Who benefits directly from more voters showing up for them?",
+    hint2:"Registration + turnout = which strategy?"
+  },
+  {
+    q:"A cable news network airs a segment arguing the city should expand public transit and hosts a panel debate of experts.",
+    actor:2, strat:8,
+    explain1:"The Media provides communication to audiences.",
+    explain2:"A segment meant to educate/shape public awareness resembles a PSA / public information push (not an endorsement).",
+    hint1:"Is this coming from a mass communication outlet?",
+    hint2:"It’s not exposing misconduct—it's informing and shaping awareness."
+  },
+  {
+    q:"A political party issues an official statement endorsing a candidate for governor and urges members to donate.",
+    actor:0, strat:1,
+    explain1:"Endorsing candidates is a Political Party activity.",
+    explain2:"A public endorsement is Endorsement / candidate support.",
+    hint1:"Endorsing a candidate points to what actor?",
+    hint2:"Endorsing is a distinct strategy—pick it."
+  },
+  {
+    q:"A national environmental organization runs targeted Instagram and TikTok videos asking followers to contact Congress about clean-water rules.",
+    actor:1, strat:9,
+    explain1:"An issue-based organization is an Interest Group.",
+    explain2:"Targeted online outreach is Social media outreach (mobilizing supporters).",
+    hint1:"Is the group trying to win elections or influence policy on an issue?",
+    hint2:"What strategy uses platform videos to mobilize supporters?"
+  },
+  {
+    q:"A news website publishes an opinion column urging voters to support Issue 2 and includes arguments for why it would help the community.",
+    actor:2, strat:7,
+    explain1:"Publishing columns to audiences is the Media.",
+    explain2:"An opinion column is an Editorial / opinion piece.",
+    hint1:"Opinion content published to audiences = which actor?",
+    hint2:"Opinion column = which strategy?"
+  },
+  {
+    q:"A gun-rights organization creates a PAC to raise money and spend it on candidates who support its policy goals.",
+    actor:1, strat:5,
+    explain1:"Issue-based organizations that influence policy are Interest Groups.",
+    explain2:"PAC-style election spending is Fundraising / PAC support.",
+    hint1:"PACs are commonly tied to what kind of actor?",
+    hint2:"Money spent to support aligned candidates = which strategy?"
+  },
+  {
+    q:"A political party launches a large fundraising dinner to finance campaign offices and voter outreach operations.",
+    actor:0, strat:5,
+    explain1:"Parties raise funds to win elections and hold office.",
+    explain2:"Raising money for elections is Fundraising / PAC support (fundraising).",
+    hint1:"This is election infrastructure—who does that?",
+    hint2:"Dinner to raise money = which strategy?"
+  },
+  {
+    q:"A consumer safety organization releases a report and then meets with an agency to push for stronger product regulations.",
+    actor:1, strat:3,
+    explain1:"The organization seeks to influence policy—Interest Group.",
+    explain2:"Meeting with agency officials to influence rules is Lobbying.",
+    hint1:"Who is pushing policy on an issue?",
+    hint2:"Direct persuasion of officials = which strategy?"
+  },
+  {
+    q:"A TV station runs short segments explaining how to vote early and where polling locations are.",
+    actor:2, strat:8,
+    explain1:"Broadcasting information to the public is Media.",
+    explain2:"Helping the public understand voting logistics is a PSA / public info segment.",
+    hint1:"Who provides mass communication?",
+    hint2:"Informing voters about process = PSA/public info."
+  },
+  {
+    q:"An organization supporting small businesses organizes a rally at the statehouse asking lawmakers to reduce licensing fees.",
+    actor:1, strat:4,
+    explain1:"Issue-based advocacy is Interest Group behavior.",
+    explain2:"A public rally is Grassroots petition / rally.",
+    hint1:"Is it about electing candidates or influencing policy?",
+    hint2:"Rally = which strategy?"
+  },
+  {
+    q:"A political party’s social media account posts daily clips attacking the opposing party and promoting its own platform.",
+    actor:0, strat:9,
+    explain1:"Political parties promote ideas and candidates to gain support.",
+    explain2:"Using platforms to influence voters is Social media outreach.",
+    hint1:"Party account = which actor?",
+    hint2:"Platform clips = which strategy?"
+  },
+  {
+    q:"A major newspaper publishes a detailed investigation showing a state agency failed to enforce safety rules and interviews whistleblowers.",
+    actor:2, strat:6,
+    explain1:"This is the Media informing the public.",
+    explain2:"Whistleblowers + evidence-based exposure = Investigative reporting.",
+    hint1:"Who publishes to a mass audience?",
+    hint2:"Expose failure using evidence = which strategy?"
+  },
+  {
+    q:"A civil rights organization launches a petition drive and encourages supporters to email school board members about discipline policy.",
+    actor:1, strat:4,
+    explain1:"A civic advocacy organization is an Interest Group.",
+    explain2:"Petition drives and mobilizing supporters = Grassroots petition / rally.",
+    hint1:"Issue advocacy organization = which actor?",
+    hint2:"Petition + mobilization = which strategy?"
+  },
+  {
+    q:"A political party sends texts reminding supporters about election day and offering rides to the polls.",
+    actor:0, strat:2,
+    explain1:"Parties mobilize supporters to win elections.",
+    explain2:"Reminders/rides are part of a Turnout drive.",
+    hint1:"Election-day mobilization points to who?",
+    hint2:"Rides/reminders = which strategy?"
+  },
+  {
+    q:"A local radio station hosts a candidate forum and broadcasts each candidate’s answers to questions from callers.",
+    actor:2, strat:8,
+    explain1:"Broadcasting a forum is a Media activity.",
+    explain2:"Providing public information to help citizens decide resembles a PSA/public info approach.",
+    hint1:"Who hosts and broadcasts to an audience?",
+    hint2:"Forum meant to inform voters = public info/PSA style."
+  },
+  {
+    q:"A healthcare advocacy organization runs online ads asking viewers to support a bill and contact their representative.",
+    actor:1, strat:0,
+    explain1:"Issue-based advocacy is an Interest Group.",
+    explain2:"Paid persuasion ads are Campaign ad / messaging (issue advocacy).",
+    hint1:"Is it a party candidate campaign, an issue group, or media outlet?",
+    hint2:"Paid ads = which strategy?"
+  }
+];
+
+/* =========================
+   Game State
+========================= */
+let index = 0;
+let attempts = 0;
+let correct = 0;
+let time = 0;
+let timer = null;
+
+let locked = false;
+let nameValue = "";
+
+// Part state per question: 1 = actor, 2 = strategy
+let part = 1;
+let savedActorCorrect = false;
+
+/* =========================
+   Start / Timer
+========================= */
+function startGame(){
+  const nm = document.getElementById("studentName").value.trim();
+  if(!nm) return alert("Enter name");
+  nameValue = nm;
+
+  setStartStamp();
+
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  // ✅ visible stamp during game
+  document.getElementById("startedTop").textContent = startStampText;
+
+  timer = setInterval(() => {
+    time++;
+    document.getElementById("time").textContent = time;
+  }, 1000);
+
+  loadQ();
+}
+
+/* =========================
+   Render
+========================= */
+function loadQ(){
+  locked = false;
+  part = 1;
+  savedActorCorrect = false;
+
+  document.getElementById("feedback").innerHTML = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  const q = questions[index];
+  document.getElementById("qnum").textContent = `Question ${index+1}/20`;
+  document.getElementById("question").textContent = q.q;
+
+  document.getElementById("stagePill").textContent = "Part 1 of 2 — Identify the actor";
+  renderChoicesActor();
+
+  updateStats();
+}
+
+function renderChoicesActor(){
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+  ACTORS.forEach((label,i)=>{
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${String.fromCharCode(65+i)}. ${label}`;
+    b.onclick = () => checkActor(i);
+    holder.appendChild(b);
+  });
+}
+
+function renderChoicesStrategy(){
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+  // 4 options per question: correct + 3 decoys
+  const q = questions[index];
+  const correctIndex = q.strat;
+
+  // Build decoys
+  const pool = STRATS.map((_,i)=>i).filter(i=>i!==correctIndex);
+  shuffle(pool);
+  const options = [correctIndex, pool[0], pool[1], pool[2]];
+  shuffle(options);
+
+  options.forEach((si, idx)=>{
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = `${String.fromCharCode(65+idx)}. ${STRATS[si]}`;
+    b.onclick = () => checkStrategy(si);
+    holder.appendChild(b);
+  });
+}
+
+function disableChoices(disabled){
+  document.querySelectorAll("#choices .btn").forEach(btn => btn.disabled = disabled);
+}
+
+/* =========================
+   Checks
+========================= */
+function checkActor(choice){
+  if(locked) return;
+
+  attempts++;
+  const q = questions[index];
+  const fb = document.getElementById("feedback");
+
+  if(choice === q.actor){
+    correct++;
+    locked = true;
+    savedActorCorrect = true;
+    disableChoices(true);
+
+    fb.innerHTML = `<div class="correct"><b>Correct!</b> ${q.explain1}</div>`;
+    document.getElementById("nextBtn").classList.remove("hidden");
+  } else {
+    fb.innerHTML = `<div class="incorrect"><b>Incorrect.</b> Try again.</div>`;
+    if(hintsOn){
+      fb.innerHTML += `<div class="hint"><b>Hint:</b> ${q.hint1}</div>`;
+    }
+  }
+
+  updateStats();
+}
+
+function checkStrategy(choice){
+  if(locked) return;
+
+  attempts++;
+  const q = questions[index];
+  const fb = document.getElementById("feedback");
+
+  if(choice === q.strat){
+    correct++;
+    locked = true;
+    disableChoices(true);
+
+    fb.innerHTML = `<div class="correct"><b>Correct!</b> ${q.explain2}</div>`;
+    document.getElementById("nextBtn").classList.remove("hidden");
+  } else {
+    fb.innerHTML = `<div class="incorrect"><b>Incorrect.</b> Try again.</div>`;
+    if(hintsOn){
+      fb.innerHTML += `<div class="hint"><b>Hint:</b> ${q.hint2}</div>`;
+    }
+  }
+
+  updateStats();
+}
+
+/* =========================
+   Next / End
+========================= */
+function nextQuestion(){
+  if(!locked) return;
+
+  // If we just finished Part 1 (actor), move to Part 2 (strategy) same question
+  if(part === 1){
+    part = 2;
+    locked = false;
+    disableChoices(false);
+    document.getElementById("feedback").innerHTML = "";
+    document.getElementById("nextBtn").classList.add("hidden");
+
+    document.getElementById("stagePill").textContent = "Part 2 of 2 — Identify the best strategy";
+    renderChoicesStrategy();
+    return;
+  }
+
+  // Otherwise move to next question
+  index++;
+  if(index >= questions.length){
+    endGame();
+  } else {
+    loadQ();
+  }
+}
+
+function endGame(){
+  WeberRun.finish(nameValue, startTime, questions.length * 2, correct, attempts);
+
+  clearInterval(timer);
+
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("end").classList.remove("hidden");
+
+  document.getElementById("finalName").textContent = nameValue;
+  document.getElementById("finalTimestamp").textContent = startStampText;
+  document.getElementById("finalTime").textContent = time;
+  document.getElementById("finalAttempts").textContent = attempts;
+  document.getElementById("finalAccuracy").textContent =
+    (attempts ? Math.round((correct/attempts)*100) : 0) + "%";
+
+  document.getElementById("receipt").textContent = generateReceipt();
+}
+
+/* =========================
+   Utility
+========================= */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function updateStats(){
+  document.getElementById("attempts").textContent = attempts;
+  const acc = attempts ? Math.round((correct/attempts)*100) : 0;
+  document.getElementById("accuracy").textContent = acc + "%";
+}
+</script>
+</body>
+</html>

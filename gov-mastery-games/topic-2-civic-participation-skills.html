@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Topic 2 — Civic Participation & Skills Mastery</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --panel:#121a2f;
+  --panel2:#0f1730;
+  --text:#e7eefc;
+  --muted:#9fb0d0;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --border:rgba(255,255,255,.12);
+  --radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.5);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:
+    radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),
+    linear-gradient(180deg,#0b1220,#070b14);
+  color:var(--text);
+  font-family:system-ui,Segoe UI,Arial;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.app{
+  width:min(980px,100%);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.hidden{display:none !important;}
+
+.panel{background:rgba(0,0,0,.25);padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.08)}
+h2{margin:10px 0 8px 0}
+p{color:var(--muted);margin:0 0 10px 0}
+
+input{
+  width:min(420px,100%);
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.22);
+  color:var(--text);
+  outline:none;
+}
+
+/* Buttons */
+button{
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:800;
+}
+button:hover{opacity:.92}
+
+.choice{
+  width:100%;
+  background:#1a2545;
+  border:1px solid var(--border);
+  margin:10px 0;
+  text-align:left;
+}
+.choice.correct{background:rgba(43,213,118,.25)}
+.choice.wrong{background:rgba(255,92,122,.25)}
+.choice:disabled{cursor:not-allowed; opacity:.92}
+
+/* Layout */
+.stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 14px;
+  font-size:13px;
+  color:rgba(231,238,252,.92);
+}
+.stats span{font-family:var(--mono)}
+.gameCard{
+  margin-top:12px;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.22);
+}
+
+/* Modal */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.modal.hidden{display:none !important;}
+.modal-card{
+  background:#0f1730;
+  border:1px solid rgba(255,255,255,.14);
+  padding:18px;
+  border-radius:16px;
+  max-width:640px;
+  width:100%;
+  box-shadow:0 18px 55px rgba(0,0,0,.55);
+}
+.modal-card h3{margin:0 0 8px 0}
+.modal-card p{margin:0 0 12px 0; color:rgba(231,238,252,.92); line-height:1.45}
+
+/* Error box */
+#errorBoxStart, #errorBoxGame{
+  display:none;
+  margin-top:14px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,92,122,.45);
+  background:rgba(255,92,122,.10);
+  color:rgba(231,238,252,.95);
+  font-family:var(--mono);
+  font-size:12px;
+  white-space:pre-wrap;
+}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- START -->
+  <div id="startScreen" class="panel">
+    <h2>Topic 2 — Civic Participation & Skills</h2>
+    <p>CS3 & CS4 • Must earn 100% accuracy</p>
+    <input id="studentName" placeholder="Student Name" autocomplete="off"/>
+    <br><br>
+    <button id="startBtn">Start</button>
+    <div id="errorBoxStart"></div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen" class="hidden">
+    <div class="panel">
+      <div class="stats">
+        <div>Name: <span id="nameOut"></span></div>
+        <div>Date: <span id="dateOut">—</span></div>
+        <div>Start: <span id="startOut">—</span></div>
+        <div>End: <span id="endOut">—</span></div>
+        <div>Timer: <span id="timerOut">0:00</span></div>
+        <div>Question: <span id="qOut">0/0</span></div>
+        <div>Attempts: <span id="attemptsOut">0</span></div>
+        <div>Misses: <span id="missesOut">0</span></div>
+      </div>
+    </div>
+
+    <div class="gameCard">
+      <h2 id="questionText"></h2>
+      <div id="choicesBox"></div>
+    </div>
+
+    <div id="errorBoxGame"></div>
+  </div>
+
+  <!-- END -->
+  <div id="endScreen" class="hidden panel">
+    <h2>SUBMIT TICKET</h2>
+    <p>Name: <span id="endName"></span></p>
+    <p>Date: <span id="endDate"></span></p>
+    <p>Start Time: <span id="endStart"></span></p>
+    <p>End Time: <span id="endEnd"></span></p>
+    <p>Total Time: <span id="totalTime"></span></p>
+    <p>Accuracy: 100%</p>
+    <p>Completed: <span id="doneOut">0/0</span></p>
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Explanation</h3>
+      <p id="modalText"></p>
+      <button onclick="closeModal()">Try Again</button>
+    </div>
+  </div>
+
+<script>
+/* ============================
+   HARDENED ERROR BOX
+============================ */
+function showError(where, err){
+  const msg = (err && err.stack) ? err.stack : String(err);
+  const out = `ERROR (${where}):\n${msg}`;
+  const b1 = document.getElementById("errorBoxStart");
+  const b2 = document.getElementById("errorBoxGame");
+  const onGame = !document.getElementById("gameScreen").classList.contains("hidden");
+  if(onGame && b2){
+    b2.style.display = "block";
+    b2.textContent = out;
+  } else if (b1){
+    b1.style.display = "block";
+    b1.textContent = out;
+  } else {
+    alert(out);
+  }
+}
+window.addEventListener("error", (e)=> showError("window", e.error || e.message));
+window.addEventListener("unhandledrejection", (e)=> showError("promise", e.reason));
+
+/* ============================
+   TIME/DATE HELPERS
+============================ */
+function pad2(n){ return String(n).padStart(2,"0"); }
+function formatDate(d){
+  // e.g., Feb 18, 2026
+  return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+}
+function formatTime(d){
+  // e.g., 9:14:05 AM
+  return d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit", second:"2-digit" });
+}
+
+/* ============================
+   HELPERS: SHUFFLE + KEEP ANSWER
+============================ */
+function shuffleArray(arr){
+  for(let j=arr.length-1; j>0; j--){
+    const k = Math.floor(Math.random()*(j+1));
+    [arr[j], arr[k]] = [arr[k], arr[j]];
+  }
+  return arr;
+}
+function shuffleChoicesKeepAnswer(q){
+  const tagged = q.choices.map((text, idx)=>({ text, idx }));
+  shuffleArray(tagged);
+  const newChoices = tagged.map(x=>x.text);
+  const newAnswer = tagged.findIndex(x=>x.idx === q.answer);
+  return { ...q, choices:newChoices, answer:newAnswer };
+}
+
+/* ============================
+   QUESTION BANK (26)
+============================ */
+const QUESTIONS_RAW = [
+  {q:"How can a citizen most effectively verify a claim about a political candidate seen on social media?",
+   choices:["Find the same information in multiple credible sources","Share it and ask friends","Trust the first post","Ignore all sources"],
+   answer:0, explanation:"Credible verification involves cross-checking multiple reliable sources."},
+
+  {q:"Which factor best helps determine whether a source is credible?",
+   choices:["Author’s qualifications","Number of ads","Length of article","Popularity"],
+   answer:0, explanation:"Credibility depends on qualifications, evidence, and reliability."},
+
+  {q:"Which shows evidence of bias in a source?",
+   choices:["Uses emotional language and no evidence","Provides citations","Shows multiple viewpoints","Uses expert research"],
+   answer:0, explanation:"Bias appears when emotion replaces evidence."},
+
+  {q:"Which process involves trying to convince others through reasoning and evidence?",
+   choices:["Persuasion","Compromise","Negotiation","Consensus"],
+   answer:0, explanation:"Persuasion = convincing others."},
+
+  {q:"Legislators meeting to find areas they all agree on represents:",
+   choices:["Consensus building","Persuasion","Compromise","Protest"],
+   answer:0, explanation:"Consensus building seeks shared agreement."},
+
+  {q:"Giving up something to reach agreement is called:",
+   choices:["Compromise","Persuasion","Litigation","Veto"],
+   answer:0, explanation:"Compromise involves mutual concessions."},
+
+  {q:"Meeting with opponents to settle differences represents:",
+   choices:["Negotiation","Persuasion","Judicial review","Impeachment"],
+   answer:0, explanation:"Negotiation involves discussion to reach agreement."},
+
+  {q:"Why are these skills essential to democracy?",
+   choices:["They help settle differences peacefully","They eliminate elections","They replace laws","They guarantee unanimity"],
+   answer:0, explanation:"Democracy relies on peaceful resolution of disagreements."},
+
+  {q:"Which source is MOST reliable for historical facts?",
+   choices:["Scholarly journal","Anonymous blog","Opinion tweet","Meme"],
+   answer:0, explanation:"Scholarly journals are peer-reviewed and credible."},
+
+  {q:"Which is an example of evaluating internal consistency?",
+   choices:["Checking if facts contradict each other","Counting ads","Checking font size","Reading comments"],
+   answer:0, explanation:"Consistency checks accuracy within the source."},
+
+  {q:"Which shows expert research?",
+   choices:["Peer-reviewed study","Personal rant","Comment section","Anonymous rumor"],
+   answer:0, explanation:"Peer review signals expertise."},
+
+  {q:"Which action shows persuasion?",
+   choices:["Speech to build support","Changing a bill","Finding compromise","Voting"],
+   answer:0, explanation:"Persuasion aims to influence opinions."},
+
+  {q:"Which shows compromise?",
+   choices:["Both sides accept partial demands","One side wins fully","No discussion","Court order"],
+   answer:0, explanation:"Compromise = shared concessions."},
+
+  {q:"Which is negotiation?",
+   choices:["Meet to discuss concerns","Run ad campaign","Sue opponent","Ignore issue"],
+   answer:0, explanation:"Negotiation uses dialogue."},
+
+  {q:"Which is consensus building?",
+   choices:["Find shared agreement","Threaten veto","Sue","Filibuster"],
+   answer:0, explanation:"Consensus = common ground."},
+
+  {q:"Which source would be LEAST credible?",
+   choices:["Anonymous forum post","Government report","University study","Historical document"],
+   answer:0, explanation:"Anonymous sources lack accountability."},
+
+  {q:"Which best verifies breaking news?",
+   choices:["Multiple reputable outlets","One influencer","First post only","Rumor"],
+   answer:0, explanation:"Cross-checking reduces misinformation."},
+
+  {q:"Which skill best fits a town hall meeting?",
+   choices:["Persuasion","Judicial review","Impeachment","Nullification"],
+   answer:0, explanation:"Town halls allow persuasion."},
+
+  {q:"Why are these skills studied together?",
+   choices:["They often overlap in real situations","They replace laws","They end debate","They prevent voting"],
+   answer:0, explanation:"Real decision-making blends skills."},
+
+  {q:"Which scenario shows negotiation?",
+   choices:["Two groups discuss treaty changes","Court strikes law","Election held","Veto issued"],
+   answer:0, explanation:"Negotiation involves discussion."},
+
+  {q:"Which scenario shows persuasion?",
+   choices:["President gives speech to public","Court ruling","Bill passage","Impeachment"],
+   answer:0, explanation:"Speech builds support."},
+
+  {q:"Which scenario shows compromise?",
+   choices:["Each side changes demands","One side refuses","Judge orders","Protest"],
+   answer:0, explanation:"Compromise means adjustment."},
+
+  {q:"Which scenario shows consensus?",
+   choices:["Group agrees after discussion","One person decides","Court decides","President orders"],
+   answer:0, explanation:"Consensus = group agreement."},
+
+  {q:"Which is best example of credible evidence?",
+   choices:["Verified statistics","Rumor","Opinion","Anecdote"],
+   answer:0, explanation:"Data-backed evidence is credible."},
+
+  {q:"Which helps detect bias?",
+   choices:["Compare with other sources","Ignore evidence","Trust headline","Skip reading"],
+   answer:0, explanation:"Comparing sources reveals bias."},
+
+  {q:"Why is source evaluation important?",
+   choices:["Prevents misinformation","Eliminates debate","Guarantees agreement","Ends politics"],
+   answer:0, explanation:"Critical analysis prevents false beliefs."}
+];
+
+/* ============================
+   ENGINE
+============================ */
+let QUESTIONS = QUESTIONS_RAW
+  .map(q => shuffleChoicesKeepAnswer({ ...q }))
+  .sort(()=>Math.random()-0.5);
+
+let i=0, attempts=0, misses=0, seconds=0, timer=null;
+let locked=false;
+
+let startedAt = null;
+let endedAt = null;
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+
+function startGame(){
+  try{
+    const name=document.getElementById("studentName").value.trim();
+    if(!name){ alert("Enter name"); return; }
+
+    // reset
+    i=0; attempts=0; misses=0; seconds=0; locked=false;
+    startedAt = new Date();
+    endedAt = null;
+
+    document.getElementById("attemptsOut").textContent="0";
+    document.getElementById("missesOut").textContent="0";
+    document.getElementById("timerOut").textContent="0:00";
+    document.getElementById("qOut").textContent=`1/${QUESTIONS.length}`;
+
+    document.getElementById("nameOut").textContent=name;
+
+    // date + start time on screen
+    document.getElementById("dateOut").textContent = formatDate(startedAt);
+    document.getElementById("startOut").textContent = formatTime(startedAt);
+    document.getElementById("endOut").textContent = "—";
+
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("gameScreen").classList.remove("hidden");
+
+    if(timer) clearInterval(timer);
+    timer=setInterval(()=>{
+      seconds++;
+      const m=Math.floor(seconds/60);
+      const s=seconds%60;
+      document.getElementById("timerOut").textContent=`${m}:${s.toString().padStart(2,"0")}`;
+    },1000);
+
+    loadQ();
+  }catch(err){
+    showError("startGame", err);
+  }
+}
+
+function loadQ(){
+  try{
+    const q=QUESTIONS[i];
+    if(!q) throw new Error("No question found (index out of range).");
+
+    locked=false;
+    document.getElementById("qOut").textContent = `${i+1}/${QUESTIONS.length}`;
+    document.getElementById("questionText").textContent=q.q;
+
+    const box=document.getElementById("choicesBox");
+    box.innerHTML="";
+
+    q.choices.forEach((c,idx)=>{
+      const b=document.createElement("button");
+      b.className="choice";
+      b.type="button";
+      b.textContent=c;
+      b.onclick=()=>check(idx,b);
+      box.appendChild(b);
+    });
+  }catch(err){
+    showError("loadQ", err);
+  }
+}
+
+function disableAllChoices(){
+  document.querySelectorAll(".choice").forEach(b=> b.disabled=true);
+}
+
+function check(idx,btn){
+  try{
+    if(locked) return;
+    locked=true;
+
+    attempts++;
+    document.getElementById("attemptsOut").textContent=attempts;
+
+    const q=QUESTIONS[i];
+    if(!q) throw new Error("Question missing during check().");
+
+    if(idx===q.answer){
+      btn.classList.add("correct");
+      disableAllChoices();
+
+      setTimeout(()=>{
+        i++;
+        if(i>=QUESTIONS.length) finish();
+        else loadQ();
+      },300);
+
+    }else{
+      misses++;
+      document.getElementById("missesOut").textContent=misses;
+      btn.classList.add("wrong");
+      disableAllChoices();
+
+      document.getElementById("modalText").textContent=q.explanation;
+      document.getElementById("modal").classList.remove("hidden");
+    }
+  }catch(err){
+    showError("check", err);
+  }
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.add("hidden");
+  locked=false;
+}
+
+function finish(){
+  clearInterval(timer);
+
+  if(misses>0){
+    alert("Not perfect. Restart required.");
+    location.reload();
+    return;
+  }
+
+  endedAt = new Date();
+  document.getElementById("endOut").textContent = formatTime(endedAt);
+
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.remove("hidden");
+
+  const nm = document.getElementById("nameOut").textContent;
+  WeberRun.finish(nm, startedAt, QUESTIONS.length, i, attempts);
+  document.getElementById("endName").textContent = nm;
+
+  document.getElementById("endDate").textContent = formatDate(startedAt);
+  document.getElementById("endStart").textContent = formatTime(startedAt);
+  document.getElementById("endEnd").textContent = formatTime(endedAt);
+
+  document.getElementById("totalTime").textContent = document.getElementById("timerOut").textContent;
+  document.getElementById("doneOut").textContent = `${QUESTIONS.length}/${QUESTIONS.length}`;
+}
+</script>
+
+</div>
+</body>
+</html>

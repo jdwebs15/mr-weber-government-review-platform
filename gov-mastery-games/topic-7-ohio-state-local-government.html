@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Topic 7 — Ohio’s State & Local Governments (CS16–17)</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --border:rgba(255,255,255,.12);
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --shadow:0 18px 55px rgba(0,0,0,.35);
+  --radius:18px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New";
+  --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.app{
+  width:min(980px,100%);
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+header{
+  padding:18px;
+  border-bottom:1px solid var(--border);
+}
+h1{margin:0;font-size:18px}
+.sub{color:var(--muted);font-size:13px;margin-top:6px}
+main{padding:18px}
+
+.card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+
+label{font-size:13px;color:var(--muted)}
+input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.3);
+  color:var(--text);
+}
+
+button{
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(122,162,255,.15);
+  color:var(--text);
+  font-weight:700;
+  cursor:pointer;
+}
+button:hover{background:rgba(122,162,255,.25)}
+
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.stat{
+  flex:1 1 180px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(255,255,255,.04);
+}
+.stat .k{color:var(--muted);font-size:12px}
+.stat .v{font-family:var(--mono)}
+
+.qbox{margin-top:16px}
+.qtop{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;gap:10px;flex-wrap:wrap}
+.qtext{font-size:16px;margin-top:10px}
+
+.choices{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+@media(max-width:760px){.choices{grid-template-columns:1fr}}
+
+.choice{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  background:rgba(0,0,0,.25);
+  cursor:pointer;
+  text-align:left;
+}
+.choice:hover{border-color:var(--accent)}
+.choice .tag{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:6px}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.modal.hidden{display:none!important}
+.modalBox{
+  background:#0b1220;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  width:min(650px,100%);
+}
+.modalBox h3{margin-top:0}
+
+.ticket{
+  margin-top:18px;
+  border:1px dashed rgba(255,255,255,.3);
+  border-radius:14px;
+  padding:14px;
+  font-family:var(--mono);
+  font-size:12px;
+  white-space:pre-wrap;
+}
+.hidden{display:none!important}
+small{color:var(--muted)}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+</head>
+
+<body>
+<div class="app">
+<header>
+  <h1>Topic 7 — Ohio’s State & Local Governments (CS16–17)</h1>
+  <div class="sub">100% first-try accuracy required • Wrong answers show explanation until corrected • Auto-advance on correct</div>
+</header>
+
+<main>
+  <!-- SETUP -->
+  <div class="card" id="setup">
+    <div class="grid2">
+      <div>
+        <label>Student Name</label>
+        <input id="name" placeholder="Type first + last name" autocomplete="off"/>
+      </div>
+      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+        <button id="startBtn">Start Game</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </div>
+    <small>Stats will stay visible during the game.</small>
+  </div>
+
+  <!-- GAME -->
+  <div class="card qbox hidden" id="game">
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><div class="k">Name</div><div class="v" id="nameOut">—</div></div>
+      <div class="stat"><div class="k">Date</div><div class="v" id="dateS">—</div></div>
+      <div class="stat"><div class="k">Start</div><div class="v" id="startT">—</div></div>
+      <div class="stat"><div class="k">Finish</div><div class="v" id="finishT">—</div></div>
+      <div class="stat"><div class="k">Timer</div><div class="v" id="timer">00:00</div></div>
+      <div class="stat"><div class="k">Accuracy (First-Try)</div><div class="v" id="acc">—</div></div>
+      <div class="stat"><div class="k">Progress</div><div class="v" id="prog">—</div></div>
+    </div>
+
+    <div class="qtop" style="margin-top:14px">
+      <div id="qnum"></div>
+      <div id="cs"></div>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div class="choices" id="choices"></div>
+
+    <div class="ticket hidden" id="ticket"></div>
+  </div>
+</main>
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="modalBox">
+    <h3>Not Correct — Explanation</h3>
+    <p id="exp"></p>
+    <button id="closeM">Try Again</button>
+  </div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+function pad(n){return String(n).padStart(2,"0")}
+function timeFmt(s){return pad(Math.floor(s/60))+":"+pad(s%60)}
+function formatDate(d){ return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+function formatTime(d){ return d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",second:"2-digit"}); }
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+
+/* ---------- QUESTIONS (28) ---------- */
+const QUESTIONS = [
+  // FOUNDATIONS & SIMILARITIES (CS16)
+  {cs:"CS16", q:"Which principle is found in BOTH the Ohio and U.S. Constitutions?", c:["Separation of powers","Initiative","Elected judges","Term limits for Congress"], a:0, e:"Both constitutions divide power among three branches to prevent abuse."},
+  {cs:"CS16", q:"Both constitutions include a:", c:["Bill of Rights","Parliament","National church","Monarchy"], a:0, e:"Both protect individual liberties (Ohio and U.S. bills of rights)."},
+  {cs:"CS16", q:"Which principle reflects popular sovereignty in BOTH constitutions?", c:["Government rules with the consent of the people through elections","Courts choose leaders","Military chooses leaders","Media chooses leaders"], a:0, e:"Popular sovereignty means power originates with the people."},
+  {cs:"CS16", q:"Federalism in Ohio means:", c:["Power is shared between state and national governments","Power is shared between mayor and governor only","Only local government matters","Congress controls Ohio elections"], a:0, e:"Federalism divides authority between national and state governments."},
+
+  // 1803 CONSTITUTION (CS16)
+  {cs:"CS16", q:"Under the 1803 Constitution, how were judges selected?", c:["Appointed by the legislature","Elected by voters","Appointed by governor alone","Chosen by citizens in referendum"], a:0, e:"In 1803, judges were appointed by the General Assembly, not elected."},
+  {cs:"CS16", q:"Under the 1803 Constitution, who held the most power?", c:["The legislature (General Assembly)","The governor","The courts","Local governments"], a:0, e:"Ohio’s 1803 system was legislature-dominated."},
+  {cs:"CS16", q:"One weakness of the 1803 Constitution was that it:", c:["Gave too much power to the legislature","Created too strong a governor","Eliminated elections entirely","Banned courts"], a:0, e:"The legislature had outsized control over government functions."},
+  {cs:"CS16", q:"Why was the governor weaker under the 1803 Constitution?", c:["Limited veto power and short term","Controlled all taxation","Appointed all officials directly","Could dissolve the legislature"], a:0, e:"The governor had limited authority compared to modern expectations."},
+
+  // REASONS FOR CHANGE (1851) (CS16)
+  {cs:"CS16", q:"Why did Ohio call a constitutional convention in 1851?", c:["Government was inefficient and overly legislature-dominated","To eliminate elections","To end local government","To remove the bill of rights"], a:0, e:"Reforms aimed to fix inefficiency and imbalance of power."},
+  {cs:"CS16", q:"One major complaint before 1851 was:", c:["Legislative corruption and debt problems","Too many executive orders","Too much direct democracy","Courts controlled spending"], a:0, e:"Concerns centered on legislative overreach and financial issues."},
+  {cs:"CS16", q:"Ohio’s rising state debt in the 1840s contributed to:", c:["Calls for constitutional reform","Eliminating elections","Ending public education","U.S. Supreme Court intervention"], a:0, e:"Financial problems pushed reformers to restructure government."},
+
+  // 1851 SOLUTIONS/CHANGES (CS16)
+  {cs:"CS16", q:"How did the 1851 Constitution change judicial selection?", c:["Judges became elected","Judges became lifetime appointees","Judges were chosen by Congress","Judges were selected by the governor alone"], a:0, e:"The 1851 Constitution required judges to be elected."},
+  {cs:"CS16", q:"The 1851 Constitution limited state debt by:", c:["Restricting borrowing without voter approval","Eliminating taxation","Giving full control to the governor","Removing courts"], a:0, e:"Debt controls and voter involvement were key reforms."},
+  {cs:"CS16", q:"Which reform reduced legislative dominance in 1851?", c:["Separating election of executive officials from the legislature","Letting the legislature appoint all executives","Ending elections","Voters began electing executive officials independently"], a:0, e:"Voters gained more direct control over executive offices."},
+  {cs:"CS16", q:"The initiative and referendum process in Ohio allows citizens to:", c:["Propose or repeal laws directly","Appoint judges","Create the U.S. Supreme Court","Select governors without elections"], a:0, e:"Initiative/referendum expanded direct democracy."},
+  {cs:"CS16", q:"Which statement best summarizes 1803 vs 1851?", c:["1851 expanded voter control and limited legislative power","1803 expanded voter control and limited legislative power","1851 removed elections","1803 created direct democracy"], a:0, e:"1851 strengthened popular control and reduced legislative dominance."},
+  {cs:"CS16", q:"Both the 1803 and 1851 Constitutions:", c:["Established three branches of government","Allowed monarchy","Eliminated elections","Gave federal courts control"], a:0, e:"Both created legislative, executive, and judicial branches."},
+
+  // SIMILARITIES/DIFFERENCES (CS16)
+  {cs:"CS16", q:"Which is a difference between the Ohio and U.S. Constitutions?", c:["Ohio Constitution is longer and more detailed","U.S. Constitution is longer and more detailed","Ohio has no bill of rights","U.S. has initiative and referendum"], a:0, e:"State constitutions often include more detailed rules and procedures."},
+  {cs:"CS16", q:"Which is MOST likely included in a state constitution (Ohio) but not in the U.S. Constitution?", c:["Detailed rules for local governments and elections","Treaty power","Declaring war","Regulating foreign commerce"], a:0, e:"State constitutions often contain detailed government structure rules."},
+  {cs:"CS16", q:"Term limits in Ohio (added later) most directly reflect a goal to:", c:["Limit long-term legislative power","Eliminate elections","Strengthen monarchy","End judicial review"], a:0, e:"Term limits try to prevent entrenched political power."},
+
+  // CIVIC RESPONSIBILITIES (CS17)
+  {cs:"CS17", q:"Which action best demonstrates civic responsibility?", c:["Voting in elections","Ignoring laws","Avoiding jury duty","Not paying taxes"], a:0, e:"Voting is a key way citizens assist government."},
+  {cs:"CS17", q:"Why is serving on a jury important?", c:["Ensures fair trials","Elects judges","Creates laws","Approves budgets"], a:0, e:"Juries help administer justice and protect rights."},
+  {cs:"CS17", q:"Which responsibility directly supports democracy?", c:["Registering to vote","Ignoring laws","Skipping jury duty","Avoiding taxes"], a:0, e:"Participation strengthens representative government."},
+  {cs:"CS17", q:"Paying taxes supports government because taxes:", c:["Fund public services","Choose leaders","Write laws","Appoint judges"], a:0, e:"Taxes fund services like roads, schools, and police."},
+  {cs:"CS17", q:"Contacting elected officials matters because it:", c:["Expresses citizen concerns and can influence policy","Overrides courts automatically","Creates amendments instantly","Cancels elections"], a:0, e:"Communication is a form of civic input."},
+  {cs:"CS17", q:"Which action allows citizens to influence local policy most directly?", c:["Attending city council meetings","Watching TV","Posting anonymously","Avoiding officials"], a:0, e:"Local meetings provide direct input."},
+  {cs:"CS17", q:"Local governments are important because they:", c:["Handle community needs like roads, safety, and services","Declare war","Print money","Negotiate treaties"], a:0, e:"Local governments provide essential services closest to citizens."}
+];
+
+/* ---------- state ---------- */
+let state = {
+  i:0,
+  sec:0,
+  timer:null,
+  name:"",
+  firstTryCorrect:0,
+  hadMiss:false,
+  startedAt:null,
+  finishedAt:null
+};
+
+const elSetup = document.getElementById("setup");
+const elGame  = document.getElementById("game");
+
+const nameI   = document.getElementById("name");
+const nameOut = document.getElementById("nameOut");
+const startBtn= document.getElementById("startBtn");
+const resetBtn= document.getElementById("resetBtn");
+
+const qnum    = document.getElementById("qnum");
+const cs      = document.getElementById("cs");
+const qtext   = document.getElementById("qtext");
+const choices = document.getElementById("choices");
+
+const timerEl = document.getElementById("timer");
+const accEl   = document.getElementById("acc");
+const progEl  = document.getElementById("prog");
+
+const dateS   = document.getElementById("dateS");
+const startT  = document.getElementById("startT");
+const finishT = document.getElementById("finishT");
+
+const modal   = document.getElementById("modal");
+const exp     = document.getElementById("exp");
+const closeM  = document.getElementById("closeM");
+const ticket  = document.getElementById("ticket");
+
+function updateStats(){
+  const total = QUESTIONS.length;
+  const shown = Math.min(state.i + 1, total);
+  progEl.textContent = `${shown}/${total}`;
+  accEl.textContent = `${Math.round((state.firstTryCorrect/total)*100)}%`;
+  qnum.textContent = `Question ${shown}/${total}`;
+}
+
+function render(){
+  const q = QUESTIONS[state.i];
+  state.hadMiss = false;
+
+  cs.textContent = q.cs;
+  qtext.textContent = q.q;
+
+  const opts = q.c.map((t,i)=>({t,i}));
+  shuffle(opts);
+  const correctPos = opts.findIndex(o=>o.i===q.a);
+
+  choices.innerHTML = "";
+  opts.forEach((o,pos)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.type = "button";
+    btn.innerHTML = `<div class="tag">${String.fromCharCode(65+pos)}</div>${o.t}`;
+
+    btn.onclick = ()=>{
+      if(pos === correctPos){
+        if(!state.hadMiss) state.firstTryCorrect++;
+        state.i++;
+        if(state.i < QUESTIONS.length){
+          updateStats();
+          render();
+        }else{
+          finish();
+        }
+      }else{
+        state.hadMiss = true;
+        exp.textContent = q.e;
+        modal.classList.remove("hidden");
+      }
+      updateStats();
+    };
+
+    choices.appendChild(btn);
+  });
+
+  updateStats();
+}
+
+function start(){
+  const nm = nameI.value.trim();
+  if(!nm) return alert("Enter your name.");
+
+  state.name = nm;
+  state.i = 0;
+  state.sec = 0;
+  state.firstTryCorrect = 0;
+  state.hadMiss = false;
+  state.startedAt = new Date();
+  state.finishedAt = null;
+
+  shuffle(QUESTIONS);
+
+  nameOut.textContent = state.name;
+  dateS.textContent = formatDate(state.startedAt);
+  startT.textContent = formatTime(state.startedAt);
+  finishT.textContent = "—";
+  timerEl.textContent = "00:00";
+  ticket.classList.add("hidden");
+  ticket.textContent = "";
+
+  elSetup.classList.add("hidden");
+  elGame.classList.remove("hidden");
+
+  if(state.timer) clearInterval(state.timer);
+  state.timer = setInterval(()=>{
+    state.sec++;
+    timerEl.textContent = timeFmt(state.sec);
+  },1000);
+
+  render();
+}
+
+function finish(){
+  clearInterval(state.timer);
+  state.finishedAt = new Date();
+  finishT.textContent = formatTime(state.finishedAt);
+
+  if(state.firstTryCorrect !== QUESTIONS.length){
+    alert("You finished, but mastery requires 100% FIRST-TRY accuracy. Hit Reset and try again.");
+    return;
+  }
+
+  ticket.classList.remove("hidden");
+  WeberRun.finish(state.name, state.startedAt, QUESTIONS.length, state.firstTryCorrect, QUESTIONS.length);
+  ticket.textContent =
+`TOPIC 7 — SUBMIT TICKET
+Name: ${state.name}
+Date: ${formatDate(state.startedAt)}
+Start: ${formatTime(state.startedAt)}
+Finish: ${formatTime(state.finishedAt)}
+Time: ${timerEl.textContent}
+Accuracy: 100% (First-Try Mastery)
+Questions: ${QUESTIONS.length}/${QUESTIONS.length}`;
+}
+
+startBtn.onclick = start;
+resetBtn.onclick = ()=>location.reload();
+closeM.onclick = ()=>modal.classList.add("hidden");
+</script>
+</body>
+</html>
