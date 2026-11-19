@@ -1,0 +1,27 @@
+#weber-run-dialog { width: min(720px, 92vw); max-height: 90vh; overflow: auto; border: 2px solid #8eacf8; border-radius: 20px; padding: clamp(16px,4vw,32px); color: #f4f7ff; background: #111a2d; text-align: center; }
+#weber-run-dialog::backdrop { background: #000b; }
+#weber-run-dialog [hidden] { display: none !important; }
+#weber-run-form label { display: block; text-align: left; margin: .7rem 0; }
+#weber-run-form input, #weber-run-form select { display: block; width: 100%; padding: .6rem; font: inherit; }
+#weber-run-dialog button { padding: .6rem 1rem; margin: .25rem; cursor: pointer; }
+#weber-run-dialog h2 { color: #a7bbff; font-size: clamp(1.8rem, 5vw, 3rem); margin: .25em 0; }
+#weber-certificate .weber-name { font-size: clamp(1.6rem, 4.5vw, 2.6rem); font-weight: 850; margin: .45em 0; overflow-wrap: anywhere; }
+#weber-run-dialog .weber-game { font-size: clamp(1.25rem, 3.5vw, 1.85rem); font-weight: 750; margin: .55em 0; }
+#weber-run-dialog .weber-dates { color: #c4d1ef; font-size: .95rem; }
+@media print {
+  body:has(#weber-run-dialog[open] #weber-certificate:not([hidden])) { display: block !important; background: white !important; }
+  body:has(#weber-run-dialog[open] #weber-certificate:not([hidden])) > :not(#weber-run-dialog) { display: none !important; }
+  #weber-run-dialog[open] { position: static; max-height: none; background: white; color: #111; }
+  #weber-run-dialog[open] h2, #weber-run-dialog[open] .weber-dates { color: #18284a; }
+  #weber-run-dialog > :not(#weber-certificate) { display: none !important; }
+}
+#weber-open-certificate { position: fixed; right: 14px; bottom: 14px; z-index: 20; padding: .7rem 1rem; border-radius: 10px; background: #192d58; color: white; border: 1px solid #a7bbff; cursor: pointer; }
+#weber-sign-in { width:min(520px,92vw); max-height:90vh; overflow:auto; background:#111a2d; color:#f4f7ff; border:2px solid #8eacf8; border-radius:18px; padding:24px; }
+#weber-sign-in::backdrop { background:#000b; }
+#weber-sign-in label, #weber-sign-in input, #weber-sign-in select { display:block; width:100%; }
+#weber-sign-in label { margin:.9rem 0; }
+#weber-sign-in input, #weber-sign-in select, #weber-sign-in button { font:inherit; padding:.6rem; }
+#weber-sign-in input, #weber-sign-in select { color:#f4f7ff; background:#172644; border:1px solid #899dc8; border-radius:6px; }
+#weber-sign-in button { margin:0 .4rem .4rem 0; }
+.weber-save-status { display:block; padding: .5rem 1rem; color:#cadaff; }
+@media print { .weber-save-status, #weber-sign-in { display:none !important; } }

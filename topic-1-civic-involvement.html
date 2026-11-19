@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Topic 1 — Civic Involvement (CS1, CS2, CS14) — Mastery Game</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --panel:#121a2f;
+  --panel2:#0f1730;
+  --text:#e7eefc;
+  --muted:#9fb0d0;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --border:rgba(255,255,255,.12);
+  --radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(900px 520px at 20% 20%, rgba(122,162,255,.18), transparent 60%), var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.app{
+  width:min(980px, 100%);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.header{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.badge{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(122,162,255,.12);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:13px;
+}
+h1,h2{margin:0 0 8px}
+small{color:var(--muted)}
+hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+.panel{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+
+label{display:block;margin:10px 0 6px;color:var(--muted)}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(10,15,30,.6);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+input:focus{border-color:rgba(122,162,255,.6)}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:650;
+}
+button:hover{opacity:.92}
+button.secondary{
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+}
+button.danger{
+  background:rgba(255,92,122,.92);
+}
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.stats{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  font-size:13px;
+}
+.stat{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 12px;
+}
+.stat b{font-weight:750}
+
+.qwrap{margin-top:8px}
+.qmeta{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.qtag{
+  font-size:12px;
+  color:var(--muted);
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:999px;
+}
+.question{
+  font-size:20px;
+  line-height:1.25;
+  margin:0 0 10px;
+}
+.choices{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.choice{
+  width:100%;
+  text-align:left;
+  padding:14px 14px;
+  background:rgba(26,37,69,.75);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-size:16px;
+  cursor:pointer;
+}
+.choice:hover{border-color:rgba(122,162,255,.55)}
+.choice.correct{background:rgba(43,213,118,.18); border-color:rgba(43,213,118,.45)}
+.choice.wrong{background:rgba(255,92,122,.18); border-color:rgba(255,92,122,.45)}
+
+.hidden{display:none}
+
+/* Modal */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.68);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:9999;
+}
+  .modal.hidden { display: none !important; }
+
+.modal-card{
+  width:min(720px, 100%);
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.modal-card h3{margin:0 0 8px}
+.modal-card p{margin:0 0 12px;color:var(--text);line-height:1.35}
+
+/* Ticket */
+.ticket{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  background:rgba(0,0,0,.18);
+}
+.ticket h2{margin:0 0 10px}
+.ticket .grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media (max-width:720px){
+  .ticket .grid{grid-template-columns:1fr}
+  .question{font-size:18px}
+}
+.kv{
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.kv .k{color:var(--muted);font-size:12px;margin-bottom:4px}
+.kv .v{font-weight:750}
+.footer-note{color:var(--muted);font-size:12px;margin-top:10px}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1>Topic 1 — Civic Involvement Mastery</h1>
+      <small>CS1 • CS2 • CS14 (Role of the People folded in) • Must earn a perfect ticket (100%).</small>
+    </div>
+    <div class="badge" id="topicBadge">Topic 1 • Civic Involvement</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="panel">
+    <h2>Enter Student Info</h2>
+    <label for="studentName">Student Name (required)</label>
+    <input id="studentName" placeholder="First Last" autocomplete="name"/>
+
+    <div class="btnrow">
+      <button id="startBtn" onclick="startGame()">Start</button>
+      <button class="secondary" onclick="previewRules()">Rules</button>
+    </div>
+
+    <hr/>
+    <small>
+      This game requires a perfect run. If you miss any question, you will not receive a submit ticket and must restart.
+    </small>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="hidden">
+
+    <div class="stats">
+      <div class="stat"><b>Name:</b> <span id="nameOut"></span></div>
+      <div class="stat"><b>Start:</b> <span id="startOut"></span></div>
+      <div class="stat"><b>Now:</b> <span id="nowOut"></span></div>
+      <div class="stat"><b>Timer:</b> <span id="timerOut">0:00</span></div>
+      <div class="stat"><b>Progress:</b> <span id="progressOut">0/0</span></div>
+      <div class="stat"><b>Attempts:</b> <span id="attemptsOut">0</span></div>
+      <div class="stat"><b>Misses:</b> <span id="missesOut">0</span></div>
+      <div class="stat"><b>Perfect Run:</b> <span id="perfectOut">YES</span></div>
+    </div>
+
+    <div class="panel qwrap">
+      <div class="qmeta">
+        <div class="qtag" id="csTag">CS</div>
+        <div class="qtag" id="skillTag">Skill</div>
+      </div>
+
+      <p class="question" id="questionText"></p>
+      <div class="choices" id="choicesBox"></div>
+
+      <div class="btnrow" style="margin-top:12px">
+        <button class="secondary" onclick="restartGame()">Restart</button>
+      </div>
+
+      <div class="footer-note">
+        Reminder: Correct = auto-advance. Wrong = explanation + retry. Ticket only appears if Misses = 0.
+      </div>
+    </div>
+  </div>
+
+  <!-- END / TICKET -->
+  <div id="endScreen" class="hidden">
+    <div class="ticket">
+      <h2 id="endTitle">SUBMIT TICKET</h2>
+      <div class="grid">
+        <div class="kv"><div class="k">Student</div><div class="v" id="tName"></div></div>
+        <div class="kv"><div class="k">Topic</div><div class="v">Topic 1 — Civic Involvement (CS1, CS2, CS14)</div></div>
+
+        <div class="kv"><div class="k">Start Date/Time</div><div class="v" id="tStart"></div></div>
+        <div class="kv"><div class="k">Finish Date/Time</div><div class="v" id="tFinish"></div></div>
+
+        <div class="kv"><div class="k">Total Time</div><div class="v" id="tTotal"></div></div>
+        <div class="kv"><div class="k">Accuracy</div><div class="v" id="tAcc"></div></div>
+
+        <div class="kv"><div class="k">Attempts</div><div class="v" id="tAttempts"></div></div>
+        <div class="kv"><div class="k">Misses</div><div class="v" id="tMisses"></div></div>
+      </div>
+
+      <div class="btnrow" style="margin-top:12px">
+        <button onclick="restartGame()">Play Again</button>
+      </div>
+
+      <div class="footer-note">
+        Screenshot this ticket for submission. It must show Accuracy = 100% and Misses = 0.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h3>Explanation (read, then retry)</h3>
+    <p id="modalText"></p>
+    <div class="btnrow">
+      <button onclick="closeModal()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =======================
+   TOPIC 1 QUESTION BANK (28)
+   Released-question backbone + CS2 supplements
+   ======================= */
+
+const QUESTIONS_RAW = [
+  // CS1 — Civic Engagement & correct level/branch/action
+  {
+    cs:"CS1",
+    skill:"Choose effective civic action",
+    q:"A group of teachers opposes a proposed bill in the Ohio General Assembly that would reduce funding for local schools. What is the MOST effective way to influence the vote?",
+    choices:[
+      "Start a letter-writing campaign to state legislators",
+      "Speak only at local city council meetings",
+      "File an appeal directly to the U.S. Supreme Court",
+      "Hold a protest at the White House"
+    ],
+    answer:0,
+    explanation:"To influence the Ohio General Assembly, citizens should directly engage state legislators (e.g., letters/emails, meetings, calls). City council/White House actions don’t target the decision-makers."
+  },
+  {
+    cs:"CS1",
+    skill:"Match issue to government level",
+    q:"Your neighborhood wants a new playground in a city park. What step best fits the local public policy process?",
+    choices:[
+      "Speak at a city council meeting or public comment session",
+      "Petition the President of the United States",
+      "Campaign for a challenger to a U.S. senator",
+      "Write letters to the governor about federal policy"
+    ],
+    answer:0,
+    explanation:"A city park is a local issue. City council/public comment is the most direct way to influence local policy decisions."
+  },
+  {
+    cs:"CS1",
+    skill:"Match issue to government level",
+    q:"You believe your views are being poorly represented in Congress. Which action best fits influencing representation at the national level?",
+    choices:[
+      "Campaign for a challenger running for U.S. Senate/House",
+      "Ask the mayor to rewrite federal election rules",
+      "Petition the city council to replace your member of Congress",
+      "File a lawsuit to force Congress to vote your way"
+    ],
+    answer:0,
+    explanation:"Representation in Congress is affected through elections. Supporting/challenging candidates is a direct political-process tool."
+  },
+  {
+    cs:"CS1",
+    skill:"Local vs state participation",
+    q:"Which action is a LOCAL civic engagement opportunity?",
+    choices:[
+      "Serve in a volunteer fire department",
+      "Run for the Ohio General Assembly",
+      "Sign a petition to place a statewide issue on the ballot",
+      "Vote for governor"
+    ],
+    answer:0,
+    explanation:"Volunteer fire departments are local community services. The other options are state-level actions."
+  },
+  {
+    cs:"CS1",
+    skill:"Local vs state participation",
+    q:"Which action is a STATE civic engagement opportunity?",
+    choices:[
+      "Organize a neighborhood watch group",
+      "Attend a township trustee meeting",
+      "Serve in the National Guard",
+      "Volunteer for weekly park maintenance"
+    ],
+    answer:2,
+    explanation:"Serving in the National Guard is a state-level service (often under the governor unless federalized). The others are local."
+  },
+  {
+    cs:"CS1",
+    skill:"Public comment",
+    q:"Your local government is considering an ordinance requiring residents to separate trash into two containers. You support it. What is the most effective action?",
+    choices:[
+      "Attend the city council public comment session and give reasons",
+      "Ask U.S. senators to vote on it",
+      "Campaign for governor because of the ordinance",
+      "Send the Ohio General Assembly a request to pass the ordinance"
+    ],
+    answer:0,
+    explanation:"A local ordinance is decided locally. Public comment at city council directly targets the policy makers."
+  },
+  {
+    cs:"CS1",
+    skill:"Community solution / action plan",
+    q:"A town can’t afford landscaping in its parks. Which response best shows civic engagement within the community?",
+    choices:[
+      "Organize residents to volunteer for weekly park maintenance",
+      "Ask the President to send federal workers immediately",
+      "Demand the U.S. Supreme Court order more town funding",
+      "Run for Congress to change local park policy"
+    ],
+    answer:0,
+    explanation:"Community and local engagement can solve local problems through organizing volunteers and working with local government."
+  },
+  {
+    cs:"CS1",
+    skill:"Statewide participation",
+    q:"How can a citizen become involved in addressing problems that affect the entire state of Ohio?",
+    choices:[
+      "Sign petitions to place issues on the ballot",
+      "Join a neighborhood watch group",
+      "Volunteer only for local fire department",
+      "Attend only local school board meetings"
+    ],
+    answer:0,
+    explanation:"Statewide issues can be addressed through statewide political participation such as petitions/ballot initiatives, voting, and state-level engagement."
+  },
+  {
+    cs:"CS1",
+    skill:"Pick the right forum",
+    q:"Your city is debating whether to build a skateboard park on city-owned land. What is the most effective step to influence the decision?",
+    choices:[
+      "Attend the city council meeting and present benefits/concerns",
+      "Email U.S. senators and ask them to vote",
+      "Campaign in the governor’s reelection race",
+      "Write members of the Ohio General Assembly to pass a city ordinance"
+    ],
+    answer:0,
+    explanation:"This is a local land-use policy decision. City council meetings/public comment are the appropriate forum."
+  },
+
+  // CS2 — Parties, Interest Groups, Media (supplemented to hit expectations for learning)
+  {
+    cs:"CS2",
+    skill:"Pick party/interest group + media",
+    q:"A student group wants safer crosswalks near the school. Which plan best uses an interest group and media to influence local policy?",
+    choices:[
+      "Form a local safety advocacy group and share crash/crosswalk data in local news/social media before the city council vote",
+      "Ask only the President to issue an executive order for the city",
+      "Send a private message to one friend and do nothing else",
+      "Boycott national elections until the city changes the crosswalk"
+    ],
+    answer:0,
+    explanation:"CS2 expects selecting a party/interest group + a media method and defending why it can work. Local advocacy + credible media outreach targets the correct decision-makers."
+  },
+  {
+    cs:"CS2",
+    skill:"Political party role",
+    q:"Which statement best describes how political parties influence public policy?",
+    choices:[
+      "They try to win elections so their members hold office and shape policy",
+      "They avoid elections and focus only on private meetings",
+      "They write court decisions for judges to follow",
+      "They replace the Constitution with campaign slogans"
+    ],
+    answer:0,
+    explanation:"Parties seek to win elections and place members in office to influence policy decisions."
+  },
+  {
+    cs:"CS2",
+    skill:"Interest group role",
+    q:"Which action is most typical of an interest group trying to influence policy?",
+    choices:[
+      "Lobbying lawmakers and providing testimony on a bill",
+      "Replacing elected officials without an election",
+      "Issuing court rulings to strike down laws",
+      "Collecting taxes from citizens"
+    ],
+    answer:0,
+    explanation:"Interest groups influence the making/execution of policy via lobbying, testimony, research, coalitions, and public messaging."
+  },
+  {
+    cs:"CS2",
+    skill:"Media as a tool",
+    q:"Why do political parties and interest groups use media during policy debates?",
+    choices:[
+      "To shape public opinion and pressure decision-makers",
+      "To eliminate all disagreement in society",
+      "To automatically pass laws without voting",
+      "To replace courts and juries"
+    ],
+    answer:0,
+    explanation:"Media helps communicate messages to audiences, influence opinions, and increase pressure on officials during political/public policy processes."
+  },
+  {
+    cs:"CS2",
+    skill:"Defend viability (right audience)",
+    q:"A statewide organization wants Ohio legislators to protect wetlands. Which media choice is most targeted for influencing state lawmakers?",
+    choices:[
+      "Statehouse-focused coverage: op-eds in major Ohio papers + targeted social media aimed at districts",
+      "A flyer posted only inside a private classroom",
+      "A message sent only to international audiences",
+      "A TV ad in another country"
+    ],
+    answer:0,
+    explanation:"To influence the Ohio legislature, messaging should reach Ohio voters and lawmakers’ districts through credible, relevant outlets."
+  },
+  {
+    cs:"CS2",
+    skill:"Party vs interest group",
+    q:"Which difference best separates an interest group from a political party?",
+    choices:[
+      "Interest groups try to influence policy; parties try to win elections and hold office",
+      "Interest groups only run the courts; parties only run the military",
+      "Interest groups cannot speak publicly; parties can",
+      "Interest groups make laws; parties enforce them"
+    ],
+    answer:0,
+    explanation:"Parties seek office through elections; interest groups seek to influence policy outcomes without necessarily running candidates."
+  },
+
+  // CS1 — Action plan steps (identify/research/debate/solutions + costs/benefits)
+  {
+    cs:"CS1",
+    skill:"Action plan sequence",
+    q:"Which option shows a complete civic engagement process for solving a community problem?",
+    choices:[
+      "Identify an issue → research evidence → debate options → propose solutions → weigh costs/benefits",
+      "Pick a side → ignore evidence → attack opponents → refuse compromise",
+      "Wait for someone else to fix it → complain online only",
+      "Vote once → never learn about the issue"
+    ],
+    answer:0,
+    explanation:"CS1 emphasizes identifying issues, researching, debating, proposing solutions, and weighing costs/benefits as part of an action plan."
+  },
+  {
+    cs:"CS1",
+    skill:"Costs & benefits",
+    q:"A city proposes building a new community center. Which question best reflects weighing costs and benefits?",
+    choices:[
+      "How much will construction and long-term maintenance cost compared with benefits like programs and safety?",
+      "Who is the most popular person supporting it?",
+      "Can we avoid any public discussion?",
+      "Which rumor sounds most exciting?"
+    ],
+    answer:0,
+    explanation:"Weighing costs/benefits focuses on evidence: price, tradeoffs, long-term impacts, and public value."
+  },
+
+  // CS14 — Rights & Responsibilities + common good + incorporation
+  {
+    cs:"CS14",
+    skill:"Rights & common good",
+    q:"Which statement best reflects the idea that rights are not absolute?",
+    choices:[
+      "People’s rights must be balanced with the rights of others and the common good",
+      "Any right allows any action at any time without limits",
+      "Rights apply only to some citizens",
+      "Rights are the same as personal preferences"
+    ],
+    answer:0,
+    explanation:"CS14 emphasizes balancing individual rights with the rights of others and the common good."
+  },
+  {
+    cs:"CS14",
+    skill:"Free speech responsibility",
+    q:"Which responsibility best connects to the right of free speech?",
+    choices:[
+      "Engaging in civil discourse and avoiding harm to others",
+      "Refusing to listen to any other viewpoints",
+      "Skipping all laws you disagree with",
+      "Destroying property to prove a point"
+    ],
+    answer:0,
+    explanation:"Rights come with responsibilities. For speech, responsible use includes civil discourse and not harming others."
+  },
+  {
+    cs:"CS14",
+    skill:"Vote responsibility",
+    q:"A key responsibility linked to the right to vote is…",
+    choices:[
+      "Being informed on public issues",
+      "Owning property before voting",
+      "Serving as a police officer",
+      "Running for president"
+    ],
+    answer:0,
+    explanation:"Voting responsibly includes registering when required and being informed about issues/candidates."
+  },
+  {
+    cs:"CS14",
+    skill:"Jury duty",
+    q:"Serving on juries is most directly connected to protecting which right?",
+    choices:[
+      "The right to a trial by an impartial jury",
+      "The right to bear arms",
+      "The right to petition",
+      "The right to avoid taxes"
+    ],
+    answer:0,
+    explanation:"Jury service supports the constitutional right to an impartial jury in criminal (and many civil) proceedings."
+  },
+  {
+    cs:"CS14",
+    skill:"Rule of law",
+    q:"Which is an example of a general responsibility of citizenship?",
+    choices:[
+      "Respecting the rule of law",
+      "Winning every argument",
+      "Avoiding all community service",
+      "Ignoring court decisions"
+    ],
+    answer:0,
+    explanation:"CS14 lists responsibilities like respecting the rule of law, paying taxes/fees, and accepting responsibility for actions."
+  },
+  {
+    cs:"CS14",
+    skill:"Bear arms responsibility",
+    q:"Which responsibility is commonly associated with the right to bear arms (in civic responsibility terms)?",
+    choices:[
+      "Receiving appropriate firearms training and handling them safely",
+      "Never learning safety rules",
+      "Using weapons to intimidate others",
+      "Avoiding any legal requirements"
+    ],
+    answer:0,
+    explanation:"CS14 notes responsibilities tied to specific rights; for bearing arms, a civic responsibility is safe training and handling."
+  },
+  {
+    cs:"CS14",
+    skill:"Participation rights",
+    q:"Which set of rights most directly protects participation in the political process?",
+    choices:[
+      "Speech, press, assembly, petition, suffrage, and holding public office",
+      "Right to ignore elections and laws",
+      "Right to private thoughts only",
+      "Right to avoid all civic duties"
+    ],
+    answer:0,
+    explanation:"CS14 identifies several rights that protect participation in political life: speech/press/assembly/petition/vote/hold office."
+  },
+  {
+    cs:"CS14",
+    skill:"Incorporation (concept)",
+    q:"The doctrine of incorporation (via the 14th Amendment due process clause) is most accurately described as…",
+    choices:[
+      "Applying most Bill of Rights protections to state and local governments",
+      "Giving states complete control over federal courts",
+      "Removing all limits on government searches",
+      "Ending the Bill of Rights"
+    ],
+    answer:0,
+    explanation:"Incorporation is the Supreme Court’s approach to applying most Bill of Rights protections to state and local governments through 14th Amendment due process."
+  },
+
+  // More CS1 scenarios (level/branch and steps)
+  {
+    cs:"CS1",
+    skill:"Proper level/branch",
+    q:"A citizen disagrees with a national foreign policy executive order. Which action best targets the correct decision-maker?",
+    choices:[
+      "Sign a petition to the President and communicate opposition",
+      "Ask the city council to cancel the executive order",
+      "Ask a local school board to reverse it",
+      "File for a driver’s license renewal"
+    ],
+    answer:0,
+    explanation:"Executive orders are issued by the President (executive branch). Petitions/communications to the President are direct engagement."
+  },
+  {
+    cs:"CS1",
+    skill:"Local vs state",
+    q:"Attend city or township trustee meetings is best classified as…",
+    choices:[
+      "Local government participation",
+      "State government participation",
+      "Federal government participation",
+      "International participation"
+    ],
+    answer:0,
+    explanation:"City/township trustee meetings are local governing bodies."
+  },
+  {
+    cs:"CS1",
+    skill:"Local vs state",
+    q:"Voting for governor is best classified as…",
+    choices:[
+      "State government participation",
+      "Local government participation",
+      "Federal government participation",
+      "Private organization participation"
+    ],
+    answer:0,
+    explanation:"Governor elections are statewide elections."
+  },
+  {
+    cs:"CS1",
+    skill:"Local vs state",
+    q:"Organizing a neighborhood watch is best classified as…",
+    choices:[
+      "Local government/community participation",
+      "State legislative participation",
+      "Federal executive participation",
+      "International participation"
+    ],
+    answer:0,
+    explanation:"Neighborhood watch groups address local community safety and often coordinate with local police."
+  },
+
+  // CS14 — Schenck-style principle (harm/common good)
+  {
+    cs:"CS14",
+    skill:"Rights balanced with harm",
+    q:"Which idea best fits the principle that citizens must avoid causing harm while exercising rights?",
+    choices:[
+      "Rights are balanced by the common good and the safety of others",
+      "Any speech is protected even if it directly causes immediate harm",
+      "Responsibilities apply only to government officials",
+      "Only unpopular speech is protected"
+    ],
+    answer:0,
+    explanation:"A key CS14 concept is that exercising rights comes with responsibilities and limits when harm to others or public safety is at stake."
+  },
+
+  // CS2 — defend viability with a party choice
+  {
+    cs:"CS2",
+    skill:"Defend viability (party choice)",
+    q:"A student wants to push for lower local taxes. Which approach best fits using a political party to influence policy?",
+    choices:[
+      "Work with a party’s local candidates, help them win office, then push the tax plan through local government",
+      "Skip elections and demand policy changes without any public process",
+      "Ask a judge to write the tax law instead of the council",
+      "Send messages only to people who already agree and do nothing else"
+    ],
+    answer:0,
+    explanation:"Parties influence policy by winning elections and holding office, then using governing power to implement goals."
+  },
+
+  // CS1 — action plan details (consequences, implement)
+  {
+    cs:"CS1",
+    skill:"Consequences",
+    q:"When students ‘examine possible consequences’ of a proposed policy solution, they should focus on…",
+    choices:[
+      "Likely outcomes, tradeoffs, and who may benefit or be harmed",
+      "Which rumor spreads fastest",
+      "Who has the loudest opinion",
+      "How to avoid responsibility"
+    ],
+    answer:0,
+    explanation:"CS1 expects considering consequences: outcomes, tradeoffs, stakeholders, and unintended effects."
+  },
+  {
+    cs:"CS1",
+    skill:"Political vs public policy process",
+    q:"Which example best represents engaging the POLITICAL process (acquiring power/influencing decision-making through elections)?",
+    choices:[
+      "Volunteering on a campaign to help a candidate win office",
+      "Attending a public hearing on a city ordinance",
+      "Submitting comments to an agency about a proposed rule",
+      "Joining a community clean-up day"
+    ],
+    answer:0,
+    explanation:"Political processes relate to gaining governmental power (elections/campaigns). Public policy processes relate to actions/procedures government uses to carry out functions."
+  },
+  {
+    cs:"CS1",
+    skill:"Political vs public policy process",
+    q:"Which example best represents engaging the PUBLIC POLICY process (government actions and procedures)?",
+    choices:[
+      "Speaking at a city council meeting about an ordinance",
+      "Running a campaign ad for a candidate",
+      "Choosing a party label",
+      "Voting in a primary only"
+    ],
+    answer:0,
+    explanation:"Public policy processes include institutional actions like hearings, meetings, ordinances, and implementation procedures."
+  }
+];
+
+/* ========= Engine ========= */
+let QUESTIONS = [];
+let idx = 0;
+let attempts = 0;
+let misses = 0;
+let startStamp = null;
+let endStamp = null;
+let seconds = 0;
+let timerInterval = null;
+let nowInterval = null;
+
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+function shuffleChoicesKeepAnswer(q){
+  // q: { choices:[], answer:int, ... }
+  const pairs = q.choices.map((text, idx) => ({ text, idx }));
+  for(let i=pairs.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+  q.choices = pairs.map(p => p.text);
+  q.answer = pairs.findIndex(p => p.idx === q.answer);
+  return q;
+}
+
+function formatDT(d){
+  // Local string w/ seconds
+  return d.toLocaleString(undefined, {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit"});
+}
+
+function formatTimer(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+
+function previewRules(){
+  document.getElementById("modalText").textContent =
+    "Rules: 1) Enter your name. 2) Answer each question. Correct answers automatically advance. 3) If you miss a question, an explanation appears and you must retry. 4) Ticket is only awarded if Misses = 0 (perfect run).";
+  document.getElementById("modal").classList.remove("hidden");
+}
+
+function startGame(){
+  const name = document.getElementById("studentName").value.trim();
+  if(!name){ alert("Please enter your full name."); return; }
+
+  // Build shuffled question list
+  QUESTIONS = shuffle(
+  QUESTIONS_RAW.map(q => shuffleChoicesKeepAnswer({ ...q }))
+);
+
+
+  idx = 0;
+  attempts = 0;
+  misses = 0;
+  seconds = 0;
+
+  startStamp = new Date();
+  document.getElementById("nameOut").textContent = name;
+  document.getElementById("startOut").textContent = formatDT(startStamp);
+  document.getElementById("nowOut").textContent = formatDT(new Date());
+
+  document.getElementById("attemptsOut").textContent = attempts;
+  document.getElementById("missesOut").textContent = misses;
+  document.getElementById("perfectOut").textContent = "YES";
+  document.getElementById("progressOut").textContent = `0/${QUESTIONS.length}`;
+
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
+  document.getElementById("endScreen").classList.add("hidden");
+
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+
+  timerInterval = setInterval(()=>{
+    seconds++;
+    document.getElementById("timerOut").textContent = formatTimer(seconds);
+  }, 1000);
+
+  nowInterval = setInterval(()=>{
+    document.getElementById("nowOut").textContent = formatDT(new Date());
+  }, 1000);
+
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const q = QUESTIONS[idx];
+  document.getElementById("csTag").textContent = q.cs;
+  document.getElementById("skillTag").textContent = q.skill;
+  document.getElementById("questionText").textContent = q.q;
+
+  document.getElementById("progressOut").textContent = `${idx+1}/${QUESTIONS.length}`;
+
+  const box = document.getElementById("choicesBox");
+  box.innerHTML = "";
+
+  q.choices.forEach((text, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = text;
+    btn.onclick = ()=>checkAnswer(i, btn);
+    box.appendChild(btn);
+  });
+}
+
+function lockChoices(lock=true){
+  const btns = document.querySelectorAll(".choice");
+  btns.forEach(b=>b.disabled = lock);
+}
+
+function checkAnswer(choiceIndex, btn){
+  attempts++;
+  document.getElementById("attemptsOut").textContent = attempts;
+
+  const q = QUESTIONS[idx];
+
+  if(choiceIndex === q.answer){
+    btn.classList.add("correct");
+    lockChoices(true);
+    setTimeout(()=>{
+      idx++;
+      if(idx >= QUESTIONS.length){
+        finishGame();
+      }else{
+        lockChoices(false);
+        loadQuestion();
+      }
+    }, 350);
+  } else {
+    misses++;
+    document.getElementById("missesOut").textContent = misses;
+    document.getElementById("perfectOut").textContent = "NO";
+    btn.classList.add("wrong");
+
+    document.getElementById("modalText").textContent = q.explanation;
+    document.getElementById("modal").classList.remove("hidden");
+  }
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.add("hidden");
+}
+
+function finishGame(){
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+  endStamp = new Date();
+
+  const name = document.getElementById("nameOut").textContent;
+
+  // Gate ticket on perfect run
+  const perfect = QUESTIONS.length > 0 && misses === 0 && attempts === QUESTIONS.length && idx >= QUESTIONS.length;
+
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.remove("hidden");
+
+  document.getElementById("tName").textContent = name;
+  document.getElementById("tStart").textContent = formatDT(startStamp);
+  document.getElementById("tFinish").textContent = formatDT(endStamp);
+  document.getElementById("tTotal").textContent = formatTimer(seconds);
+  document.getElementById("tAttempts").textContent = String(attempts);
+  document.getElementById("tMisses").textContent = String(misses);
+
+  if(perfect){
+  WeberRun.finish(name, startStamp, QUESTIONS.length, QUESTIONS.length, attempts);
+    document.getElementById("endTitle").textContent = "SUBMIT TICKET — PERFECT (100%)";
+    document.getElementById("tAcc").textContent = "100%";
+  }else{
+    document.getElementById("endTitle").textContent = "NO TICKET — NOT PERFECT (RESTART REQUIRED)";
+    document.getElementById("tAcc").textContent = "Not Eligible (Misses > 0)";
+  }
+}
+
+function restartGame(){
+  // Hard reset UI
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+
+  document.getElementById("startScreen").classList.remove("hidden");
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.add("hidden");
+  document.getElementById("modal").classList.add("hidden");
+
+  // Keep name field for convenience
+  document.getElementById("timerOut").textContent = "0:00";
+}
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startStamp && QUESTIONS.length) ? { QUESTIONS, idx, attempts, misses, startStamp, seconds, advance:attempts-misses>idx } : null; },
+  restore(v) { QUESTIONS=v.QUESTIONS; idx=v.idx; attempts=v.attempts; misses=v.misses; startStamp=v.startStamp; seconds=v.seconds; if(v.advance) idx++; document.getElementById("tStart").textContent = formatDT(startStamp); if(idx>=QUESTIONS.length) finishGame(); else loadQuestion(); }
+});
+</script>
+</body>
+</html>

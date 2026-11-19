@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Topic 9 — Government & the Economy (CS20–21)</title>
+
+<style>
+:root{
+  --bg:#0b1220; --text:#e7eefc; --muted:#a8b4cf; --border:rgba(255,255,255,.12);
+  --accent:#7aa2ff; --good:#2bd576; --bad:#ff5c7a; --shadow:0 18px 55px rgba(0,0,0,.35);
+  --radius:18px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New";
+  --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),var(--bg);
+  color:var(--text); font-family:var(--sans);
+  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:18px;
+}
+.app{
+  width:min(980px,100%);
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+header{padding:18px;border-bottom:1px solid var(--border)}
+h1{margin:0;font-size:18px}
+.sub{color:var(--muted);font-size:13px;margin-top:6px}
+main{padding:18px}
+.card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+label{font-size:13px;color:var(--muted)}
+input{
+  width:100%; padding:12px; border-radius:12px; border:1px solid var(--border);
+  background:rgba(0,0,0,.3); color:var(--text);
+}
+button{
+  padding:12px 14px; border-radius:14px; border:1px solid var(--border);
+  background:rgba(122,162,255,.15); color:var(--text); font-weight:700; cursor:pointer;
+}
+button:hover{background:rgba(122,162,255,.25)}
+button:disabled{opacity:.45; cursor:not-allowed}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.stat{
+  flex:1 1 180px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(255,255,255,.04);
+}
+.stat .k{color:var(--muted);font-size:12px}
+.stat .v{font-family:var(--mono)}
+.qbox{margin-top:16px}
+.qtop{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;gap:10px;flex-wrap:wrap}
+.qtext{font-size:16px;margin-top:10px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media(max-width:760px){.choices{grid-template-columns:1fr}}
+.choice{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  background:rgba(0,0,0,.25);
+  cursor:pointer;
+  text-align:left;
+}
+.choice:hover{border-color:var(--accent)}
+.choice .tag{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:6px}
+.modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+  padding:18px;
+}
+.modal.hidden{display:none!important}
+.modalBox{
+  background:#0b1220;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  width:min(650px,100%);
+}
+.modalBox h3{margin-top:0}
+.ticket{
+  margin-top:18px;
+  border:1px dashed rgba(255,255,255,.3);
+  border-radius:14px;
+  padding:14px;
+  font-family:var(--mono);
+  font-size:12px;
+  white-space:pre-wrap;
+}
+.hidden{display:none!important}
+small{color:var(--muted)}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
+</head>
+
+<body>
+<div class="app">
+<header>
+  <h1>Topic 9 — Government & the Economy (CS20–21)</h1>
+  <div class="sub">100% first-try accuracy required • Wrong answers trigger an explanation until corrected • Auto-advance on correct</div>
+</header>
+
+<main>
+  <!-- SETUP -->
+  <div class="card" id="setup">
+    <div class="grid2">
+      <div>
+        <label>Student Name</label>
+        <input id="name" placeholder="Type first + last name" autocomplete="off"/>
+        <small id="resumeNote" class="hidden">We found an in-progress attempt on this device. Click <b>Resume</b> to continue.</small>
+      </div>
+      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+        <button id="startBtn" disabled>Start Game</button>
+        <button id="resumeBtn" class="hidden">Resume</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </div>
+    <small>In-game stats will stay visible while you play (date, start/finish, timer, accuracy, progress).</small>
+  </div>
+
+  <!-- GAME -->
+  <div class="card qbox hidden" id="game">
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><div class="k">Student</div><div class="v" id="studentS">—</div></div>
+      <div class="stat"><div class="k">Session</div><div class="v" id="sessionS">—</div></div>
+      <div class="stat"><div class="k">Date</div><div class="v" id="dateS">—</div></div>
+      <div class="stat"><div class="k">Start</div><div class="v" id="startT">—</div></div>
+      <div class="stat"><div class="k">Finish</div><div class="v" id="finishT">—</div></div>
+      <div class="stat"><div class="k">Timer</div><div class="v" id="timer">00:00</div></div>
+      <div class="stat"><div class="k">Accuracy (First-Try)</div><div class="v" id="acc">—</div></div>
+      <div class="stat"><div class="k">Progress</div><div class="v" id="prog">—</div></div>
+    </div>
+
+    <div class="qtop" style="margin-top:14px">
+      <div id="qnum"></div>
+      <div id="cs"></div>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div class="choices" id="choices"></div>
+
+    <div class="ticket hidden" id="ticket"></div>
+  </div>
+</main>
+</div>
+
+<div class="modal hidden" id="modal">
+  <div class="modalBox">
+    <h3>Not Correct — Explanation</h3>
+    <p id="exp"></p>
+    <button id="closeM">Try Again</button>
+  </div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+function pad(n){return String(n).padStart(2,"0")}
+function timeFmt(s){return pad(Math.floor(s/60))+":"+pad(s%60)}
+function formatDate(d){ return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+function formatTime(d){ return d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit",second:"2-digit"}); }
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+function uid(){
+  // short-ish session id for screenshots (not security, just friction)
+  return (Math.random().toString(36).slice(2,6) + "-" + Math.random().toString(36).slice(2,6)).toUpperCase();
+}
+const SAVE_KEY = "topic9_econ_v1";
+
+/* ---------- QUESTIONS (30) ---------- */
+const QUESTIONS = [
+  {cs:"CS20", q:"Fiscal policy refers to government decision-making about:", c:[
+    "Taxing and spending to influence economic conditions",
+    "Buying and selling bonds by the Federal Reserve",
+    "Setting criminal sentencing guidelines",
+    "Approving treaties negotiated by the president"
+  ], a:0, e:"Fiscal policy is taxing and spending decisions used to influence economic conditions."},
+
+  {cs:"CS20", q:"Which fiscal policy action is most likely to ENCOURAGE economic growth?", c:[
+    "Reduce taxes and increase government spending",
+    "Increase taxes and reduce government spending",
+    "Raise reserve requirements for banks",
+    "Sell government securities to reduce the money supply"
+  ], a:0, e:"Fiscal policy can encourage growth by increasing spending and/or reducing taxes."},
+
+  {cs:"CS20", q:"Which fiscal policy action is most likely to SLOW economic growth?", c:[
+    "Increase taxes and reduce government spending",
+    "Reduce taxes and increase government spending",
+    "Buy government securities",
+    "Lower interest rates using monetary tools"
+  ], a:0, e:"Fiscal policy can slow growth by decreasing spending and/or increasing taxes."},
+
+  {cs:"CS20", q:"Which set of policies best matches fiscal actions intended to encourage growth?", c:[
+    "Cut income tax rates and fund a large infrastructure project",
+    "Sell bonds and raise reserve requirements",
+    "Increase interest rates and sell securities",
+    "Reduce reserve requirements and buy bonds"
+  ], a:0, e:"Cutting taxes and funding infrastructure are fiscal tools used to encourage growth."},
+
+  {cs:"CS20", q:"Which set of policies best matches fiscal actions intended to slow growth?", c:[
+    "Increase corporate taxes and reduce government spending",
+    "Buy bonds and lower interest rates",
+    "Reduce reserve requirements and buy securities",
+    "Create consumer protections and expand warranties"
+  ], a:0, e:"Raising taxes and reducing spending are fiscal tools used to slow growth."},
+
+  {cs:"CS20", q:"The government begins a massive effort to rebuild the nation’s highways. This is primarily:", c:[
+    "Spending policy","Taxing policy","Monetary policy","Regulatory policy"
+  ], a:0, e:"Large infrastructure projects are government spending."},
+
+  {cs:"CS20", q:"The government increases deductions for households with students attending college. This is primarily:", c:[
+    "Taxing policy","Spending policy","Monetary policy","Judicial policy"
+  ], a:0, e:"Deductions change how much tax people pay—taxing policy."},
+
+  {cs:"CS20", q:"The government extends unemployment benefits for an additional six weeks. This is primarily:", c:[
+    "Spending policy","Taxing policy","Monetary policy","Regulatory policy"
+  ], a:0, e:"Unemployment benefits are government spending."},
+
+  {cs:"CS20", q:"The government increases fees for consumption of gasoline. This is primarily:", c:[
+    "Taxing policy","Spending policy","Monetary policy","Regulatory policy"
+  ], a:0, e:"Fees are a form of taxation/revenue policy."},
+
+  {cs:"CS20", q:"Taxation and spending are both parts of ___ policy. If the government raises taxes and decreases spending, it is attempting to ___ growth.", c:[
+    "Fiscal; slow","Fiscal; encourage","Monetary; slow","Monetary; encourage"
+  ], a:0, e:"Taxing/spending are fiscal policy; raising taxes + cutting spending aims to slow growth."},
+
+  {cs:"CS20", q:"A law requires seat belts in new cars. The intended benefit of this regulation is to:", c:[
+    "Enhance consumer protections","Increase tax revenue","Reduce government spending","Increase money in circulation"
+  ], a:0, e:"Some regulations benefit the public by providing safety/consumer protections."},
+
+  {cs:"CS20", q:"Why might companies object to strict EPA regulations?", c:[
+    "They increase costs and reduce profit","They increase money in circulation","They reduce taxes automatically","They eliminate the need for loans"
+  ], a:0, e:"Regulations can raise compliance costs and reduce profits."},
+
+  {cs:"CS20", q:"Which is an example of a benefit of government regulation?", c:[
+    "Prohibiting unfair business practices and providing consumer protections",
+    "Automatically increasing corporate profits",
+    "Guaranteeing faster economic growth in all situations",
+    "Eliminating the need for taxes"
+  ], a:0, e:"Regulations can protect consumers and prevent unfair practices."},
+
+  {cs:"CS20", q:"Which is an example of a possible cost of government regulation?", c:[
+    "Reduced corporate profits and slower economic growth",
+    "More money in circulation",
+    "Lower reserve requirements at banks",
+    "Automatic decreases in interest rates"
+  ], a:0, e:"Regulations can increase costs for businesses and slow growth."},
+
+  {cs:"CS20", q:"Which statement best summarizes CS20’s expectation?", c:[
+    "Explain how fiscal policy affects economic conditions and recognize that regulations have costs and benefits",
+    "Explain only monetary policy tools",
+    "Describe only court decisions about the economy",
+    "Explain why inflation is caused by fiscal policy only"
+  ], a:0, e:"CS20 focuses on fiscal policy (taxing/spending) and the costs/benefits of regulations."},
+
+  {cs:"CS21", q:"Monetary policy involves the Federal Reserve making decisions about the nation’s:", c:[
+    "Money supply","Tax rates","Court system","School funding formula"
+  ], a:0, e:"Monetary policy is about managing the money supply."},
+
+  {cs:"CS21", q:"To ENCOURAGE economic growth, the Federal Reserve can:", c:[
+    "Reduce reserve requirements, buy bonds, and take actions that lower interest rates",
+    "Increase reserve requirements, sell bonds, and raise interest rates",
+    "Increase taxes and reduce spending",
+    "Create consumer protection regulations only"
+  ], a:0, e:"Lowering reserves, buying bonds, and lowering rates encourages growth."},
+
+  {cs:"CS21", q:"To SLOW economic growth, the Federal Reserve can:", c:[
+    "Increase reserve requirements, sell bonds, and take actions that raise interest rates",
+    "Reduce reserve requirements, buy bonds, and lower interest rates",
+    "Cut taxes and increase spending",
+    "Increase consumer deductions"
+  ], a:0, e:"Increasing reserves, selling bonds, and raising rates slows growth."},
+
+  {cs:"CS21", q:"When the Federal Reserve PURCHASES government securities, it is most likely trying to:", c:[
+    "Foster economic expansion by increasing the money supply",
+    "Foster contraction by decreasing the money supply",
+    "Increase taxes without Congress",
+    "Reduce consumer protections"
+  ], a:0, e:"Buying securities increases the money supply and encourages expansion."},
+
+  {cs:"CS21", q:"When the Federal Reserve SELLS government securities, it is most likely trying to:", c:[
+    "Reduce the money supply and slow growth",
+    "Increase the money supply and encourage growth",
+    "Increase government spending directly",
+    "Cut income tax rates"
+  ], a:0, e:"Selling securities reduces the money supply and tends to slow growth."},
+
+  {cs:"CS21", q:"What is the effect when the Federal Reserve increases interest rates?", c:[
+    "The cost of taking out loans increases",
+    "Consumers borrow more because loans are cheaper",
+    "Government receives automatic tax cuts",
+    "Businesses increase investment because credit is cheaper"
+  ], a:0, e:"Higher interest rates make borrowing more expensive."},
+
+  {cs:"CS21", q:"Why would lowering interest rates tend to encourage economic growth?", c:[
+    "Borrowing becomes cheaper, encouraging loans and spending/investment",
+    "Borrowing becomes more expensive, discouraging spending",
+    "It directly increases government spending",
+    "It automatically reduces regulations"
+  ], a:0, e:"Lower interest rates make credit cheaper, encouraging borrowing."},
+
+  {cs:"CS21", q:"Reducing the reserve requirement generally allows banks to:", c:[
+    "Make more loans, increasing the money supply",
+    "Make fewer loans, decreasing the money supply",
+    "Increase taxes collected",
+    "Create new regulations"
+  ], a:0, e:"Lower reserve requirements free up funds for lending."},
+
+  {cs:"CS21", q:"Increasing the reserve requirement generally causes banks to:", c:[
+    "Make fewer loans, reducing the money supply",
+    "Make more loans, increasing the money supply",
+    "Lower interest rates automatically",
+    "Increase government spending"
+  ], a:0, e:"Higher reserve requirements mean banks lend less."},
+
+  {cs:"CS20/21", q:"Which pairing is correct?", c:[
+    "Fiscal = taxes/spending; Monetary = money supply/interest rates",
+    "Fiscal = money supply; Monetary = taxes/spending",
+    "Fiscal = court rulings; Monetary = elections",
+    "Fiscal = regulations only; Monetary = court cases"
+  ], a:0, e:"Fiscal is taxing/spending; monetary is money supply tools."},
+
+  {cs:"CS21", q:"If the Federal Reserve wants to SLOW the economy, which combination best fits?", c:[
+    "Sell bonds, raise interest rates, and increase reserve requirements",
+    "Buy bonds, lower interest rates, and reduce reserve requirements",
+    "Cut income taxes and increase government spending",
+    "Increase unemployment benefits for six weeks"
+  ], a:0, e:"Selling bonds, raising rates, increasing reserves are contractionary monetary actions."},
+
+  {cs:"CS21", q:"If the Federal Reserve wants to ENCOURAGE the economy, which combination best fits?", c:[
+    "Buy bonds, lower interest rates, and reduce reserve requirements",
+    "Sell bonds, raise interest rates, and increase reserve requirements",
+    "Increase corporate taxes and reduce government spending",
+    "Increase gasoline fees and reduce deductions"
+  ], a:0, e:"Buying bonds, lowering rates, reducing reserves are expansionary monetary actions."},
+
+  {cs:"CS20", q:"Which action is MOST clearly a fiscal policy decision (not monetary)?", c:[
+    "Reducing income tax rates",
+    "Buying government securities (open market operation)",
+    "Raising reserve requirements",
+    "Raising the federal funds rate"
+  ], a:0, e:"Tax rates are fiscal; securities/reserves/rates are monetary tools."},
+
+  {cs:"CS21", q:"Which action is MOST clearly a monetary policy decision (not fiscal)?", c:[
+    "Buying government securities (open market operation)",
+    "Increasing deductions for college expenses",
+    "Funding an infrastructure project",
+    "Extending unemployment benefits"
+  ], a:0, e:"Open market operations are monetary policy tools."},
+
+  {cs:"CS20", q:"A new rule requires clearer labeling on food packages. This is an example of regulation intended to:", c:[
+    "Provide consumer protections","Increase money in circulation","Lower interest rates","Reduce reserve requirements"
+  ], a:0, e:"Many regulations aim to protect consumers (health/safety/clarity)."},
+
+
+  {cs:"CS21", q:"Which statement best reflects the CS21 expectation?", c:[
+    "Explain how the Federal Reserve uses monetary tools to regulate the money supply and encourage or slow growth",
+    "Explain how Congress writes tax law only",
+    "Explain how regulations always increase growth",
+    "Explain inflation as a fiscal policy outcome"
+  ], a:0, e:"CS21 focuses on Fed tools that manage money supply and influence growth."}
+];
+
+/* ---------- state ---------- */
+let state = {
+  studentName: "",
+  sessionId: "",
+  i:0, sec:0, timer:null,
+  firstTryCorrect:0, hadMiss:false,
+  startedAt:null, finishedAt:null,
+  order:null // stores shuffled question indices
+};
+
+/* ---------- DOM ---------- */
+const nameI=document.getElementById("name");
+const startBtn=document.getElementById("startBtn");
+const resumeBtn=document.getElementById("resumeBtn");
+const resetBtn=document.getElementById("resetBtn");
+
+const setup=document.getElementById("setup");
+const game=document.getElementById("game");
+
+const qnum=document.getElementById("qnum");
+const cs=document.getElementById("cs");
+const qtext=document.getElementById("qtext");
+const choices=document.getElementById("choices");
+
+const timerEl=document.getElementById("timer");
+const accEl=document.getElementById("acc");
+const progEl=document.getElementById("prog");
+
+const studentS=document.getElementById("studentS");
+const sessionS=document.getElementById("sessionS");
+const dateS=document.getElementById("dateS");
+const startT=document.getElementById("startT");
+const finishT=document.getElementById("finishT");
+
+const modal=document.getElementById("modal");
+const exp=document.getElementById("exp");
+const closeM=document.getElementById("closeM");
+const ticket=document.getElementById("ticket");
+
+const resumeNote=document.getElementById("resumeNote");
+
+/* ---------- persistence ---------- */
+function save(){
+  const payload = {
+    studentName: state.studentName,
+    sessionId: state.sessionId,
+    i: state.i,
+    sec: state.sec,
+    firstTryCorrect: state.firstTryCorrect,
+    startedAt: state.startedAt ? state.startedAt.toISOString() : null,
+    finishedAt: state.finishedAt ? state.finishedAt.toISOString() : null,
+    order: state.order
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function clearSave(){
+  localStorage.removeItem(SAVE_KEY);
+}
+
+/* ---------- quiz helpers ---------- */
+function updateStats(){
+  const total = QUESTIONS.length;
+  const shown = Math.min(state.i + 1, total);
+  progEl.textContent = `${shown}/${total}`;
+  accEl.textContent = `${Math.round((state.firstTryCorrect/total)*100)}%`;
+  qnum.textContent = `Question ${shown}/${total}`;
+}
+
+function currentQuestion(){
+  const idx = state.order[state.i];
+  return QUESTIONS[idx];
+}
+
+function render(){
+  const q = currentQuestion();
+  state.hadMiss = false;
+
+  cs.textContent = q.cs;
+  qtext.textContent = q.q;
+
+  const opts = q.c.map((t,i)=>({t,i}));
+  shuffle(opts);
+  const correctPos = opts.findIndex(o=>o.i===q.a);
+
+  choices.innerHTML="";
+  opts.forEach((o,pos)=>{
+    const btn=document.createElement("button");
+    btn.className="choice";
+    btn.type="button";
+    btn.innerHTML = `<div class="tag">${String.fromCharCode(65+pos)}</div>${o.t}`;
+    btn.onclick=()=>{
+      if(pos===correctPos){
+        if(!state.hadMiss) state.firstTryCorrect++;
+        state.i++;
+        save();
+        if(state.i < QUESTIONS.length){
+          updateStats();
+          render();
+        }else{
+          finish();
+        }
+      }else{
+        state.hadMiss = true;
+        exp.textContent = q.e;
+        modal.classList.remove("hidden");
+        save();
+      }
+      updateStats();
+    };
+    choices.appendChild(btn);
+  });
+
+  updateStats();
+}
+
+function startFresh(){
+  const nm = nameI.value.trim();
+  if(!nm) return alert("Enter your name.");
+
+  state.studentName = nm;
+  state.sessionId = uid();
+
+  state.i = 0;
+  state.sec = 0;
+  state.firstTryCorrect = 0;
+  state.hadMiss = false;
+
+  state.startedAt = new Date();
+  state.finishedAt = null;
+
+  // fixed order (shuffled indices) so resume works consistently
+  state.order = Array.from({length: QUESTIONS.length}, (_,i)=>i);
+  shuffle(state.order);
+
+  // UI
+  studentS.textContent = state.studentName;
+  sessionS.textContent = state.sessionId;
+
+  dateS.textContent = formatDate(state.startedAt);
+  startT.textContent = formatTime(state.startedAt);
+  finishT.textContent = "—";
+  timerEl.textContent = "00:00";
+  ticket.classList.add("hidden");
+  ticket.textContent = "";
+
+  setup.style.display="none";
+  game.classList.remove("hidden");
+
+  if(state.timer) clearInterval(state.timer);
+  state.timer = setInterval(()=>{
+    state.sec++;
+    timerEl.textContent = timeFmt(state.sec);
+    save();
+  },1000);
+
+  save();
+  render();
+}
+
+function resumeSaved(saved){
+  // restore
+  state.studentName = saved.studentName || "";
+  state.sessionId = saved.sessionId || uid();
+  state.i = Number(saved.i || 0);
+  state.sec = Number(saved.sec || 0);
+  state.firstTryCorrect = Number(saved.firstTryCorrect || 0);
+  state.startedAt = saved.startedAt ? new Date(saved.startedAt) : new Date();
+  state.finishedAt = saved.finishedAt ? new Date(saved.finishedAt) : null;
+  state.order = Array.isArray(saved.order) && saved.order.length===QUESTIONS.length
+    ? saved.order
+    : Array.from({length: QUESTIONS.length}, (_,i)=>i);
+
+  // UI
+  studentS.textContent = state.studentName || "—";
+  sessionS.textContent = state.sessionId || "—";
+
+  dateS.textContent = formatDate(state.startedAt);
+  startT.textContent = formatTime(state.startedAt);
+  finishT.textContent = state.finishedAt ? formatTime(state.finishedAt) : "—";
+  timerEl.textContent = timeFmt(state.sec);
+  ticket.classList.add("hidden");
+  ticket.textContent = "";
+
+  setup.style.display="none";
+  game.classList.remove("hidden");
+
+  if(state.timer) clearInterval(state.timer);
+  state.timer = setInterval(()=>{
+    state.sec++;
+    timerEl.textContent = timeFmt(state.sec);
+    save();
+  },1000);
+
+  save();
+  render();
+}
+
+function finish(){
+  clearInterval(state.timer);
+  state.finishedAt = new Date();
+  finishT.textContent = formatTime(state.finishedAt);
+
+  if(state.firstTryCorrect !== QUESTIONS.length){
+    alert("You finished, but mastery requires 100% FIRST-TRY accuracy. Hit Reset and try again.");
+    save();
+    return;
+  }
+
+  ticket.classList.remove("hidden");
+  WeberRun.finish(state.studentName, state.startedAt, QUESTIONS.length, state.firstTryCorrect, QUESTIONS.length);
+  ticket.textContent =
+`TOPIC 9 — SUBMIT TICKET
+Student: ${state.studentName}
+Session: ${state.sessionId}
+Date: ${formatDate(state.startedAt)}
+Start: ${formatTime(state.startedAt)}
+Finish: ${formatTime(state.finishedAt)}
+Total time: ${timerEl.textContent}
+Accuracy: 100% (First-Try Mastery)
+Questions completed: ${QUESTIONS.length}/${QUESTIONS.length}`;
+
+  save();
+}
+
+/* ---------- events ---------- */
+nameI.addEventListener("input", ()=>{
+  startBtn.disabled = !nameI.value.trim();
+});
+
+startBtn.onclick = startFresh;
+
+resumeBtn.onclick = ()=>{
+  const saved = load();
+  if(!saved || !saved.studentName){
+    return alert("No saved attempt found.");
+  }
+  resumeSaved(saved);
+};
+
+resetBtn.onclick = ()=>{
+  clearSave();
+  location.reload();
+};
+
+closeM.onclick=()=>modal.classList.add("hidden");
+
+/* ---------- boot: detect resume ---------- */
+(function init(){
+  const saved = load();
+  if(saved && saved.studentName && saved.startedAt && !saved.finishedAt){
+    // show resume option
+    resumeBtn.classList.remove("hidden");
+    resumeNote.classList.remove("hidden");
+    // prefill name to match (helps students notice)
+    nameI.value = saved.studentName;
+    startBtn.disabled = !nameI.value.trim();
+  }
+})();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('name');
+    if(nameInput) nameInput.value=identity.name;
+    startFresh();
+  },
+  snapshot() { return (state.startedAt) ? { state:WeberProgress.dataFields(state) } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; if(state.i>=QUESTIONS.length) finish(); else render(); }
+});
+</script>
+</body>
+</html>

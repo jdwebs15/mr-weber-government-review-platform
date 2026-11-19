@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Topic 5 — Reconstruction + Voting Rights + Structure Amendments (CS9–CS11)</title>
+<style>
+  :root{
+    --bg:#0b1220; --text:#e7eefc; --muted:#a8b4cf; --accent:#7aa2ff;
+    --good:#2bd576; --bad:#ff5c7a; --warn:#ffd166;
+    --border:rgba(255,255,255,.10);
+    --shadow:0 18px 55px rgba(0,0,0,.35);
+    --radius:18px; --radius2:14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:var(--sans);
+    background:radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%), var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:18px;
+  }
+  .app{
+    width:min(980px,100%);
+    background:rgba(0,0,0,.25);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  header{
+    padding:16px 18px;
+    display:flex; gap:14px; flex-wrap:wrap;
+    align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+  }
+  .title{
+    display:flex; flex-direction:column; gap:4px;
+    min-width:260px;
+  }
+  .title h1{
+    margin:0; font-size:16px; letter-spacing:.2px; font-weight:750;
+  }
+  .title .sub{
+    margin:0; color:var(--muted); font-size:12px;
+  }
+  .meta{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+    font-size:12px; color:var(--muted);
+  }
+  .pill{
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:6px 10px;
+    background:rgba(255,255,255,.03);
+  }
+  .pill b{ color:var(--text); font-weight:700 }
+  main{ padding:18px; }
+  .card{
+    border:1px solid var(--border);
+    border-radius:var(--radius2);
+    background:rgba(255,255,255,.03);
+    padding:16px;
+  }
+  .row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .row > *{ flex:1 1 320px; }
+  label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  input[type="text"]{
+    width:100%;
+    padding:12px 12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:rgba(0,0,0,.30);
+    color:var(--text);
+    outline:none;
+  }
+  input[type="text"]::placeholder{ color:rgba(168,180,207,.7); }
+
+  .btn{
+    border:1px solid var(--border);
+    background:rgba(122,162,255,.10);
+    color:var(--text);
+    border-radius:12px;
+    padding:12px 14px;
+    cursor:pointer;
+    font-weight:700;
+    transition:transform .04s ease, background .15s ease, border-color .15s ease;
+    user-select:none;
+  }
+  .btn:hover{ background:rgba(122,162,255,.16); }
+  .btn:active{ transform:scale(.99); }
+  .btn.primary{
+    background:rgba(43,213,118,.12);
+    border-color:rgba(43,213,118,.35);
+  }
+  .btn.primary:hover{ background:rgba(43,213,118,.16); }
+  .btn.danger{
+    background:rgba(255,92,122,.10);
+    border-color:rgba(255,92,122,.35);
+  }
+  .btn.danger:hover{ background:rgba(255,92,122,.14); }
+
+  .qtop{
+    display:flex; gap:12px; flex-wrap:wrap;
+    align-items:flex-start; justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .qno{
+    font-family:var(--mono);
+    font-size:12px; color:var(--muted);
+  }
+  .question{
+    font-size:16px;
+    line-height:1.35;
+    margin:4px 0 0;
+    font-weight:750;
+  }
+  .choices{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+  @media (max-width:720px){
+    .choices{ grid-template-columns:1fr; }
+  }
+  .choice{
+    text-align:left;
+    background:rgba(0,0,0,.25);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px 12px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .04s ease;
+    min-height:52px;
+  }
+  .choice:hover{ border-color:rgba(122,162,255,.45); background:rgba(122,162,255,.08); }
+  .choice:active{ transform:scale(.99); }
+  .choice .label{
+    font-family:var(--mono);
+    font-size:12px; color:var(--muted);
+    margin-bottom:4px;
+  }
+  .choice .text{ font-size:14px; color:var(--text); }
+
+  .statusbar{
+    margin-top:14px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .statusbar .left, .statusbar .right{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+  .ok{ color:var(--good); font-weight:800; }
+  .bad{ color:var(--bad); font-weight:800; }
+
+  /* MODAL */
+  .modal{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.55);
+    padding:18px;
+    z-index:50;
+  }
+  .modal.hidden { display: none !important; }
+  .modal .box{
+    width:min(760px, 100%);
+    background:rgba(10,16,30,.98);
+    border:1px solid var(--border);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .modal .box header{
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+  }
+  .modal .content{ padding:16px 18px; }
+  .modal h2{
+    margin:0 0 6px; font-size:15px;
+  }
+  .modal p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.45;
+    font-size:13px;
+  }
+  .modal .actions{
+    padding:14px 18px 18px;
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+  }
+
+  .ticket{
+    margin-top:14px;
+    border:1px dashed rgba(255,255,255,.22);
+    border-radius:14px;
+    padding:12px;
+    background:rgba(0,0,0,.25);
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text);
+    line-height:1.5;
+  }
+  .ticket .muted{ color:var(--muted); }
+  .hr{ height:1px; background:rgba(255,255,255,.08); margin:10px 0; }
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
+</head>
+
+<body>
+  <div class="app" role="application" aria-label="Topic 5 Game">
+    <header>
+      <div class="title">
+        <h1>Topic 5 — Reconstruction + Voting Rights + Structure Amendments (CS9–CS11)</h1>
+        <p class="sub">100% accuracy required • Incorrect answers trigger an explanation until corrected • Screenshot the Submit Ticket</p>
+      </div>
+
+      <div class="meta">
+        <div class="pill">Name: <b id="metaName">—</b></div>
+        <div class="pill">Start: <b id="metaStart">—</b></div>
+        <div class="pill">Finish: <b id="metaFinish">—</b></div>
+        <div class="pill">Timer: <b id="metaTimer">00:00</b></div>
+        <div class="pill">Accuracy: <b id="metaAcc">—</b></div>
+      </div>
+    </header>
+
+    <main>
+      <!-- SETUP -->
+      <section id="setup" class="card">
+        <div class="row">
+          <div>
+            <label for="studentName">Student Name (required for grading)</label>
+            <input id="studentName" type="text" placeholder="Type first + last name" autocomplete="name" />
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:10px; justify-content:flex-end;">
+            <button class="btn primary" id="startBtn">Start Topic 5</button>
+            <button class="btn danger" id="resetBtn" title="Clears progress and restarts">Reset</button>
+          </div>
+        </div>
+
+        <div class="statusbar" style="margin-top:12px;">
+          <div class="left">
+            <span class="pill">Questions: <b id="totalQs">—</b></span>
+            <span class="pill">Attempts: <b id="attempts">0</b></span>
+            <span class="pill">Correct: <b id="correct">0</b></span>
+          </div>
+          <div class="right">
+            <span class="pill">Rule: <b>Must finish at 100%</b></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAME -->
+      <section id="game" class="card" style="display:none; margin-top:14px;">
+        <div class="qtop">
+          <div>
+            <div class="qno" id="qno">Question —</div>
+            <div class="question" id="qtext">—</div>
+          </div>
+          <div class="pill">Standard Focus: <b id="focusTag">—</b></div>
+        </div>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="statusbar">
+          <div class="left">
+            <span class="pill">Attempts: <b id="attempts2">0</b></span>
+            <span class="pill">Correct: <b id="correct2">0</b></span>
+            <span class="pill">Progress: <b id="progress">0/0</b></span>
+          </div>
+          <div class="right">
+            <span class="pill">Accuracy Now: <b id="accNow">—</b></span>
+          </div>
+        </div>
+
+        <div id="ticketWrap" style="display:none;">
+          <div class="hr"></div>
+          <div class="ticket" id="ticket"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL (EXPLANATION) -->
+  <div class="modal hidden" id="modal" aria-hidden="true">
+    <div class="box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header>
+        <div class="title">
+          <h1 id="modalTitle">Not quite — here’s why</h1>
+          <p class="sub">Read the explanation, close, and try again.</p>
+        </div>
+        <div class="meta">
+          <span class="pill">Tip: <b>Answer again until correct</b></span>
+        </div>
+      </header>
+      <div class="content">
+        <h2 id="modalH">Explanation</h2>
+        <p id="modalP">—</p>
+      </div>
+      <div class="actions">
+        <button class="btn" id="closeModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* -----------------------------
+   UTILITIES
+--------------------------------*/
+function pad2(n){ return String(n).padStart(2,'0'); }
+function formatDateTime(d){
+  // 2026-02-04 09:17:04
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+function formatTimer(totalSeconds){
+  const m = Math.floor(totalSeconds/60);
+  const s = totalSeconds%60;
+  return `${pad2(m)}:${pad2(s)}`;
+}
+function shuffle(array){
+  // Fisher–Yates
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+/* -----------------------------
+   QUESTION BANK (25–30 items)
+   Topic 5 = CS9–CS11
+--------------------------------*/
+const QUESTIONS = [
+  // CS9 — Reconstruction Amendments (protections + continued struggle)
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which amendment primarily abolished slavery and involuntary servitude in the United States?",
+    choices:[
+      {t:"13th Amendment", correct:true,  why:"The 13th Amendment abolished slavery and involuntary servitude (except as punishment for crime)."},
+      {t:"14th Amendment", correct:false, why:"The 14th defined citizenship and required due process/equal protection, but it did not abolish slavery."},
+      {t:"15th Amendment", correct:false, why:"The 15th addressed voting rights—preventing denial based on race."},
+      {t:"19th Amendment", correct:false, why:"The 19th addressed women’s suffrage, not abolition of slavery."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which amendment defined citizenship for people born or naturalized in the United States?",
+    choices:[
+      {t:"14th Amendment", correct:true,  why:"The 14th Amendment established birthright/naturalized citizenship and applied protections to the states."},
+      {t:"13th Amendment", correct:false, why:"The 13th abolished slavery, but it didn’t define citizenship."},
+      {t:"15th Amendment", correct:false, why:"The 15th focused on voting rights based on race."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd established presidential term limits."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which two protections are directly connected to the 14th Amendment’s limits on state governments?",
+    choices:[
+      {t:"Due process and equal protection", correct:true, why:"The 14th prohibits states from denying due process and equal protection of the laws."},
+      {t:"Term limits and presidential succession", correct:false, why:"Those come from the 22nd and 25th Amendments."},
+      {t:"Freedom of speech and freedom of religion", correct:false, why:"Those are First Amendment rights in the Bill of Rights."},
+      {t:"Separate balloting for president/vice president and DC electoral votes", correct:false, why:"Those relate to the 12th and 23rd Amendments."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which amendment prevents states from denying the right to vote based on race, color, or previous condition of servitude?",
+    choices:[
+      {t:"15th Amendment", correct:true,  why:"The 15th Amendment prevents denial of voting rights on the basis of race, color, or previous condition of servitude."},
+      {t:"24th Amendment", correct:false, why:"The 24th banned poll taxes in federal elections."},
+      {t:"26th Amendment", correct:false, why:"The 26th lowered the voting age to 18."},
+      {t:"19th Amendment", correct:false, why:"The 19th prohibited denial of voting rights based on sex."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Even after Reconstruction Amendments were passed, which development showed that full equality did NOT happen immediately?",
+    choices:[
+      {t:"Jim Crow laws enforcing segregation", correct:true,  why:"Jim Crow laws enforced racial segregation and limited equality for decades after Reconstruction."},
+      {t:"The 12th Amendment requiring separate ballots", correct:false, why:"That’s an Electoral College procedure change, not evidence about equality after Reconstruction."},
+      {t:"The 22nd Amendment creating term limits", correct:false, why:"That concerns presidential terms, not post-Reconstruction equality."},
+      {t:"The 23rd Amendment granting DC electoral votes", correct:false, why:"That concerns Electoral College representation for DC."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which statement best connects Reconstruction Amendments to later civil rights struggles?",
+    choices:[
+      {t:"They created new protections, but enforcement and equality still required later laws and court actions.", correct:true, why:"Reconstruction Amendments expanded protections, but equality and enforcement took continued struggle and later actions."},
+      {t:"They ended all discrimination immediately, so later civil rights laws were unnecessary.", correct:false, why:"History shows equality was not immediate; later laws and court rulings were crucial."},
+      {t:"They only changed presidential elections and did not affect rights.", correct:false, why:"That describes Electoral College-related amendments, not Reconstruction protections."},
+      {t:"They reduced citizenship rights by limiting who could be a citizen.", correct:false, why:"The 14th expanded/defined citizenship rather than restricting it."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which combination accurately matches a Reconstruction Amendment with a protection it added?",
+    choices:[
+      {t:"13th → abolished slavery", correct:true,  why:"Correct pairing: 13th abolished slavery."},
+      {t:"15th → created presidential term limits", correct:false, why:"Term limits are from the 22nd."},
+      {t:"14th → separate ballots for president and vice president", correct:false, why:"Separate balloting is from the 12th."},
+      {t:"13th → banned poll taxes", correct:false, why:"Poll taxes are addressed by the 24th."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"A state denies a person equal protection of the law because of race. Which constitutional change is the BEST basis for challenging that state action?",
+    choices:[
+      {t:"14th Amendment", correct:true,  why:"The 14th’s equal protection clause restricts states from denying equal protection."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd is about presidential term limits, not equal protection."},
+      {t:"12th Amendment", correct:false, why:"The 12th is about Electoral College balloting procedures."},
+      {t:"23rd Amendment", correct:false, why:"The 23rd gives DC electoral votes; it’s not about equal protection."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Why can we say Reconstruction Amendments were 'designed to protect African Americans' but did not guarantee immediate equality?",
+    choices:[
+      {t:"Because laws and practices (like segregation) continued and limited real-world access to rights.", correct:true, why:"Formal protections existed, but discriminatory laws/practices persisted and restricted equality."},
+      {t:"Because the amendments only applied to foreign countries.", correct:false, why:"They apply within the United States."},
+      {t:"Because the amendments removed citizenship from formerly enslaved people.", correct:false, why:"The 14th expanded citizenship protections."},
+      {t:"Because the amendments outlawed voting for all citizens.", correct:false, why:"The amendments expanded voting protections rather than banning voting."}
+    ]
+  },
+
+  // CS10 — Suffrage expansions (15th/19th/24th/26th, poll tax barrier)
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment expanded voting rights by prohibiting denial based on sex?",
+    choices:[
+      {t:"19th Amendment", correct:true,  why:"The 19th Amendment extended suffrage by prohibiting denial of voting rights based on sex."},
+      {t:"15th Amendment", correct:false, why:"The 15th focused on race/color/previous condition of servitude."},
+      {t:"24th Amendment", correct:false, why:"The 24th banned poll taxes in federal elections."},
+      {t:"26th Amendment", correct:false, why:"The 26th lowered the voting age to 18."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment removed an economic barrier that prevented many African Americans (and poor citizens) from voting in federal elections?",
+    choices:[
+      {t:"24th Amendment", correct:true,  why:"The 24th Amendment banned poll taxes in federal elections, removing an economic barrier to voting."},
+      {t:"12th Amendment", correct:false, why:"The 12th changed Electoral College voting procedures."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd created presidential term limits."},
+      {t:"23rd Amendment", correct:false, why:"The 23rd gave DC electoral votes."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment lowered the voting age to include 18–20-year-olds?",
+    choices:[
+      {t:"26th Amendment", correct:true,  why:"The 26th Amendment lowered the voting age to 18."},
+      {t:"19th Amendment", correct:false, why:"The 19th addresses voting rights based on sex."},
+      {t:"15th Amendment", correct:false, why:"The 15th addresses voting rights based on race."},
+      {t:"25th Amendment", correct:false, why:"The 25th concerns presidential disability and succession."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"How did the 24th Amendment build on the 15th Amendment’s goal?",
+    choices:[
+      {t:"It removed a financial barrier that was used to restrict minority voting.", correct:true, why:"The 15th barred denial based on race; the 24th removed poll taxes that still blocked many voters."},
+      {t:"It created the Electoral College.", correct:false, why:"The Electoral College is in the original Constitution; later amendments adjusted it."},
+      {t:"It required voters to pass a literacy test to vote.", correct:false, why:"That would be a restriction, not an expansion; and it’s not what the 24th did."},
+      {t:"It limited presidential terms to two.", correct:false, why:"That’s the 22nd Amendment."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which is the BEST summary of how constitutional amendments extended suffrage to disenfranchised groups?",
+    choices:[
+      {t:"They prohibited certain reasons for denying the vote (race, sex, poll tax, age).", correct:true, why:"CS10 focuses on amendments prohibiting denial based on race, sex, poll taxes, and lowering voting age."},
+      {t:"They gave the Supreme Court the power to declare war.", correct:false, why:"War powers involve Congress and the president, not the Court."},
+      {t:"They eliminated all elections and replaced them with appointments.", correct:false, why:"U.S. elections continue; amendments expanded participation."},
+      {t:"They removed all state authority over elections.", correct:false, why:"States still run elections, but amendments set constitutional protections/limits."}
+    ]
+  },
+
+  // CS11 — Electoral College + Presidency structure/function changes (12th, 23rd, 22nd, 25th)
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"How are Electoral College votes for each state determined?",
+    choices:[
+      {t:"By the total number of each state’s senators and representatives", correct:true, why:"Electoral votes equal a state’s senators (2) plus its House representatives."},
+      {t:"By the size of each state’s economy", correct:false, why:"Economic size is not the constitutional basis for electoral votes."},
+      {t:"By the number of counties in the state", correct:false, why:"Counties do not determine electoral votes."},
+      {t:"By the number of Supreme Court justices from that state", correct:false, why:"Justices are not tied to state electoral vote totals."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"What did the 12th Amendment change about presidential elections?",
+    choices:[
+      {t:"Electors vote separately for president and vice president", correct:true, why:"The 12th created separate balloting to avoid ties like the election of 1800."},
+      {t:"It granted the District of Columbia electoral votes", correct:false, why:"That’s the 23rd Amendment."},
+      {t:"It limited the president to two terms", correct:false, why:"That’s the 22nd Amendment."},
+      {t:"It created a process for presidential disability", correct:false, why:"That’s the 25th Amendment."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"Why did the 23rd Amendment grant Electoral College votes to Washington, D.C.?",
+    choices:[
+      {t:"Because the growing population in D.C. lacked presidential election representation", correct:true, why:"The 23rd granted DC electoral votes due to its growing population and lack of statehood representation."},
+      {t:"Because D.C. became the largest state by population", correct:false, why:"D.C. is not a state."},
+      {t:"Because the Supreme Court ordered D.C. to receive votes", correct:false, why:"This was done through constitutional amendment, not a court order."},
+      {t:"Because the president requested it by executive order", correct:false, why:"Executive orders can’t amend the Constitution."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — U.S. Presidency)",
+    q:"Which amendment established presidential term limits?",
+    choices:[
+      {t:"22nd Amendment", correct:true,  why:"The 22nd Amendment set presidential term limits."},
+      {t:"25th Amendment", correct:false, why:"The 25th is about succession/disability."},
+      {t:"12th Amendment", correct:false, why:"The 12th changes Electoral College voting procedure."},
+      {t:"19th Amendment", correct:false, why:"The 19th concerns women’s voting rights."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — U.S. Presidency)",
+    q:"What problem did the 25th Amendment address that had been unclear in the original Constitution?",
+    choices:[
+      {t:"A process for dealing with presidential disability and succession", correct:true, why:"The 25th clarified procedures for disability and succession."},
+      {t:"A ban on poll taxes", correct:false, why:"That’s the 24th."},
+      {t:"Separate balloting for president and vice president", correct:false, why:"That’s the 12th."},
+      {t:"Voting rights for women", correct:false, why:"That’s the 19th."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"A presidential candidate must win what to secure the presidency in the Electoral College system?",
+    choices:[
+      {t:"A majority of the total electoral votes", correct:true, why:"The Constitution’s system requires a candidate to win a majority of electoral votes."},
+      {t:"A majority of counties nationwide", correct:false, why:"Counties are not part of presidential election requirements."},
+      {t:"A unanimous vote in the House of Representatives", correct:false, why:"The House only decides in specific contingent election situations."},
+      {t:"Approval by the Supreme Court", correct:false, why:"The Court does not approve presidents."}
+    ]
+  },
+
+  // MIXED APPLICATION items to ensure all elaboration points are hit (still 4-choice, no scrolling)
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which set best lists the four major protections emphasized in Reconstruction-era constitutional changes?",
+    choices:[
+      {t:"Abolish slavery; define/extend citizenship; require due process & equal protection; protect voting rights from racial denial", correct:true,
+       why:"Those are the key Reconstruction protections (13th, 14th, 15th) emphasized in CS9."},
+      {t:"Create term limits; grant DC electoral votes; lower voting age; ban poll taxes", correct:false,
+       why:"Those are later voting/structure amendments (CS10/CS11), not Reconstruction protections."},
+      {t:"Guarantee free speech; create jury trials; ban cruel punishment; protect gun ownership", correct:false,
+       why:"Those are Bill of Rights protections (CS8), not Reconstruction Amendments."},
+      {t:"Create the three branches; create the Supreme Court; create Congress; create the presidency", correct:false,
+       why:"Those are structures in the original Constitution, not Reconstruction amendments."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment is MOST directly connected to extending voting rights by age?",
+    choices:[
+      {t:"26th Amendment", correct:true, why:"The 26th prohibits denial of the vote to citizens 18 or older based on age."},
+      {t:"15th Amendment", correct:false, why:"The 15th prohibits denial based on race."},
+      {t:"19th Amendment", correct:false, why:"The 19th prohibits denial based on sex."},
+      {t:"24th Amendment", correct:false, why:"The 24th bans poll taxes."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment is MOST directly connected to extending voting rights by gender?",
+    choices:[
+      {t:"19th Amendment", correct:true, why:"The 19th Amendment extended suffrage by prohibiting denial based on sex."},
+      {t:"26th Amendment", correct:false, why:"The 26th deals with voting age."},
+      {t:"24th Amendment", correct:false, why:"The 24th deals with poll taxes."},
+      {t:"12th Amendment", correct:false, why:"The 12th deals with separate Electoral College balloting."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment is MOST directly connected to extending voting rights by race?",
+    choices:[
+      {t:"15th Amendment", correct:true, why:"The 15th prohibits denial based on race, color, or previous condition of servitude."},
+      {t:"19th Amendment", correct:false, why:"The 19th addresses sex."},
+      {t:"24th Amendment", correct:false, why:"The 24th addresses poll taxes."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd is term limits."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which amendment is MOST directly connected to extending voting rights by removing a poll tax barrier?",
+    choices:[
+      {t:"24th Amendment", correct:true, why:"The 24th prohibited poll taxes in federal elections."},
+      {t:"25th Amendment", correct:false, why:"The 25th is succession/disability."},
+      {t:"23rd Amendment", correct:false, why:"The 23rd is DC electoral votes."},
+      {t:"13th Amendment", correct:false, why:"The 13th abolished slavery."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"Which amendment’s purpose was MOST directly tied to avoiding an Electoral College tie by changing the voting procedure?",
+    choices:[
+      {t:"12th Amendment", correct:true, why:"The 12th established separate balloting for president and vice president to avoid ties like 1800."},
+      {t:"23rd Amendment", correct:false, why:"The 23rd gave DC electoral votes."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd set term limits."},
+      {t:"24th Amendment", correct:false, why:"The 24th banned poll taxes."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — U.S. Presidency)",
+    q:"Which amendment MOST directly limited how long a president can serve?",
+    choices:[
+      {t:"22nd Amendment", correct:true, why:"The 22nd established presidential term limits."},
+      {t:"25th Amendment", correct:false, why:"The 25th is disability/succession procedures."},
+      {t:"15th Amendment", correct:false, why:"The 15th is voting rights related to race."},
+      {t:"19th Amendment", correct:false, why:"The 19th is voting rights related to sex."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — U.S. Presidency)",
+    q:"A president becomes temporarily unable to perform duties. Which constitutional change provides a formal process to handle that situation?",
+    choices:[
+      {t:"25th Amendment", correct:true, why:"The 25th provides procedures for presidential disability and succession."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd covers term limits."},
+      {t:"23rd Amendment", correct:false, why:"The 23rd covers DC electoral votes."},
+      {t:"12th Amendment", correct:false, why:"The 12th covers separate ballots for president/vice president."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which claim is BEST supported by CS9’s focus on ‘continued struggles’ after Reconstruction?",
+    choices:[
+      {t:"Legal protections expanded, but discriminatory state laws and practices continued for decades.", correct:true,
+       why:"CS9 emphasizes that Reconstruction Amendments did not bring immediate equality; segregation and discrimination persisted."},
+      {t:"All states fully complied immediately and segregation ended in the 1870s.", correct:false,
+       why:"That contradicts the historical reality of Jim Crow and continued discrimination."},
+      {t:"The Reconstruction Amendments only changed how presidents are elected.", correct:false,
+       why:"They expanded protections and voting rights; election procedures are CS11."},
+      {t:"The Reconstruction Amendments eliminated the need for any later civil rights legislation.", correct:false,
+       why:"Later legislation and court actions were still needed to enforce and expand protections."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which scenario BEST reflects the 14th Amendment’s purpose in limiting state government actions?",
+    choices:[
+      {t:"A state passes a law denying equal legal protection to a group of citizens.", correct:true,
+       why:"The 14th restricts states from denying due process and equal protection."},
+      {t:"Congress declares war after a foreign attack.", correct:false,
+       why:"That’s a national power question, not a 14th Amendment issue."},
+      {t:"The Senate approves a treaty negotiated by the president.", correct:false,
+       why:"That’s foreign policy/branch interaction, not Reconstruction protections."},
+      {t:"A president vetoes a bill passed by Congress.", correct:false,
+       why:"That’s checks and balances, not 14th Amendment protections."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which pair correctly matches an amendment with the group whose suffrage it expanded?",
+    choices:[
+      {t:"19th → women; 26th → 18-year-olds", correct:true,
+       why:"The 19th expanded women’s suffrage; the 26th lowered voting age to 18."},
+      {t:"23rd → women; 22nd → 18-year-olds", correct:false,
+       why:"The 23rd is DC electoral votes; the 22nd is term limits."},
+      {t:"25th → women; 12th → 18-year-olds", correct:false,
+       why:"The 25th is disability/succession; the 12th is separate ballots."},
+      {t:"24th → term limits; 22nd → poll taxes", correct:false,
+       why:"The 24th bans poll taxes; the 22nd sets term limits (reversed here)."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"Which statement is most accurate about why the Framers used an Electoral College system?",
+    choices:[
+      {t:"It reflected federalism by using states’ electoral votes rather than only a single national count.", correct:true,
+       why:"CS11 notes the selection method reflects the nation’s federal system—states contribute electoral votes."},
+      {t:"It ensured presidents are approved by the Supreme Court.", correct:false,
+       why:"The Court does not approve presidents."},
+      {t:"It eliminated state influence in presidential selection.", correct:false,
+       why:"States play a major role through electoral votes."},
+      {t:"It required voters to pass a test to vote for president.", correct:false,
+       why:"No constitutional voting test exists; that would be a restriction."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"If a state gains more representatives after a census, what happens to its Electoral College votes?",
+    choices:[
+      {t:"They can increase because electoral votes are tied to representatives + senators.", correct:true,
+       why:"Electoral votes depend on House seats plus two senators; more representatives can increase electoral votes."},
+      {t:"They must decrease because larger states get fewer votes.", correct:false,
+       why:"That’s the opposite of how apportionment works."},
+      {t:"They stay the same because electoral votes never change.", correct:false,
+       why:"They can change after reapportionment."},
+      {t:"They are determined by the state’s court system.", correct:false,
+       why:"Courts do not determine electoral vote totals."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"Which sentence best describes why the Reconstruction Amendments are still important in constitutional law today?",
+    choices:[
+      {t:"They created constitutional protections that later movements and court cases relied on to challenge inequality.", correct:true,
+       why:"They established foundational protections (citizenship, due process, equal protection, voting rights) used in later rights struggles."},
+      {t:"They only applied during Reconstruction and then expired.", correct:false,
+       why:"Constitutional amendments do not expire."},
+      {t:"They removed the right to vote from all citizens.", correct:false,
+       why:"They expanded protections for voting rights."},
+      {t:"They created DC electoral votes and presidential term limits.", correct:false,
+       why:"That’s CS11 (23rd, 22nd), not Reconstruction Amendments."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Why were poll taxes considered a major barrier to voting for many citizens?",
+    choices:[
+      {t:"They required payment that excluded poorer citizens from voting.", correct:true,
+       why:"Poll taxes created an economic barrier to voting; the 24th removed this barrier in federal elections."},
+      {t:"They forced citizens to serve on juries before voting.", correct:false,
+       why:"Jury duty is separate from voting requirements."},
+      {t:"They required a college degree to vote.", correct:false,
+       why:"No amendment requires a college degree for voting."},
+      {t:"They required military service for voting.", correct:false,
+       why:"Military service is not a voting requirement."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — U.S. Presidency)",
+    q:"Which pair correctly matches an amendment with its purpose related to the presidency?",
+    choices:[
+      {t:"22nd → term limits; 25th → disability/succession process", correct:true,
+       why:"That is the correct pairing for the presidency-focused structural/function amendments."},
+      {t:"12th → term limits; 23rd → disability process", correct:false,
+       why:"12th is separate ballots; 23rd is DC electoral votes."},
+      {t:"24th → term limits; 19th → disability process", correct:false,
+       why:"24th is poll taxes; 19th is women’s suffrage."},
+      {t:"15th → term limits; 26th → disability process", correct:false,
+       why:"15th and 26th are voting rights amendments."}
+    ]
+  },
+  {
+    focus:"CS9 (Reconstruction Amendments)",
+    q:"A newly freed person is told they are not a citizen even though they were born in the U.S. Which constitutional change directly rejects that claim?",
+    choices:[
+      {t:"14th Amendment", correct:true, why:"The 14th defines and extends citizenship to those born or naturalized in the U.S."},
+      {t:"13th Amendment", correct:false, why:"The 13th abolished slavery but did not define citizenship."},
+      {t:"15th Amendment", correct:false, why:"The 15th addresses voting denial based on race."},
+      {t:"23rd Amendment", correct:false, why:"The 23rd is DC electoral votes."}
+    ]
+  },
+  {
+    focus:"CS10 (Extending Voting Rights)",
+    q:"Which statement best explains how the 19th Amendment fits the broader pattern of extending minority/disenfranchised rights?",
+    choices:[
+      {t:"It broadened democratic participation by prohibiting voting denial based on sex.", correct:true,
+       why:"CS10 focuses on amendments extending suffrage; the 19th expanded participation by sex."},
+      {t:"It changed how the Electoral College counts votes.", correct:false,
+       why:"That’s CS11 (12th/23rd), not CS10."},
+      {t:"It created the Supreme Court’s power of judicial review.", correct:false,
+       why:"Judicial review is from court interpretation, not the 19th Amendment."},
+      {t:"It limited the president to two terms.", correct:false,
+       why:"That’s the 22nd Amendment."}
+    ]
+  },
+  {
+    focus:"CS11 (Structure & Functions — Electoral College)",
+    q:"Which amendment granted Electoral College votes to the District of Columbia despite it not being a state?",
+    choices:[
+      {t:"23rd Amendment", correct:true, why:"The 23rd granted DC electoral votes."},
+      {t:"12th Amendment", correct:false, why:"The 12th established separate balloting for president and vice president."},
+      {t:"22nd Amendment", correct:false, why:"The 22nd established term limits."},
+      {t:"25th Amendment", correct:false, why:"The 25th concerns disability and succession."}
+    ]
+  }
+];
+
+// Ensure we stay within 25–30 (this set is 28)
+const QUESTION_COUNT = QUESTIONS.length;
+
+/* -----------------------------
+   GAME STATE
+--------------------------------*/
+let state = {
+  started:false,
+  finished:false,
+  name:"",
+  startTime:null,
+  finishTime:null,
+  timerSeconds:0,
+  timerHandle:null,
+  idx:0,
+  attempts:0,
+  correct:0,
+  // we only count correct when first answered correctly per question
+  answeredCorrect: new Set(),
+  // per question shuffled choices snapshot
+  currentChoices:[]
+};
+
+const $ = (id)=>document.getElementById(id);
+
+/* -----------------------------
+   UI UPDATE HELPERS
+--------------------------------*/
+function setMeta(){
+  $("metaName").textContent = state.name || "—";
+  $("metaStart").textContent = state.startTime ? formatDateTime(state.startTime) : "—";
+  $("metaFinish").textContent = state.finishTime ? formatDateTime(state.finishTime) : "—";
+  $("metaTimer").textContent = formatTimer(state.timerSeconds);
+
+  const acc = state.attempts===0 ? null : (state.correct/state.attempts);
+  $("metaAcc").textContent = acc===null ? "—" : `${Math.round(clamp01(acc)*100)}%`;
+
+  $("attempts").textContent = state.attempts;
+  $("attempts2").textContent = state.attempts;
+  $("correct").textContent = state.correct;
+  $("correct2").textContent = state.correct;
+  $("totalQs").textContent = QUESTION_COUNT;
+
+  $("progress").textContent = `${Math.min(state.idx+1, QUESTION_COUNT)}/${QUESTION_COUNT}`;
+  $("accNow").textContent = (state.attempts===0) ? "—" : `${Math.round((state.correct/state.attempts)*100)}%`;
+}
+
+function openModal(title, msg){
+  $("modalTitle").textContent = title || "Not quite — here’s why";
+  $("modalP").textContent = msg || "Review and try again.";
+  $("modal").classList.remove("hidden");
+  $("modal").setAttribute("aria-hidden","false");
+}
+function closeModal(){
+  $("modal").classList.add("hidden");
+  $("modal").setAttribute("aria-hidden","true");
+}
+
+/* -----------------------------
+   RENDER QUESTION
+--------------------------------*/
+function renderQuestion(){
+  if(state.idx >= QUESTION_COUNT){
+    finishGame();
+    return;
+  }
+  const qObj = QUESTIONS[state.idx];
+
+  $("qno").textContent = `Question ${state.idx+1} of ${QUESTION_COUNT}`;
+  $("qtext").textContent = qObj.q;
+  $("focusTag").textContent = qObj.focus;
+
+  // Create a fresh shuffled copy of choices for THIS render
+  const choiceCopy = qObj.choices.map(c=>({ ...c }));
+  shuffle(choiceCopy);
+  state.currentChoices = choiceCopy;
+
+  const wrap = $("choices");
+  wrap.innerHTML = "";
+
+  // label letters A/B/C/D
+  const letters = ["A","B","C","D","E","F"];
+
+  choiceCopy.forEach((c, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.type = "button";
+    btn.innerHTML = `<div class="label">${letters[i] || ""}</div><div class="text">${c.t}</div>`;
+    btn.addEventListener("click", ()=>handleAnswer(i));
+    wrap.appendChild(btn);
+  });
+
+  setMeta();
+}
+
+/* -----------------------------
+   ANSWER HANDLING
+--------------------------------*/
+function handleAnswer(choiceIndex){
+  if(!state.started || state.finished) return;
+  const qKey = state.idx;
+
+  state.attempts++;
+  const picked = state.currentChoices[choiceIndex];
+
+  if(picked && picked.correct){
+    // only count correct the first time question is solved
+    if(!state.answeredCorrect.has(qKey)){
+      state.correct++;
+      state.answeredCorrect.add(qKey);
+    }
+    setMeta();
+    // advance immediately
+    state.idx++;
+    renderQuestion();
+  } else {
+    setMeta();
+    const exp = (picked && picked.why) ? picked.why : "That choice doesn’t match the amendment/protection described. Try again.";
+    openModal("Incorrect — Explanation", exp);
+  }
+}
+
+/* -----------------------------
+   START / TIMER / FINISH
+--------------------------------*/
+function startTimer(){
+  if(state.timerHandle) clearInterval(state.timerHandle);
+  state.timerHandle = setInterval(()=>{
+    state.timerSeconds++;
+    $("metaTimer").textContent = formatTimer(state.timerSeconds);
+  }, 1000);
+}
+
+function startGame(){
+  const nm = $("studentName").value.trim();
+  if(!nm){
+    openModal("Name Required", "Type your first and last name before starting. This must appear on your Submit Ticket screenshot.");
+    return;
+  }
+  state.started = true;
+  state.finished = false;
+  state.name = nm;
+  state.startTime = new Date();
+  state.finishTime = null;
+  state.timerSeconds = 0;
+  state.idx = 0;
+  state.attempts = 0;
+  state.correct = 0;
+  state.answeredCorrect = new Set();
+  state.currentChoices = [];
+
+  $("setup").style.display = "none";
+  $("game").style.display = "block";
+  $("ticketWrap").style.display = "none";
+
+  setMeta();
+  startTimer();
+  renderQuestion();
+}
+
+function finishGame(){
+  // must be 100% accuracy
+  const acc = state.attempts===0 ? 0 : (state.correct/state.attempts);
+  if(state.correct !== QUESTION_COUNT || acc < 1){
+    openModal(
+      "Finish Blocked — 100% Required",
+      `You have ${state.correct}/${QUESTION_COUNT} correct and ${Math.round(acc*100)}% accuracy. Keep going until you reach 100% accuracy (every question solved with no mistakes).`
+    );
+    // if somehow idx passed end without perfect, push back to last unanswered
+    // find first missing
+    for(let i=0;i<QUESTION_COUNT;i++){
+      if(!state.answeredCorrect.has(i)){ state.idx = i; break; }
+    }
+    renderQuestion();
+    return;
+  }
+
+  state.finished = true;
+  state.finishTime = new Date();
+  if(state.timerHandle) clearInterval(state.timerHandle);
+
+  $("metaFinish").textContent = formatDateTime(state.finishTime);
+  WeberRun.finish(state.name, state.startTime, QUESTION_COUNT, state.answeredCorrect.size, state.attempts);
+
+  const ticketCode =
+    "T5-" +
+    Math.random().toString(36).slice(2,6).toUpperCase() + "-" +
+    Math.random().toString(36).slice(2,6).toUpperCase();
+
+  const out =
+`SUBMIT TICKET — Topic 5 (CS9–CS11)
+------------------------------------
+Name: ${state.name}
+Start: ${formatDateTime(state.startTime)}
+Finish: ${formatDateTime(state.finishTime)}
+Total Time: ${formatTimer(state.timerSeconds)}
+Questions: ${QUESTION_COUNT}
+Attempts: ${state.attempts}
+Correct: ${state.correct}
+Accuracy: 100%
+Ticket Code: ${ticketCode}
+
+Screenshot this entire ticket (and the header at the top showing the same info).`;
+
+  $("ticket").textContent = out;
+  $("ticketWrap").style.display = "block";
+
+  // lock choices
+  $("choices").innerHTML = "";
+  $("qno").textContent = "Completed";
+  $("qtext").textContent = "✅ 100% achieved. Screenshot your Submit Ticket below and submit it.";
+  $("focusTag").textContent = "Finished";
+  setMeta();
+}
+
+/* -----------------------------
+   RESET
+--------------------------------*/
+function resetAll(){
+  if(state.timerHandle) clearInterval(state.timerHandle);
+  state = {
+    started:false, finished:false, name:"",
+    startTime:null, finishTime:null,
+    timerSeconds:0, timerHandle:null,
+    idx:0, attempts:0, correct:0,
+    answeredCorrect:new Set(),
+    currentChoices:[]
+  };
+  $("setup").style.display = "block";
+  $("game").style.display = "none";
+  $("ticketWrap").style.display = "none";
+  $("studentName").value = "";
+  setMeta();
+}
+
+/* -----------------------------
+   EVENTS
+--------------------------------*/
+$("startBtn").addEventListener("click", startGame);
+$("resetBtn").addEventListener("click", resetAll);
+$("closeModal").addEventListener("click", closeModal);
+$("modal").addEventListener("click", (e)=>{
+  if(e.target === $("modal")) closeModal();
+});
+
+// init
+(function init(){
+  $("totalQs").textContent = QUESTION_COUNT;
+  setMeta();
+})();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (state.started) ? { state:WeberProgress.dataFields(state) } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; if(state.idx>=QUESTIONS.length) finishGame(); else renderQuestion(); }
+});
+</script>
+</body>
+</html>

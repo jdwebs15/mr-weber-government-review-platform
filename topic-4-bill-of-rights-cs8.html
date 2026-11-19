@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Topic 4 — Bill of Rights (CS8) — Mastery Game</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --panel:#121a2f;
+  --panel2:#0f1730;
+  --text:#e7eefc;
+  --muted:#9fb0d0;
+  --accent:#7aa2ff;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --border:rgba(255,255,255,.12);
+  --radius:18px;
+  --shadow:0 18px 45px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(900px 520px at 20% 20%, rgba(122,162,255,.18), transparent 60%), var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.app{
+  width:min(980px, 100%);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.header{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.badge{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(122,162,255,.12);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:13px;
+}
+h1,h2{margin:0 0 8px}
+small{color:var(--muted)}
+hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+.panel{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+
+label{display:block;margin:10px 0 6px;color:var(--muted)}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(10,15,30,.6);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+input:focus{border-color:rgba(122,162,255,.6)}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:650;
+}
+button:hover{opacity:.92}
+button.secondary{
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+
+.stats{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  font-size:13px;
+}
+.stat{
+  background:rgba(0,0,0,.18);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 12px;
+}
+.stat b{font-weight:750}
+
+.qwrap{margin-top:8px}
+.qmeta{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.qtag{
+  font-size:12px;
+  color:var(--muted);
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:999px;
+}
+.question{
+  font-size:20px;
+  line-height:1.25;
+  margin:0 0 10px;
+}
+.choices{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.choice{
+  width:100%;
+  text-align:left;
+  padding:14px 14px;
+  background:rgba(26,37,69,.75);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-size:16px;
+  cursor:pointer;
+}
+.choice:hover{border-color:rgba(122,162,255,.55)}
+.choice.correct{background:rgba(43,213,118,.18); border-color:rgba(43,213,118,.45)}
+.choice.wrong{background:rgba(255,92,122,.18); border-color:rgba(255,92,122,.45)}
+
+.hidden{display:none}
+
+/* Modal */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.68);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:9999;
+}
+.modal.hidden{ display:none !important; } /* key fix */
+.modal-card{
+  width:min(720px, 100%);
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.modal-card h3{margin:0 0 8px}
+.modal-card p{margin:0 0 12px;color:var(--text);line-height:1.35}
+
+/* Ticket */
+.ticket{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  background:rgba(0,0,0,.18);
+}
+.ticket h2{margin:0 0 10px}
+.ticket .grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media (max-width:720px){
+  .ticket .grid{grid-template-columns:1fr}
+  .question{font-size:18px}
+}
+.kv{
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.kv .k{color:var(--muted);font-size:12px;margin-bottom:4px}
+.kv .v{font-weight:750}
+.footer-note{color:var(--muted);font-size:12px;margin-top:10px}
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1>Topic 4 — Bill of Rights (CS8)</h1>
+      <small>Apply the protections of the Bill of Rights in a scenario • Perfect run required (Misses = 0).</small>
+    </div>
+    <div class="badge">Topic 4 • CS8 • 30 Questions</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="panel">
+    <h2>Enter Student Info</h2>
+    <label for="studentName">Student Name (required)</label>
+    <input id="studentName" placeholder="First Last" autocomplete="name"/>
+    <div class="btnrow">
+      <button onclick="startGame()">Start</button>
+      <button class="secondary" onclick="showRules()">Rules</button>
+    </div>
+    <hr/>
+    <small>Correct = auto-advance. Wrong = explanation + retry until correct. Ticket only if Misses = 0.</small>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="hidden">
+    <div class="stats">
+      <div class="stat"><b>Name:</b> <span id="nameOut"></span></div>
+      <div class="stat"><b>Start:</b> <span id="startOut"></span></div>
+      <div class="stat"><b>Now:</b> <span id="nowOut"></span></div>
+      <div class="stat"><b>Timer:</b> <span id="timerOut">0:00</span></div>
+      <div class="stat"><b>Progress:</b> <span id="progressOut">0/0</span></div>
+      <div class="stat"><b>Attempts:</b> <span id="attemptsOut">0</span></div>
+      <div class="stat"><b>Misses:</b> <span id="missesOut">0</span></div>
+      <div class="stat"><b>Perfect Run:</b> <span id="perfectOut">YES</span></div>
+    </div>
+
+    <div class="panel qwrap">
+      <div class="qmeta">
+        <div class="qtag" id="csTag">CS8</div>
+        <div class="qtag" id="skillTag">Skill</div>
+      </div>
+
+      <p class="question" id="questionText"></p>
+      <div class="choices" id="choicesBox"></div>
+
+      <div class="btnrow" style="margin-top:12px">
+        <button class="secondary" onclick="restartGame()">Restart</button>
+      </div>
+
+      <div class="footer-note">
+        Reminder: Ticket requires Misses = 0. If you miss any item, restart for a perfect run.
+      </div>
+    </div>
+  </div>
+
+  <!-- END / TICKET -->
+  <div id="endScreen" class="hidden">
+    <div class="ticket">
+      <h2 id="endTitle">SUBMIT TICKET</h2>
+      <div class="grid">
+        <div class="kv"><div class="k">Student</div><div class="v" id="tName"></div></div>
+        <div class="kv"><div class="k">Topic</div><div class="v">Topic 4 — Bill of Rights (CS8)</div></div>
+
+        <div class="kv"><div class="k">Start Date/Time</div><div class="v" id="tStart"></div></div>
+        <div class="kv"><div class="k">Finish Date/Time</div><div class="v" id="tFinish"></div></div>
+
+        <div class="kv"><div class="k">Total Time</div><div class="v" id="tTotal"></div></div>
+        <div class="kv"><div class="k">Accuracy</div><div class="v" id="tAcc"></div></div>
+
+        <div class="kv"><div class="k">Attempts</div><div class="v" id="tAttempts"></div></div>
+        <div class="kv"><div class="k">Misses</div><div class="v" id="tMisses"></div></div>
+      </div>
+
+      <div class="btnrow" style="margin-top:12px">
+        <button onclick="restartGame()">Play Again</button>
+      </div>
+
+      <div class="footer-note">Screenshot this ticket for submission. It must show Accuracy = 100% and Misses = 0.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h3>Explanation (read, then retry)</h3>
+    <p id="modalText"></p>
+    <div class="btnrow">
+      <button onclick="closeModal()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =======================
+   TOPIC 4 — CS8 QUESTION BANK (30)
+   ======================= */
+const QUESTIONS_RAW = [
+  /* 1st Amendment — five freedoms (speech, press, religion, assembly, petition) */
+  {cs:"CS8",skill:"1st — Speech",q:"A student is suspended for peacefully criticizing a new school policy in a student-led forum. Which right is most directly involved?",choices:["Freedom of speech","Right to bear arms","Protection from unreasonable searches","Protection from cruel and unusual punishment"],answer:0,
+   explanation:"The First Amendment protects freedom of speech, including expressing opinions and criticism (with reasonable school limits in some settings)."},
+  {cs:"CS8",skill:"1st — Press",q:"A city official threatens to shut down a newspaper for publishing an article that exposes corruption. Which First Amendment freedom is most directly involved?",choices:["Freedom of the press","Right to counsel","Right to a speedy trial","Reserved powers"],answer:0,
+   explanation:"The First Amendment protects freedom of the press—government cannot punish or shut down the press simply for reporting information."},
+  {cs:"CS8",skill:"1st — Religion",q:"A public school requires students to participate in a specific religious prayer during class. Which First Amendment freedom is most directly involved?",choices:["Freedom of religion","Freedom to petition","Freedom of assembly","Right to remain silent in police custody"],answer:0,
+   explanation:"The First Amendment protects freedom of religion. Government institutions cannot force participation in a particular religious practice."},
+  {cs:"CS8",skill:"1st — Assembly",q:"A town denies a permit for a peaceful protest solely because officials dislike the group’s viewpoint. Which First Amendment freedom is most directly involved?",choices:["Freedom of assembly","Right to bear arms","Protection against self-incrimination","Right to a jury trial"],answer:0,
+   explanation:"The First Amendment protects the right to peaceably assemble; viewpoint-based denial targets that freedom."},
+  {cs:"CS8",skill:"1st — Petition",q:"A group collects signatures and delivers them to government officials asking for a change in a law. Which First Amendment freedom is this?",choices:["Right to petition the government","Freedom from unreasonable seizures","Protection from double jeopardy","Right to confront witnesses"],answer:0,
+   explanation:"Petition means citizens can formally ask the government to address grievances or change policies."},
+  {cs:"CS8",skill:"1st — Speech/Petition (released-style)",q:"Which constitutional excerpt best protects a person’s right to publicly protest and ask the government to reconsider a court decision?",choices:[
+     "The right to free speech and to petition the government for a redress of grievances",
+     "The right to keep and bear arms",
+     "Protection from unreasonable searches and seizures",
+     "The right to a speedy trial"
+   ],answer:0,
+   explanation:"Protesting and asking officials to reconsider is protected by speech and petition under the First Amendment."},
+
+  /* 2nd Amendment */
+  {cs:"CS8",skill:"2nd — Bear arms",q:"Which statement best matches the purpose of the Second Amendment in the Bill of Rights?",choices:[
+    "It protects an individual right to keep and bear arms (with lawful regulations).",
+    "It guarantees that states can ignore federal law.",
+    "It requires the government to provide an attorney in all cases.",
+    "It prevents the government from searching any property ever."
+  ],answer:0,
+   explanation:"The Second Amendment protects the right to keep and bear arms, though laws can regulate how firearms are obtained and used."},
+  {cs:"CS8",skill:"2nd — Scenario",q:"A state requires a safety course before issuing a concealed-carry license. Which idea best explains why this can still be compatible with the Bill of Rights?",choices:[
+    "Rights can be regulated for public safety while still existing",
+    "The Bill of Rights only applies to Congress",
+    "The 2nd Amendment bans all firearm laws",
+    "The 10th Amendment eliminates individual rights"
+  ],answer:0,
+   explanation:"Many rights are not absolute; governments may set reasonable regulations (like training) while still respecting the right."},
+  {cs:"CS8",skill:"2nd vs other rights",q:"Which amendment is most directly connected to the right to possess firearms?",choices:["Second Amendment","Fourth Amendment","Sixth Amendment","Eighth Amendment"],answer:0,
+   explanation:"The Second Amendment addresses the right to keep and bear arms."},
+
+  /* 4th Amendment — search vs seizure vs warrants/probable cause */
+  {cs:"CS8",skill:"4th — Search",q:"Police use a thermal camera to look for heat patterns inside a home without a warrant. The main constitutional issue is…",choices:[
+    "An unreasonable search",
+    "Cruel and unusual punishment",
+    "Double jeopardy",
+    "Freedom of the press"
+  ],answer:0,
+   explanation:"Looking into private areas to gather information is generally a search; the Fourth Amendment requires reasonableness and often a warrant."},
+  {cs:"CS8",skill:"4th — Seizure",q:"An officer takes a person’s backpack and keeps it as evidence. Under the Fourth Amendment, this is primarily a…",choices:[
+    "Seizure",
+    "Search",
+    "Petition",
+    "Speedy trial"
+  ],answer:0,
+   explanation:"Taking property (or restraining a person) is a seizure; examining contents is a search."},
+  {cs:"CS8",skill:"4th — Warrant requirement",q:"Which situation BEST matches the Fourth Amendment’s warrant requirement?",choices:[
+    "Police obtain a judge’s warrant based on probable cause before searching a home",
+    "Police search a home because they have a ‘hunch’",
+    "Police search any phone whenever they want",
+    "Police search a home because the owner criticized government"
+  ],answer:0,
+   explanation:"A lawful warrant requires approval by a judge and probable cause, especially for homes."},
+  {cs:"CS8",skill:"4th — Probable cause",q:"Probable cause is best described as…",choices:[
+    "Reasonable evidence suggesting a crime occurred or evidence will be found",
+    "A guess based on someone’s reputation",
+    "A guarantee that someone is guilty",
+    "A reason to deny a jury trial"
+  ],answer:0,
+   explanation:"Probable cause is a reasonable basis (supported by facts) to believe a search will find evidence or a crime occurred."},
+  {cs:"CS8",skill:"4th — Data collection (Patriot Act style)",q:"A law allows broad collection of phone metadata without individualized probable cause for each person. Which concern is most directly connected to CS8?",choices:[
+    "It may weaken the Fourth Amendment’s probable cause and warrant limits",
+    "It violates the right to bear arms",
+    "It guarantees a public trial",
+    "It removes the right to petition"
+  ],answer:0,
+   explanation:"CS8 emphasizes limits on federal power and Fourth Amendment protections against blanket searches/warrants without probable cause."},
+
+  /* 5th Amendment — self-incrimination + double jeopardy */
+  {cs:"CS8",skill:"5th — Self-incrimination",q:"During questioning, a suspect refuses to answer because answers could be used against them in court. Which protection applies?",choices:[
+    "Protection against self-incrimination",
+    "Right to assemble",
+    "Freedom of the press",
+    "Protection from unreasonable searches"
+  ],answer:0,
+   explanation:"The Fifth Amendment protects individuals from being forced to incriminate themselves."},
+  {cs:"CS8",skill:"5th — Double jeopardy",q:"A defendant is found not guilty. The government tries the defendant again for the same offense with the same evidence. Which protection applies?",choices:[
+    "Protection against double jeopardy",
+    "Right to petition",
+    "Right to bear arms",
+    "Right to a public trial"
+  ],answer:0,
+   explanation:"Double jeopardy means a person cannot be tried twice for the same offense after acquittal."},
+  {cs:"CS8",skill:"5th — Identify correct example",q:"Which scenario is the BEST example of a Fifth Amendment violation?",choices:[
+    "Police force a suspect to confess by threatening extra punishment if they stay silent",
+    "A judge sets a trial date within a reasonable time",
+    "A newspaper publishes criticism of Congress",
+    "Citizens attend a peaceful rally"
+  ],answer:0,
+   explanation:"Coercing a confession or punishing someone for exercising the right to remain silent implicates self-incrimination protections."},
+  {cs:"CS8",skill:"5th vs 6th",q:"Which pairing is correct?",choices:[
+    "5th = self-incrimination & double jeopardy; 6th = trial rights & counsel",
+    "5th = cruel/unusual punishment; 6th = bear arms",
+    "5th = petition; 6th = press",
+    "5th = reserved powers; 6th = searches"
+  ],answer:0,
+   explanation:"The Fifth covers self-incrimination and double jeopardy. The Sixth covers criminal trial rights (speedy, public, jury, counsel, etc.)."},
+
+  /* 6th Amendment — speedy, public, jury, charges, confront, counsel */
+  {cs:"CS8",skill:"6th — Speedy trial",q:"A defendant sits in jail for years with no trial date and no good reason for delay. Which right is most directly involved?",choices:[
+    "Right to a speedy trial",
+    "Right to petition",
+    "Protection from unreasonable searches",
+    "Reserved powers"
+  ],answer:0,
+   explanation:"The Sixth Amendment guarantees a speedy trial to prevent excessive delays and unfair pressure on defendants."},
+  {cs:"CS8",skill:"6th — Public trial",q:"A judge closes a criminal trial to the public for no valid reason. Which right is most directly involved?",choices:[
+    "Right to a public trial",
+    "Freedom of religion",
+    "Protection against self-incrimination",
+    "Right to keep and bear arms"
+  ],answer:0,
+   explanation:"The Sixth Amendment provides for a public trial to promote fairness and transparency."},
+  {cs:"CS8",skill:"6th — Impartial jury",q:"A defendant is tried by jurors who openly state they already believe the defendant is guilty. Which right is most directly involved?",choices:[
+    "Right to an impartial jury",
+    "Freedom of the press",
+    "Protection from cruel and unusual punishment",
+    "Reserved powers"
+  ],answer:0,
+   explanation:"The Sixth Amendment requires an impartial jury—jurors must be unbiased."},
+  {cs:"CS8",skill:"6th — Informed of charges",q:"A defendant is arrested but never told what crime they are accused of. Which right is most directly involved?",choices:[
+    "Right to be informed of the charges",
+    "Protection from unreasonable searches",
+    "Right to bear arms",
+    "Freedom of assembly"
+  ],answer:0,
+   explanation:"The Sixth Amendment requires that the accused be informed of the nature and cause of the accusation."},
+  {cs:"CS8",skill:"6th — Confront accusers",q:"Prosecutors use a key witness statement, but the defense is not allowed to question the witness in court. Which right is most directly involved?",choices:[
+    "Right to confront witnesses",
+    "Freedom of religion",
+    "Double jeopardy",
+    "Reserved powers"
+  ],answer:0,
+   explanation:"The Sixth Amendment confrontation right allows defendants to challenge and cross-examine witnesses against them."},
+  {cs:"CS8",skill:"6th — Counsel (released-style)",q:"A defendant who cannot afford a lawyer requests one, but the court refuses and forces the trial to continue. Which right is most directly involved?",choices:[
+    "Right to the assistance of counsel",
+    "Freedom of the press",
+    "Protection from unreasonable searches",
+    "Protection from cruel and unusual punishment"
+  ],answer:0,
+   explanation:"The Sixth Amendment guarantees the right to counsel in criminal prosecutions; courts must provide an attorney for indigent defendants in serious cases."},
+  {cs:"CS8",skill:"6th — Apply multiple protections (released-style)",q:"Which pair of protections BEST helps ensure fairness for people accused of crimes?",choices:[
+    "Protection against self-incrimination AND right to counsel",
+    "Right to bear arms AND reserved powers",
+    "Freedom of the press AND freedom of religion",
+    "Protection from cruel punishment AND right to petition"
+  ],answer:0,
+   explanation:"Self-incrimination (5th) and counsel (6th) both protect the accused and support fair criminal procedure."},
+
+  /* 8th Amendment — cruel/unusual punishment */
+  {cs:"CS8",skill:"8th — Cruel/unusual",q:"A law allows a minor, nonviolent offense to be punished with extreme physical torture. Which protection is most directly involved?",choices:[
+    "Protection from cruel and unusual punishment",
+    "Freedom of speech",
+    "Right to confront witnesses",
+    "Reserved powers"
+  ],answer:0,
+   explanation:"The Eighth Amendment prohibits cruel and unusual punishments."},
+  {cs:"CS8",skill:"8th — Proportionality idea",q:"Which statement best reflects the purpose of the Eighth Amendment?",choices:[
+    "Punishments must not be cruel or grossly excessive in a way that violates basic standards of fairness",
+    "Government can punish any way it wants if a jury agrees",
+    "The President sets punishments for all crimes",
+    "The states can ignore federal courts"
+  ],answer:0,
+   explanation:"The Eighth Amendment limits punishments to prevent cruelty and extreme excess."},
+  {cs:"CS8",skill:"8th — Scenario",q:"A judge orders an unusually harsh sentence for a petty theft that is far more severe than typical punishments for similar crimes. Which amendment is most relevant?",choices:[
+    "Eighth Amendment",
+    "Second Amendment",
+    "First Amendment",
+    "Tenth Amendment"
+  ],answer:0,
+   explanation:"Questions about extreme punishments connect to the Eighth Amendment’s protections."},
+
+  /* 10th Amendment — reserved powers */
+  {cs:"CS8",skill:"10th — Reserved powers",q:"The national government claims it can control every local school policy even though no constitutional power is granted for that. Which amendment is most directly connected to limiting federal power here?",choices:[
+    "Tenth Amendment",
+    "First Amendment",
+    "Fourth Amendment",
+    "Sixth Amendment"
+  ],answer:0,
+   explanation:"The Tenth Amendment says powers not delegated to the federal government are reserved to the states or the people."},
+  {cs:"CS8",skill:"10th — Purpose (released-style)",q:"The Tenth Amendment says powers not delegated to the United States are reserved to the states or the people. What was the main goal of supporters of this amendment?",choices:[
+    "To limit the power of the federal government by reserving undelegated powers",
+    "To increase the power of the presidency",
+    "To create a complete list of all individual rights",
+    "To expand federal authority over states"
+  ],answer:0,
+   explanation:"Supporters wanted to make clear that the federal government is limited to delegated powers; remaining powers stay with states/people."},
+  {cs:"CS8",skill:"10th — Federalism link",q:"Which statement best connects the Tenth Amendment to federalism?",choices:[
+    "It reinforces shared power by reserving undelegated powers to states/people",
+    "It ends state government authority",
+    "It eliminates the Bill of Rights",
+    "It guarantees every law must be unanimous"
+  ],answer:0,
+   explanation:"Federalism divides power; the Tenth Amendment helps define the boundary by reserving undelegated powers."},
+
+  /* Incorporation (BoR applying to states) — still tied to applying BoR in scenarios */
+  {cs:"CS8",skill:"BoR applies to states",q:"A student argues a city violated their First Amendment rights. Which idea explains why Bill of Rights protections often apply to state/local governments too?",choices:[
+    "Most protections are applied to states through the 14th Amendment’s due process clause (incorporation)",
+    "The Bill of Rights was written only for city governments originally",
+    "The 10th Amendment removes all rights protections",
+    "Local governments are never restricted by the Constitution"
+  ],answer:0,
+   explanation:"Through incorporation, most Bill of Rights protections apply to states/localities via the 14th Amendment."}
+];
+
+/* ========= Helpers ========= */
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+function shuffleChoicesKeepAnswer(q){
+  const pairs = q.choices.map((text, idx) => ({ text, idx }));
+  for(let i=pairs.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+  q.choices = pairs.map(p => p.text);
+  q.answer = pairs.findIndex(p => p.idx === q.answer);
+  return q;
+}
+function formatDT(d){
+  return d.toLocaleString(undefined, {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit"});
+}
+function formatTimer(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+
+/* ========= Engine ========= */
+let QUESTIONS = [];
+let idx = 0;
+let attempts = 0;
+let misses = 0;
+let startStamp = null;
+let endStamp = null;
+let seconds = 0;
+let timerInterval = null;
+let nowInterval = null;
+
+function showRules(){
+  document.getElementById("modalText").textContent =
+    "Rules: 1) Enter your name. 2) Correct answers advance automatically. 3) Wrong answers show an explanation; retry until correct. 4) Ticket ONLY if Misses = 0 (perfect run).";
+  document.getElementById("modal").classList.remove("hidden");
+}
+
+function startGame(){
+  const name = document.getElementById("studentName").value.trim();
+  if(!name){ alert("Please enter your full name."); return; }
+
+  // shuffle questions + shuffle choices while preserving correct answer
+  QUESTIONS = shuffle(
+    QUESTIONS_RAW.map(q => shuffleChoicesKeepAnswer({ ...q }))
+  );
+
+  idx = 0;
+  attempts = 0;
+  misses = 0;
+  seconds = 0;
+
+  startStamp = new Date();
+  document.getElementById("nameOut").textContent = name;
+  document.getElementById("startOut").textContent = formatDT(startStamp);
+  document.getElementById("nowOut").textContent = formatDT(new Date());
+
+  document.getElementById("attemptsOut").textContent = attempts;
+  document.getElementById("missesOut").textContent = misses;
+  document.getElementById("perfectOut").textContent = "YES";
+  document.getElementById("progressOut").textContent = `0/${QUESTIONS.length}`;
+
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
+  document.getElementById("endScreen").classList.add("hidden");
+
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+
+  timerInterval = setInterval(()=>{
+    seconds++;
+    document.getElementById("timerOut").textContent = formatTimer(seconds);
+  }, 1000);
+
+  nowInterval = setInterval(()=>{
+    document.getElementById("nowOut").textContent = formatDT(new Date());
+  }, 1000);
+
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const q = QUESTIONS[idx];
+  document.getElementById("csTag").textContent = q.cs;
+  document.getElementById("skillTag").textContent = q.skill;
+  document.getElementById("questionText").textContent = q.q;
+  document.getElementById("progressOut").textContent = `${idx+1}/${QUESTIONS.length}`;
+
+  const box = document.getElementById("choicesBox");
+  box.innerHTML = "";
+
+  q.choices.forEach((text, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = text;
+    btn.onclick = ()=>checkAnswer(i, btn);
+    box.appendChild(btn);
+  });
+}
+
+function lockChoices(lock=true){
+  document.querySelectorAll(".choice").forEach(b=>b.disabled = lock);
+}
+
+function checkAnswer(choiceIndex, btn){
+  attempts++;
+  document.getElementById("attemptsOut").textContent = attempts;
+
+  const q = QUESTIONS[idx];
+
+  if(choiceIndex === q.answer){
+    btn.classList.add("correct");
+    lockChoices(true);
+    setTimeout(()=>{
+      idx++;
+      if(idx >= QUESTIONS.length){
+        finishGame();
+      }else{
+        lockChoices(false);
+        loadQuestion();
+      }
+    }, 350);
+  } else {
+    misses++;
+    document.getElementById("missesOut").textContent = misses;
+    document.getElementById("perfectOut").textContent = "NO";
+    btn.classList.add("wrong");
+
+    document.getElementById("modalText").textContent = q.explanation;
+    document.getElementById("modal").classList.remove("hidden");
+  }
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.add("hidden");
+}
+
+function finishGame(){
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+  endStamp = new Date();
+
+  const name = document.getElementById("nameOut").textContent;
+  const perfect = QUESTIONS.length > 0 && misses === 0 && attempts === QUESTIONS.length && idx >= QUESTIONS.length;
+
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.remove("hidden");
+
+  document.getElementById("tName").textContent = name;
+  document.getElementById("tStart").textContent = formatDT(startStamp);
+  document.getElementById("tFinish").textContent = formatDT(endStamp);
+  document.getElementById("tTotal").textContent = formatTimer(seconds);
+  document.getElementById("tAttempts").textContent = String(attempts);
+  document.getElementById("tMisses").textContent = String(misses);
+
+  if(perfect){
+  WeberRun.finish(name, startStamp, QUESTIONS.length, QUESTIONS.length, attempts);
+    document.getElementById("endTitle").textContent = "SUBMIT TICKET — PERFECT (100%)";
+    document.getElementById("tAcc").textContent = "100%";
+  }else{
+    document.getElementById("endTitle").textContent = "NO TICKET — NOT PERFECT (RESTART REQUIRED)";
+    document.getElementById("tAcc").textContent = "Not Eligible (Misses > 0)";
+  }
+}
+
+function restartGame(){
+  clearInterval(timerInterval);
+  clearInterval(nowInterval);
+
+  document.getElementById("modal").classList.add("hidden");
+  document.getElementById("startScreen").classList.remove("hidden");
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.add("hidden");
+
+  document.getElementById("timerOut").textContent = "0:00";
+}
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startStamp && QUESTIONS.length) ? { QUESTIONS, idx, attempts, misses, startStamp, seconds, advance:attempts-misses>idx } : null; },
+  restore(v) { QUESTIONS=v.QUESTIONS; idx=v.idx; attempts=v.attempts; misses=v.misses; startStamp=v.startStamp; seconds=v.seconds; if(v.advance) idx++; document.getElementById("tStart").textContent = formatDT(startStamp); if(idx>=QUESTIONS.length) finishGame(); else loadQuestion(); }
+});
+</script>
+</body>
+</html>

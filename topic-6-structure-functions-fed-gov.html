@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Topic 6 Game — Structure & Functions of the Federal Government (CS 12, 13, 14, 15)</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel: rgba(255,255,255,.06);
+    --panel2: rgba(255,255,255,.08);
+    --text:#e7eefc;
+    --muted:#a8b4cf;
+    --border: rgba(255,255,255,.12);
+    --good:#2bd576;
+    --bad:#ff5c7a;
+    --warn:#ffd166;
+    --accent:#7aa2ff;
+    --shadow: 0 18px 55px rgba(0,0,0,.35);
+    --radius: 18px;
+    --radius2: 14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:var(--sans);
+    background: radial-gradient(900px 500px at 20% 20%, rgba(122,162,255,.18), transparent 60%), var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+  .app{
+    width:min(980px, 100%);
+    background: rgba(0,0,0,.25);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: 22px;
+    overflow:hidden;
+  }
+  header{
+    padding:18px 18px 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  }
+  .titleRow{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  h1{
+    margin:0;
+    font-size:18px;
+    letter-spacing:.2px;
+  }
+  .sub{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.35;
+  }
+
+  .pillRow{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-top:12px;
+  }
+  .pill{
+    font-size:12px;
+    color:var(--muted);
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.04);
+    padding:8px 10px;
+    border-radius: 999px;
+  }
+  .pill strong{ color:var(--text); font-weight:600; }
+
+  main{ padding:18px; }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding:16px;
+  }
+  .grid2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width: 760px){
+    .grid2{ grid-template-columns:1fr; }
+  }
+
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  input{
+    width:100%;
+    padding:12px 12px;
+    border-radius: 12px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.25);
+    color:var(--text);
+    outline:none;
+  }
+  input:focus{ border-color: rgba(122,162,255,.6); box-shadow: 0 0 0 3px rgba(122,162,255,.18); }
+
+  .btnRow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+  button{
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    color:var(--text);
+    padding:12px 14px;
+    border-radius: 14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  button.primary{
+    background: linear-gradient(180deg, rgba(122,162,255,.28), rgba(122,162,255,.10));
+    border-color: rgba(122,162,255,.45);
+  }
+  button:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+  }
+
+  .statusRow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .stat{
+    flex:1 1 180px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.04);
+    border-radius: 14px;
+    padding:10px 12px;
+  }
+  .stat .k{ color:var(--muted); font-size:12px; }
+  .stat .v{ font-family:var(--mono); font-size:13px; margin-top:4px; }
+
+  .qCard{
+    margin-top:14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow:hidden;
+  }
+  .qTop{
+    padding:14px 14px 12px 14px;
+    border-bottom:1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .qMeta{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .qText{
+    margin-top:10px;
+    font-size:16px;
+    line-height:1.35;
+  }
+
+  .choices{
+    padding:14px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width: 760px){
+    .choices{ grid-template-columns:1fr; }
+  }
+
+  .choiceBtn{
+    text-align:left;
+    padding:12px 12px;
+    border-radius: 14px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.22);
+    transition: transform .04s ease, border-color .12s ease, background .12s ease;
+    min-height: 52px;
+  }
+  .choiceBtn:hover{ transform: translateY(-1px); border-color: rgba(122,162,255,.55); }
+  .choiceBtn .tag{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .choiceBtn .txt{ font-size:14px; line-height:1.25; }
+
+  .footerRow{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:12px 14px 14px 14px;
+    border-top:1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .hint{
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  /* Modal */
+  .modal{
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:999;
+  }
+  .modal.hidden{ display:none !important; }
+  .modalCard{
+    width:min(680px, 100%);
+    background: rgba(10,14,28,.96);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius: 18px;
+    box-shadow: 0 18px 55px rgba(0,0,0,.55);
+    overflow:hidden;
+  }
+  .modalHead{
+    padding:14px 14px 10px 14px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .modalHead .t{
+    font-weight:800;
+    letter-spacing:.2px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .badgeBad{
+    width:10px;height:10px;border-radius:999px;background:var(--bad);
+    box-shadow: 0 0 0 4px rgba(255,92,122,.18);
+  }
+  .modalBody{
+    padding:14px;
+    color:var(--text);
+    line-height:1.45;
+    font-size:14px;
+  }
+  .modalBody .small{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .modalActions{
+    padding:12px 14px 14px 14px;
+    border-top:1px solid rgba(255,255,255,.12);
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .ticket{
+    margin-top:14px;
+    padding:14px;
+    border-radius: var(--radius);
+    border:1px dashed rgba(255,255,255,.22);
+    background: rgba(255,255,255,.04);
+  }
+  .ticket h3{
+    margin:0 0 8px 0;
+    font-size:15px;
+  }
+  .ticket pre{
+    margin:0;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--text);
+  }
+  .ok{ color: var(--good); font-weight:800; }
+  .no{ color: var(--bad); font-weight:800; }
+</style>
+<link rel="stylesheet" href="weber-certificate.css">
+<script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
+</head>
+
+<body>
+<div class="app">
+  <header>
+    <div class="titleRow">
+      <div>
+        <h1>Topic 6 — Structure & Functions of the Federal Government (CS 12, 13, 14, 15)</h1>
+        <div class="sub">
+          Mastery rule: you must finish with <strong>100% accuracy</strong>. Wrong answers trigger an explanation until corrected.
+          Choices are kept on-screen (no scrolling).
+        </div>
+      </div>
+      <div class="pillRow">
+        <div class="pill"><strong>CS12</strong> Branch powers (law & policy)</div>
+        <div class="pill"><strong>CS13</strong> Dynamic interactions & checks</div>
+        <div class="pill"><strong>CS14</strong> Rights + responsibilities</div>
+        <div class="pill"><strong>CS15</strong> Majority rule & minority rights</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card" id="setupCard">
+      <div class="grid2">
+        <div>
+          <label for="studentName">Student name (required)</label>
+          <input id="studentName" placeholder="Type first & last name…" autocomplete="off" />
+        </div>
+        <div>
+          <label>Game controls</label>
+          <div class="btnRow">
+            <button class="primary" id="startBtn">Start Game</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="statusRow">
+        <div class="stat"><div class="k">Start (date/time)</div><div class="v" id="startStamp">—</div></div>
+        <div class="stat"><div class="k">Finish (date/time)</div><div class="v" id="finishStamp">—</div></div>
+        <div class="stat"><div class="k">Timer</div><div class="v" id="timer">00:00</div></div>
+        <div class="stat"><div class="k">Accuracy</div><div class="v" id="accuracy">—</div></div>
+        <div class="stat"><div class="k">Progress</div><div class="v" id="progress">—</div></div>
+      </div>
+    </div>
+
+    <div class="qCard" id="gameCard" style="display:none;">
+      <div class="qTop">
+        <div class="qMeta">
+          <div><span id="qTag">Question</span></div>
+          <div><span id="csTag">CS</span></div>
+        </div>
+        <div class="qText" id="qText">—</div>
+      </div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="footerRow">
+        <div class="hint">Tip: Read the explanation carefully—it's your “why” for the screenshot.</div>
+        <div class="hint"><span class="ok">Correct</span> auto-advances • <span class="no">Wrong</span> forces explanation until correct</div>
+      </div>
+    </div>
+
+    <div class="ticket" id="ticket" style="display:none;">
+      <h3>✅ Submission Ticket (screenshot this)</h3>
+      <pre id="ticketText"></pre>
+    </div>
+  </main>
+</div>
+
+<!-- Wrong Answer Modal -->
+<div class="modal hidden" id="wrongModal" role="dialog" aria-modal="true">
+  <div class="modalCard">
+    <div class="modalHead">
+      <div class="t"><span class="badgeBad"></span> Not yet — read this and try again</div>
+      <div style="color:var(--muted);font-size:12px;font-family:var(--mono);" id="attemptHint">Attempts: —</div>
+    </div>
+    <div class="modalBody">
+      <div id="wrongExplain">—</div>
+      <div class="small">Close this explanation, then choose again. You cannot advance until you answer correctly.</div>
+    </div>
+    <div class="modalActions">
+      <button class="primary" id="closeWrong">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= Utilities ========= */
+function pad(n){ return String(n).padStart(2,"0"); }
+function fmtDateTime(d){
+  // local browser time (fine for screenshots; matches student device)
+  const yyyy=d.getFullYear(), mm=pad(d.getMonth()+1), dd=pad(d.getDate());
+  const hh=pad(d.getHours()), mi=pad(d.getMinutes()), ss=pad(d.getSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+function shuffleInPlace(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+}
+
+/* ========= Game Data =========
+   NOTE: Released-style items are included, plus supplements to cover every CE bullet for CS12/13/14/15.
+*/
+const QUESTIONS = [
+  // --- CS12 released-style ---
+  {
+    cs:"CS12",
+    stem:"Which power is granted to the executive branch?",
+    choices:["Writing laws","Declaring war","Imposing federal taxes","Nominating federal judges"],
+    answer:3,
+    explain:"The executive branch has key roles in carrying out law and policy, including appointing/nominating federal judges. Writing laws, declaring war, and imposing federal taxes are legislative powers."
+  },
+  {
+    cs:"CS12",
+    stem:"Which entity of government is responsible for negotiating international trade agreements?",
+    choices:["Federal judicial","State executive","State legislative","Federal executive"],
+    answer:3,
+    explain:"International trade agreements are negotiated at the federal level through the executive branch (e.g., the president and State Department)."
+  },
+  {
+    cs:"CS12/CS13",
+    stem:"Which sentence best shows collaboration in helping to create the trade policy described in the previous question?",
+    choices:[
+      "State legislators could pass laws that overturn the terms of the trade agreement",
+      "Governors could establish separate economic agreements with leaders of other countries",
+      "The Supreme Court could write the proposed agreement and rule on its constitutionality",
+      "State Department officials could advise the president on the impact of an agreement on foreign policy"
+    ],
+    answer:3,
+    explain:"Collaboration happens when executive branch entities work together (e.g., State Department advising the president) to shape and carry out policy decisions."
+  },
+
+  // --- CS12 branch roles (CE bullets) ---
+  {
+    cs:"CS12",
+    stem:"A bill proposing a new national tax is introduced. Which branch has the primary responsibility to create and pass this law?",
+    choices:["Judicial","Legislative","Executive","State executive"],
+    answer:1,
+    explain:"The legislative branch makes laws and imposes taxes. The executive enforces laws; the judicial interprets laws."
+  },
+  {
+    cs:"CS12",
+    stem:"A governor disagrees with a federal law and refuses to enforce it. Which branch of the federal government would interpret the law’s meaning and resolve constitutional disputes?",
+    choices:["Legislative","Executive","Judicial","None—states decide"],
+    answer:2,
+    explain:"The judicial branch interprets laws and resolves constitutional disputes, including conflicts involving federal law."
+  },
+  {
+    cs:"CS12",
+    stem:"Which responsibility is most directly connected to the executive branch carrying out public policy?",
+    choices:["Holding a trial with a jury","Enforcing federal laws through agencies","Writing bills in committee","Declaring a law unconstitutional"],
+    answer:1,
+    explain:"The executive branch enforces laws and implements policy through executive departments and agencies."
+  },
+  {
+    cs:"CS12",
+    stem:"Which example best shows the judicial branch using its powers related to law and public policy?",
+    choices:["Congress debates a bill","A court interprets how a law applies to a case","The president signs a treaty","A federal agency writes a new regulation"],
+    answer:1,
+    explain:"Courts interpret laws by applying them to real cases, clarifying how laws work in practice."
+  },
+  {
+    cs:"CS12",
+    stem:"Which situation is an example of original jurisdiction?",
+    choices:["A case is appealed from a lower court","A trial begins in a court that has authority to hear it first","Congress overrides a veto","The president nominates a justice"],
+    answer:1,
+    explain:"Original jurisdiction means a case starts in that court first (not as an appeal)."
+  },
+  {
+    cs:"CS12",
+    stem:"A new law is passed. Which branch is responsible for seeing that it is carried out and followed day-to-day?",
+    choices:["Legislative","Executive","Judicial","State legislature"],
+    answer:1,
+    explain:"The executive branch enforces laws and uses agencies and departments to implement them."
+  },
+
+  // --- CS13 released-style ---
+  {
+    cs:"CS13",
+    stem:"Which scenario demonstrates checks and balances?",
+    choices:[
+      "Both houses override a veto",
+      "The president discusses trade policy",
+      "Congress limits campaign contributions",
+      "A senator criticizes a Court ruling"
+    ],
+    answer:0,
+    explain:"When Congress overrides a presidential veto, the legislative branch checks the executive branch—this is a classic check-and-balance interaction."
+  },
+
+  // --- CS13 checks and balances (CE examples) ---
+  {
+    cs:"CS13",
+    stem:"Which action is a legislative check on the executive branch?",
+    choices:["Granting pardons","Approving treaties","Declaring executive orders unconstitutional","Appointing ambassadors"],
+    answer:1,
+    explain:"The Senate approves treaties, which checks executive foreign policy power."
+  },
+  {
+    cs:"CS13",
+    stem:"Which action is a legislative check on the executive branch?",
+    choices:["Impeaching and removing civil officers","Interpreting laws in court cases","Nominating federal judges","Granting reprieves"],
+    answer:0,
+    explain:"Congress can impeach and remove certain federal officials, which checks executive power."
+  },
+  {
+    cs:"CS13",
+    stem:"Which action is a legislative check on the judicial branch?",
+    choices:["Vetoing legislation","Impeaching federal judges","Granting pardons","Issuing executive orders"],
+    answer:1,
+    explain:"Congress can impeach and remove federal judges—this is a legislative check on the judicial branch."
+  },
+  {
+    cs:"CS13",
+    stem:"Which action is an executive check on the legislative branch?",
+    choices:["Vetoing legislation","Proposing constitutional amendments","Overriding a veto","Impeaching judges"],
+    answer:0,
+    explain:"The president can veto legislation, checking Congress."
+  },
+  {
+    cs:"CS13",
+    stem:"Which action is an executive check on the judicial branch?",
+    choices:["Declaring laws unconstitutional","Nominating federal judges","Overriding vetoes","Approving treaties"],
+    answer:1,
+    explain:"The president nominates federal judges, influencing the judicial branch (with Senate confirmation)."
+  },
+  {
+    cs:"CS13",
+    stem:"Which action is a judicial check on the legislative branch?",
+    choices:["Declaring an act of Congress unconstitutional","Approving appointments","Issuing an executive order","Impeaching civil officers"],
+    answer:0,
+    explain:"Courts can declare laws unconstitutional through judicial review—this checks the legislative branch."
+  },
+  {
+    cs:"CS13",
+    stem:"Which action is a judicial check on the executive branch?",
+    choices:["Writing regulations","Declaring an executive action unconstitutional","Approving treaties","Enforcing laws through agencies"],
+    answer:1,
+    explain:"Courts can rule executive actions unconstitutional, checking the executive branch."
+  },
+
+  // --- CS13 collaboration + factors impacting interactions ---
+  {
+    cs:"CS13",
+    stem:"Two branches work together when the president nominates a Cabinet secretary and the Senate confirms the nominee. This is an example of:",
+    choices:["Judicial review","Checks and balances","Direct democracy","Federalism"],
+    answer:1,
+    explain:"Senate confirmation is a legislative check on executive appointments—an example of checks and balances."
+  },
+  {
+    cs:"CS13",
+    stem:"Which factor can most directly increase interaction among branches by pushing officials to act quickly on an issue?",
+    choices:["Amount of public interest and media coverage","The number of state governments","The age of the Constitution","The Supreme Court’s building size"],
+    answer:0,
+    explain:"High public interest and heavy media coverage often pressures officials and increases branch interactions on current issues."
+  },
+  {
+    cs:"CS13",
+    stem:"Which example best shows how interest groups can affect interactions among branches?",
+    choices:[
+      "Interest groups propose legislation and lobby Congress",
+      "Interest groups declare laws unconstitutional",
+      "Interest groups enforce laws through agencies",
+      "Interest groups appoint judges"
+    ],
+    answer:0,
+    explain:"Interest groups influence the legislative process by proposing ideas, lobbying, and advocating policies—affecting how branches interact."
+  },
+  {
+    cs:"CS13",
+    stem:"Which situation best shows how political party control can shape branch interactions?",
+    choices:[
+      "The president and Congress are led by the same party and pass a major bill quickly",
+      "A judge retires at age 70",
+      "A state passes a local ordinance",
+      "A citizen votes in a primary election"
+    ],
+    answer:0,
+    explain:"When the same party controls the executive and legislative branches, collaboration may be easier; divided government often increases conflict."
+  },
+  {
+    cs:"CS13",
+    stem:"Which scenario best illustrates informal relationships shaping interactions among branches?",
+    choices:[
+      "A senator and the president negotiate changes to a bill before it is voted on",
+      "A court rules on a criminal appeal",
+      "A governor signs a state bill",
+      "A voter registers online"
+    ],
+    answer:0,
+    explain:"Informal relationships (negotiation, communication, personal ties) can shape how branches collaborate or conflict."
+  },
+
+  // =======================
+  // ✅ NEW: CS14 (10 items)
+  // =======================
+  {
+    cs:"CS14",
+    stem:"Which statement best defines a right in the U.S. constitutional system?",
+    choices:[
+      "A benefit the government may grant or remove at any time",
+      "A claim to protection from undue government intrusion in certain aspects of life",
+      "A privilege only available to people who hold public office",
+      "A rule that citizens must follow to avoid punishment"
+    ],
+    answer:1,
+    explain:"CS14 frames rights as claims to protection from undue governmental interference—limits on government intrusion into certain areas of life."
+  },
+  {
+    cs:"CS14",
+    stem:"Which list includes rights that most directly protect participation in the political process?",
+    choices:[
+      "Speech, press, assembly, petition, suffrage, and holding public office",
+      "Owning property, traveling between states, and choosing a career",
+      "Buying and selling goods, starting a business, and receiving a loan",
+      "Serving in the military, paying taxes, and obeying speed limits"
+    ],
+    answer:0,
+    explain:"CS14 highlights political-process rights: speech, press, assembly, petition, suffrage (voting), and holding public office."
+  },
+  {
+    cs:"CS14",
+    stem:"A student posts a strong political opinion online. Which responsibility is MOST closely tied to exercising free speech?",
+    choices:[
+      "Receiving firearms training",
+      "Engaging in civil discourse and respecting the rights of others",
+      "Serving on a jury when called",
+      "Paying a fee to vote"
+    ],
+    answer:1,
+    explain:"CS14 links specific responsibilities to specific rights. For speech, the key responsibility is civil discourse and respect for others’ rights."
+  },
+  {
+    cs:"CS14",
+    stem:"Which responsibility is MOST closely tied to the right to a jury trial?",
+    choices:[
+      "Registering to vote and becoming informed",
+      "Serving on juries when summoned",
+      "Receiving firearms training",
+      "Running for public office"
+    ],
+    answer:1,
+    explain:"CS14 specifically connects the right to a jury trial with the responsibility of jury service."
+  },
+  {
+    cs:"CS14",
+    stem:"Which responsibility is MOST closely tied to the right to bear arms?",
+    choices:[
+      "Receiving firearms training and using weapons responsibly",
+      "Writing letters to members of Congress",
+      "Serving in public office",
+      "Publishing editorials in a newspaper"
+    ],
+    answer:0,
+    explain:"CS14 notes that some rights carry responsibilities; for bearing arms, a key example is firearms training/responsible use."
+  },
+  {
+    cs:"CS14",
+    stem:"Which responsibility is MOST closely tied to the right to vote?",
+    choices:[
+      "Being informed on public issues and completing voter registration requirements",
+      "Negotiating treaties with foreign nations",
+      "Serving as a judge in a trial",
+      "Issuing executive orders"
+    ],
+    answer:0,
+    explain:"CS14 lists voting responsibilities such as registering to vote and being informed on public issues."
+  },
+  {
+    cs:"CS14",
+    stem:"The Supreme Court used the 14th Amendment’s due process clause to apply most Bill of Rights protections to states and local governments. This is called:",
+    choices:["Judicial supremacy","Incorporation","Nullification","Federal mandate"],
+    answer:1,
+    explain:"CS14 includes incorporation: using the 14th Amendment due process clause to apply most Bill of Rights protections to state/local governments."
+  },
+  {
+    cs:"CS14",
+    stem:"Which set includes general responsibilities of citizenship?",
+    choices:[
+      "Respecting the rule of law, paying taxes and fees, and accepting responsibility for one’s actions",
+      "Creating laws, declaring war, and imposing taxes",
+      "Negotiating treaties, nominating judges, and issuing pardons",
+      "Interpreting laws, hearing appeals, and issuing executive orders"
+    ],
+    answer:0,
+    explain:"CS14 identifies general responsibilities: rule of law, paying taxes/fees, and accepting responsibility for one’s actions."
+  },
+  {
+    cs:"CS14",
+    stem:"Which scenario best illustrates the idea that individual rights are relative, not absolute?",
+    choices:[
+      "A person uses speech to threaten violence, and the government restricts that conduct to protect others",
+      "Congress passes a tax bill after committee hearings",
+      "A court schedules oral arguments for an appeal",
+      "A governor signs a state budget"
+    ],
+    answer:0,
+    explain:"CS14 emphasizes balancing rights with others’ rights and the common good—rights are not unlimited in every circumstance."
+  },
+  {
+    cs:"CS14",
+    stem:"Which example best matches the idea of citizenship including service to the nation/state that guarantees rights?",
+    choices:[
+      "Serving in the military or participating in community service",
+      "Refusing to pay any taxes because rights are unlimited",
+      "Creating a new amendment by executive order",
+      "Declaring a law unconstitutional as a private citizen"
+    ],
+    answer:0,
+    explain:"CS14 notes citizenship can include service such as military service, community service, or serving in public office."
+  },
+
+  // --- CS15 released-style + civil rights examples ---
+  {
+    cs:"CS15",
+    stem:"In the 1950s and 1960s, all three branches acted to extend civil rights to African Americans. Which match is correct?",
+    choices:[
+      "Executive: passed Civil Rights Act; Legislative: sent National Guard; Judicial: wrote executive orders",
+      "Executive: sent National Guard; Legislative: outlawed discrimination in public places; Judicial: applied 14th Amendment to extend basic rights",
+      "Executive: declared segregation constitutional; Legislative: ignored voting; Judicial: enforced poll taxes",
+      "Executive: abolished the Bill of Rights; Legislative: ended elections; Judicial: removed jury trials"
+    ],
+    answer:1,
+    explain:"Executive action included enforcing desegregation (e.g., National Guard). Congress passed civil rights/voting rights laws. The Supreme Court used the 14th Amendment (incorporation) to extend protections to the states."
+  },
+  {
+    cs:"CS15",
+    stem:"Following Brown v. Board of Education, why did President Kennedy order the Alabama National Guard to enforce enrollment at the University of Alabama?",
+    choices:[
+      "The state judicial branch refused to comply with an executive order",
+      "The state executive branch refused to comply with a federal court ruling",
+      "The federal judicial branch refused to comply with a state ruling",
+      "The federal legislative branch refused to comply with a state executive decision"
+    ],
+    answer:1,
+    explain:"The conflict involved a state executive refusing to comply with federal law/court rulings. Federal action was used to enforce desegregation and protect civil rights."
+  },
+  {
+    cs:"CS15",
+    stem:"What action did the Fair Housing Act represent?",
+    choices:[
+      "Extending suffrage",
+      "Incorporation",
+      "A constitutional amendment",
+      "Legislation expanding protections to minority groups"
+    ],
+    answer:3,
+    explain:"The Fair Housing Act is federal legislation designed to expand protections and reduce discrimination in housing."
+  },
+
+  // --- CS15 CE bullets: amendments, executive enforcement, legislation, incorporation ---
+  {
+    cs:"CS15",
+    stem:"Which example best shows a constitutional amendment expanding opportunities for participation?",
+    choices:["A president appoints a justice","The 19th Amendment guarantees women’s suffrage","A governor signs a state budget","A court hears an appeal"],
+    answer:1,
+    explain:"The 19th Amendment expanded voting rights to women, increasing participation and addressing denial of rights."
+  },
+  {
+    cs:"CS15",
+    stem:"Which amendment eliminated poll taxes in federal elections, expanding voting access?",
+    choices:["15th","19th","24th","26th"],
+    answer:2,
+    explain:"The 24th Amendment banned poll taxes in federal elections, removing an economic barrier that restricted participation."
+  },
+  {
+    cs:"CS15",
+    stem:"Which action is the best example of the legislative branch extending civil rights?",
+    choices:["Sending troops to enforce desegregation","Passing civil rights and voting rights acts","Declaring a law unconstitutional","Nominating federal judges"],
+    answer:1,
+    explain:"Congress extends civil rights through legislation such as civil rights acts and voting rights acts."
+  },
+  {
+    cs:"CS15",
+    stem:"Which action is the best example of the executive branch extending civil rights?",
+    choices:["Passing an amendment","Using federal forces/troops to enforce school integration","Writing Supreme Court opinions","Approving state constitutions"],
+    answer:1,
+    explain:"The executive branch can enforce civil rights by using federal authority to implement court orders and protect individuals’ rights."
+  },
+  {
+    cs:"CS15",
+    stem:"The Supreme Court uses the 14th Amendment’s due process and equal protection clauses to apply most Bill of Rights protections to states. This is called:",
+    choices:["Federalism","Incorporation","Nullification","Judicial activism"],
+    answer:1,
+    explain:"Incorporation is the process of applying Bill of Rights protections to state and local governments using the 14th Amendment."
+  },
+  {
+    cs:"CS15",
+    stem:"Which scenario best reflects the core idea behind CS15 (majority rule vs. minority rights)?",
+    choices:[
+      "A majority supports a policy, but it violates equal protection for a minority group",
+      "A court schedules a trial date",
+      "A senator introduces a bill",
+      "A governor appoints a cabinet member"
+    ],
+    answer:0,
+    explain:"CS15 focuses on the tension between what majorities want and protecting minority rights through government action and constitutional principles."
+  }
+];
+
+/* ========= State ========= */
+let state = {
+  started:false,
+  startTime:null,
+  finishTime:null,
+  timerId:null,
+  seconds:0,
+  idx:0,
+  attempts:0,
+  correctFirstTry:0,
+  totalQuestions:0,
+  locked:false
+};
+
+const el = {
+  name: document.getElementById("studentName"),
+  startBtn: document.getElementById("startBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+  setupCard: document.getElementById("setupCard"),
+  gameCard: document.getElementById("gameCard"),
+  qText: document.getElementById("qText"),
+  choices: document.getElementById("choices"),
+  qTag: document.getElementById("qTag"),
+  csTag: document.getElementById("csTag"),
+  startStamp: document.getElementById("startStamp"),
+  finishStamp: document.getElementById("finishStamp"),
+  timer: document.getElementById("timer"),
+  accuracy: document.getElementById("accuracy"),
+  progress: document.getElementById("progress"),
+  ticket: document.getElementById("ticket"),
+  ticketText: document.getElementById("ticketText"),
+  wrongModal: document.getElementById("wrongModal"),
+  wrongExplain: document.getElementById("wrongExplain"),
+  closeWrong: document.getElementById("closeWrong"),
+  attemptHint: document.getElementById("attemptHint")
+};
+
+function updateTimer(){
+  state.seconds++;
+  const m = Math.floor(state.seconds/60);
+  const s = state.seconds%60;
+  el.timer.textContent = `${pad(m)}:${pad(s)}`;
+}
+function calcAccuracy(){
+  // 100% accuracy means: every question must be correct on first try.
+  const total = state.totalQuestions || QUESTIONS.length;
+  const pct = Math.round((state.correctFirstTry / total)*100);
+  return pct;
+}
+function updateStatus(){
+  const total = QUESTIONS.length;
+  state.totalQuestions = total;
+  el.progress.textContent = state.started ? `${state.idx+1} / ${total}` : "—";
+  el.accuracy.textContent = state.started ? `${calcAccuracy()}% (must be 100%)` : "—";
+}
+
+function openWrong(explain){
+  el.wrongExplain.textContent = explain;
+  el.attemptHint.textContent = `Attempts on this question: ${state.attempts}`;
+  el.wrongModal.classList.remove("hidden");
+}
+function closeWrong(){
+  el.wrongModal.classList.add("hidden");
+}
+
+el.closeWrong.addEventListener("click", closeWrong);
+el.wrongModal.addEventListener("click", (e)=>{
+  if(e.target === el.wrongModal) closeWrong();
+});
+
+/* Build question with SHUFFLED answer order (fixes “always first choice” problem) */
+function renderQuestion(){
+  state.locked = false;
+  state.attempts = 0;
+
+  const q = QUESTIONS[state.idx];
+  el.qTag.textContent = `Question ${state.idx+1}`;
+  el.csTag.textContent = q.cs;
+  el.qText.textContent = q.stem;
+
+  // Build option objects with original index mapping
+  const opts = q.choices.map((txt, i)=>({ txt, orig:i }));
+  shuffleInPlace(opts);
+
+  // Find new correct index after shuffle
+  const newCorrect = opts.findIndex(o => o.orig === q.answer);
+
+  // Render
+  el.choices.innerHTML = "";
+  const labels = ["A","B","C","D","E","F"];
+  opts.forEach((o, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "choiceBtn";
+    btn.innerHTML = `<div class="tag">${labels[i] || (i+1)}</div><div class="txt">${o.txt}</div>`;
+    btn.addEventListener("click", ()=> handleAnswer(i, newCorrect, q.explain));
+    el.choices.appendChild(btn);
+  });
+
+  updateStatus();
+}
+
+function handleAnswer(chosen, correct, explain){
+  if(state.locked) return;
+  state.attempts++;
+
+  if(chosen === correct){
+    // correct
+    if(state.attempts === state.idx + 1){
+      state.correctFirstTry++;
+    }
+    state.locked = true;
+
+    // Advance quickly
+    setTimeout(()=>{
+      if(state.idx < QUESTIONS.length-1){
+        state.idx++;
+        renderQuestion();
+      }else{
+        finishGame();
+      }
+    }, 160);
+  }else{
+    // wrong
+    openWrong(explain);
+  }
+  updateStatus();
+}
+
+function startGame(){
+  const name = (el.name.value || "").trim();
+  if(!name){
+    alert("Please enter your name before starting.");
+    el.name.focus();
+    return;
+  }
+  // reset state
+  resetState(false);
+
+  state.started = true;
+  state.startTime = new Date();
+  el.startStamp.textContent = fmtDateTime(state.startTime);
+  el.finishStamp.textContent = "—";
+  el.ticket.style.display = "none";
+
+  // timer
+  state.timerId = setInterval(updateTimer, 1000);
+
+  // show game
+  el.gameCard.style.display = "block";
+  renderQuestion();
+  updateStatus();
+}
+
+function finishGame(){
+  state.finishTime = new Date();
+  el.finishStamp.textContent = fmtDateTime(state.finishTime);
+
+  if(state.timerId) clearInterval(state.timerId);
+  state.timerId = null;
+
+  const pct = state.correctFirstTry === QUESTIONS.length && state.attempts === QUESTIONS.length ? 100 : Math.min(99, calcAccuracy());
+  const name = (el.name.value || "").trim();
+  WeberRun.finish(name, state.startTime, QUESTIONS.length, state.correctFirstTry, state.attempts);
+
+  // Build ticket
+  const lines = [];
+  lines.push(`TOPIC 6 — Structure & Functions of the Federal Government (CS 12, 13, 14, 15)`);
+  lines.push(`Student: ${name}`);
+  lines.push(`Start: ${el.startStamp.textContent}`);
+  lines.push(`Finish: ${el.finishStamp.textContent}`);
+  lines.push(`Time: ${el.timer.textContent}`);
+  lines.push(`Score condition: MUST be 100% accuracy`);
+  lines.push(`Accuracy: ${pct}%`);
+  lines.push(`First-try correct: ${state.correctFirstTry} / ${QUESTIONS.length}`);
+  lines.push(`Result: ${pct===100 ? "PASS ✅" : "NOT YET ❌ (Reset and try again)"} `);
+
+  el.ticketText.textContent = lines.join("\n");
+  el.ticket.style.display = "block";
+
+  // If not 100%, force reset instruction by disabling further play
+  if(pct !== 100){
+    alert("Not yet — you must finish with 100% accuracy. Click Reset and try again.");
+  }
+
+  // freeze the game view at the end for screenshot
+  state.locked = true;
+  updateStatus();
+}
+
+function resetState(clearName=true){
+  state.started = false;
+  state.startTime = null;
+  state.finishTime = null;
+  if(state.timerId) clearInterval(state.timerId);
+  state.timerId = null;
+  state.seconds = 0;
+  state.idx = 0;
+  state.attempts = 0;
+  state.correctFirstTry = 0;
+  state.totalQuestions = QUESTIONS.length;
+  state.locked = false;
+
+  el.timer.textContent = "00:00";
+  el.startStamp.textContent = "—";
+  el.finishStamp.textContent = "—";
+  el.gameCard.style.display = "none";
+  el.ticket.style.display = "none";
+  closeWrong();
+  if(clearName) el.name.value = "";
+  updateStatus();
+}
+
+el.startBtn.addEventListener("click", startGame);
+el.resetBtn.addEventListener("click", ()=> resetState(false));
+
+// Initialize
+updateStatus();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (state.started) ? { state:WeberProgress.dataFields(state), advance:state.locked } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; if(v.advance) state.idx++; if(state.idx>=QUESTIONS.length) finishGame(); else renderQuestion(); }
+});
+</script>
+</body>
+</html>
