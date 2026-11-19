@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>American Government Review Hub</title>
+<meta property="og:title" content="American Government Review Hub" />
+<meta property="og:description" content="Legend Mastery Series — American Government Review Hub" />
+<meta name="description" content="Legend Mastery Series — American Government Review Hub" />
+
+<style>
+:root{
+  --bg:#0b1220;
+  --panel:#111a2f;
+  --panel2:#0f1730;
+  --text:#e7eefc;
+  --muted:#a8b4cf;
+  --line:rgba(255,255,255,.12);
+  --shadow:0 18px 55px rgba(0,0,0,.40);
+  --radius:18px;
+  --good:#2bd576;
+  --bad:#ff5c7a;
+  --warn:#ffd166;
+  --accent:#7aa2ff;
+  --chip:rgba(122,162,255,.14);
+  --chipLine:rgba(122,162,255,.28);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:
+    radial-gradient(900px 500px at 20% 20%, rgba(122,162,255,.18), transparent 60%),
+    linear-gradient(180deg, #0b1220, #070b14);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+
+.app{
+  width:min(1100px,100%);
+  border:1px solid var(--line);
+  border-radius:22px;
+  overflow:hidden;
+  background:rgba(0,0,0,.22);
+  box-shadow:var(--shadow);
+}
+
+header{
+  padding:18px 18px 14px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+}
+
+.kicker{
+  font-size:11px;
+  letter-spacing:.14em;
+  color:rgba(231,238,252,.7);
+  text-transform:uppercase;
+}
+
+h1{
+  margin:6px 0 6px;
+  font-size:22px;
+}
+
+.sub{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+  margin:0;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  font-size:12px;
+  color:rgba(231,238,252,.92);
+}
+
+.pill .dot{
+  width:8px;height:8px;border-radius:999px;background:var(--good);
+  box-shadow:0 0 0 3px rgba(43,213,118,.14);
+}
+
+main{ padding:18px; }
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media(max-width:860px){ .grid{ grid-template-columns:1fr; } }
+
+.card{
+  display:block;
+  text-decoration:none;
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  padding:14px;
+  transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(122,162,255,.45);
+  box-shadow:0 16px 40px rgba(0,0,0,.35);
+}
+
+.row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.title{
+  font-weight:850;
+  font-size:15px;
+  margin:0;
+}
+
+.badge{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.06em;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(43,213,118,.35);
+  background:rgba(43,213,118,.12);
+  color:rgba(231,238,252,.95);
+  white-space:nowrap;
+}
+
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--chipLine);
+  background:var(--chip);
+  color:rgba(231,238,252,.92);
+  font-size:12px;
+}
+
+.desc{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size:12.8px;
+  line-height:1.35;
+}
+
+.note{
+  margin-top:14px;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+  color:var(--muted);
+  font-size:12.5px;
+}
+code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New";}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <header>
+    <div class="kicker">Legend Mastery Series</div>
+    <h1>American Government Review Hub</h1>
+    <p class="sub">
+      Click your assigned game below. Each game requires <b>100% first-try accuracy</b> to earn a submit ticket.
+      <span class="pill"><span class="dot"></span> Mastery (100%)</span>
+    </p>
+  </header>
+
+  <main>
+    <div class="grid">
+
+      <!-- Bill of Rights set -->
+      <a class="card" href="games/Bill-of-Rights-Mastery.html">
+        <div class="row">
+          <div class="title">Bill of Rights — Mastery Game</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Bill of Rights</span>
+          <span class="chip">100% required</span>
+          <span class="chip">Mastery ticket</span>
+        </div>
+        <p class="desc">Comprehensive Bill of Rights mastery review.</p>
+      </a>
+
+      <a class="card" href="games/bor-scotus-mastery.html">
+        <div class="row">
+          <div class="title">Bill of Rights — SCOTUS Application (Mastery)</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">SCOTUS scenarios</span>
+          <span class="chip">2, 4, 5, 6, 8, 10</span>
+          <span class="chip">100% required</span>
+        </div>
+        <p class="desc">Passage-based SCOTUS scenarios for Amendments 2, 4, 5, 6, 8, 10 (100% mastery required).</p>
+      </a>
+
+      <a class="card" href="games/amendment-blitz.html">
+        <div class="row">
+          <div class="title">Amendment Blitz</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Rapid ID</span>
+          <span class="chip">Speed practice</span>
+          <span class="chip">Accuracy focus</span>
+        </div>
+        <p class="desc">Rapid identification of amendments.</p>
+      </a>
+
+      <a class="card" href="games/amendments-comprehensive-game.html">
+        <div class="row">
+          <div class="title">Amendments — Comprehensive</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Full set</span>
+          <span class="chip">Review</span>
+          <span class="chip">Mastery-ready</span>
+        </div>
+        <p class="desc">Full amendments practice.</p>
+      </a>
+
+      <a class="card" href="games/right-or-no-right.html">
+        <div class="row">
+          <div class="title">Right or No Right?</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Scenarios</span>
+          <span class="chip">Rights ID</span>
+          <span class="chip">14th tie-ins</span>
+        </div>
+        <p class="desc">Scenario-based rights identification.</p>
+      </a>
+
+      <a class="card" href="games/fix-the-violation.html">
+        <div class="row">
+          <div class="title">Fix the Violation</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Correct the violation</span>
+          <span class="chip">Hints on miss</span>
+          <span class="chip">Mastery ticket</span>
+        </div>
+        <p class="desc">Choose the correct constitutional fix.</p>
+      </a>
+
+      <!-- Other gov games -->
+      <a class="card" href="games/structure-presidency-game.html">
+        <div class="row">
+          <div class="title">Structure of the Presidency</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Article II</span>
+          <span class="chip">Powers</span>
+          <span class="chip">Practice</span>
+        </div>
+        <p class="desc">Presidential powers and structure.</p>
+      </a>
+
+      <a class="card" href="games/fed-vs-antifed-quote-sort.html">
+        <div class="row">
+          <div class="title">Federalist vs Anti-Federalist Quote Sort</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Compare arguments</span>
+          <span class="chip">Primary-source style</span>
+          <span class="chip">Sorting</span>
+        </div>
+        <p class="desc">Classify quotes as Federalist or Anti-Federalist.</p>
+      </a>
+
+      <a class="card" href="games/gov-econ-fiscal-monetary-game.html">
+        <div class="row">
+          <div class="title">Government & the Economy — Fiscal vs Monetary</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">CS20–21</span>
+          <span class="chip">Fiscal vs monetary</span>
+          <span class="chip">Mastery</span>
+        </div>
+        <p class="desc">Practice distinguishing fiscal and monetary policy tools.</p>
+      </a>
+
+      <a class="card" href="games/cs16-17-ohio-state-local-game.html">
+        <div class="row">
+          <div class="title">Ohio State & Local Government (CS16–17)</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">CS16–17</span>
+          <span class="chip">Ohio Constitution</span>
+          <span class="chip">100% required</span>
+        </div>
+        <p class="desc">Ohio Constitution + responsibilities of citizens.</p>
+      </a>
+
+      <a class="card" href="games/cs18-19-public-policy-mastery.html">
+        <div class="row">
+          <div class="title">Public Policy Mastery (CS18–19)</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">CS18–19</span>
+          <span class="chip">Levels/branches</span>
+          <span class="chip">Civic input</span>
+        </div>
+        <p class="desc">Policy levels/branches + methods of civic input.</p>
+      </a>
+
+      <a class="card" href="games/game1_political_vs_public_policy.html">
+        <div class="row">
+          <div class="title">Game 1 — Political vs Public Policy</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Classification</span>
+          <span class="chip">Debate vs action</span>
+          <span class="chip">Practice</span>
+        </div>
+        <p class="desc">Classify issues as political debate vs public policy action.</p>
+      </a>
+
+      <a class="card" href="games/game2_civic_action_plan.html">
+        <div class="row">
+          <div class="title">Game 2 — Civic Action Plan</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Engagement steps</span>
+          <span class="chip">Decision-making</span>
+          <span class="chip">Practice</span>
+        </div>
+        <p class="desc">Choose the next best civic engagement step.</p>
+      </a>
+
+      <a class="card" href="games/game3_party_group_media.html">
+        <div class="row">
+          <div class="title">Game 3 — Parties, Interest Groups, Media</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">CS2</span>
+          <span class="chip">Influence</span>
+          <span class="chip">Practice</span>
+        </div>
+        <p class="desc">How each influences elections and policy.</p>
+      </a>
+
+      <a class="card" href="games/game4_source_credibility.html">
+        <div class="row">
+          <div class="title">Game 4 — Source Credibility</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Bias</span>
+          <span class="chip">Reliability</span>
+          <span class="chip">Evidence</span>
+        </div>
+        <p class="desc">Evaluate sources for bias, reliability, and evidence.</p>
+      </a>
+
+      <a class="card" href="games/game5_democratic_process_skills.html">
+        <div class="row">
+          <div class="title">Game 5 — Democratic Process Skills</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">Voting</span>
+          <span class="chip">Rights/responsibilities</span>
+          <span class="chip">Skills</span>
+        </div>
+        <p class="desc">Voting, rights, responsibilities, and civic process practice.</p>
+      </a>
+
+      <a class="card" href="games/cs13-checks-balances.html">
+        <div class="row">
+          <div class="title">Checks & Balances (CS13)</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">CS13</span>
+          <span class="chip">Branch powers</span>
+          <span class="chip">Interactions</span>
+        </div>
+        <p class="desc">Branch powers and interactions.</p>
+      </a>
+
+      <a class="card" href="games/cs15-extending-civil-rights.html">
+        <div class="row">
+          <div class="title">Extending Civil Rights (CS15)</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">CS15</span>
+          <span class="chip">Expansion</span>
+          <span class="chip">Practice</span>
+        </div>
+        <p class="desc">Expansion of civil rights.</p>
+      </a>
+
+      <a class="card" href="games/voting-rights-amendments-game.html">
+        <div class="row">
+          <div class="title">Voting Rights Amendments</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">15th</span>
+          <span class="chip">19th</span>
+          <span class="chip">24th</span>
+          <span class="chip">26th</span>
+        </div>
+        <p class="desc">15th, 19th, 24th, 26th amendments.</p>
+      </a>
+
+      <a class="card" href="games/reconstruction-amendments-game.html">
+        <div class="row">
+          <div class="title">Reconstruction Amendments</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div class="chips">
+          <span class="chip">13th</span>
+          <span class="chip">14th</span>
+          <span class="chip">15th</span>
+        </div>
+        <p class="desc">13th, 14th, 15th amendments.</p>
+      </a>
+
+    </div>
+
+    <div class="note">
+      Tip: If a link shows <b>404</b>, the filename in this menu must match the repo file name exactly.<br/>
+      If your hub URL ever loads a game instead, make sure only this file is named <code>index.html</code>.
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

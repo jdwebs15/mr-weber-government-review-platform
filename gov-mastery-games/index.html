@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gov Mastery Games — Hub</title>
+  <meta name="description" content="Gov Mastery Games menu hub (Topics 1–9)" />
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --text:#e7eefc;
+      --muted:#a8b4cf;
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 55px rgba(0,0,0,.40);
+      --radius:18px;
+      --good:#2bd576;
+      --accent:#7aa2ff;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:
+        radial-gradient(900px 500px at 20% 20%,rgba(122,162,255,.18),transparent 60%),
+        radial-gradient(700px 420px at 85% 30%,rgba(43,213,118,.10),transparent 55%),
+        linear-gradient(180deg,#0b1220,#070b14);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .wrap{
+      width:min(1050px,100%);
+      background:rgba(0,0,0,.22);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:22px;
+      overflow:hidden;
+    }
+    .top{
+      display:flex;
+      gap:14px;
+      justify-content:space-between;
+      align-items:flex-start;
+      padding:18px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    }
+    .kicker{
+      font-weight:900;
+      letter-spacing:.14em;
+      font-size:11px;
+      color:rgba(231,238,252,.75);
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    h1{ margin:0; font-size:22px; letter-spacing:.2px; }
+    .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+      max-width:64ch;
+    }
+    .meta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      max-width:360px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      font-size:12px;
+      color:rgba(231,238,252,.9);
+      white-space:nowrap;
+    }
+    .actions{
+      padding:12px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      background:rgba(255,255,255,.02);
+    }
+    .hint{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .grid{
+      padding:18px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:860px){ .grid{grid-template-columns:1fr;} }
+    a.card{
+      display:block;
+      text-decoration:none;
+      color:var(--text);
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      border-radius:var(--radius);
+      padding:14px;
+      transition:transform .06s ease, border-color .12s ease, background .12s ease;
+    }
+    a.card:hover{
+      transform:translateY(-1px);
+      border-color:rgba(122,162,255,.55);
+      background:rgba(122,162,255,.06);
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .title{ font-weight:900; font-size:14.5px; line-height:1.25; }
+    .status{
+      font-size:11px;
+      font-weight:800;
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      letter-spacing:.08em;
+    }
+    .status.live{
+      border-color:rgba(43,213,118,.40);
+      background:rgba(43,213,118,.10);
+      color:rgba(231,238,252,.95);
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:10px;
+    }
+    .chip{
+      font-size:11px;
+      color:rgba(231,238,252,.88);
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      padding:5px 8px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .chip.accent{
+      border-color:rgba(122,162,255,.35);
+      background:rgba(122,162,255,.08);
+    }
+    .desc{
+      margin:0;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.45;
+    }
+    .foot{
+      padding:14px 18px 18px;
+      border-top:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.03));
+    }
+    .note{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <div class="kicker">LEGEND MASTERY SERIES</div>
+        <h1>Gov Mastery Games — Hub</h1>
+        <p class="sub">
+          Click your assigned topic game below.<br>
+          Mastery = complete the full set with <b>100% first-try accuracy</b> to earn a submit ticket.
+        </p>
+      </div>
+
+      <div class="meta">
+        <div class="pill">Hardened shell ✅</div>
+        <div class="pill">On-page error box ✅</div>
+        <div class="pill">Mastery (100%) ✅</div>
+      </div>
+    </header>
+
+    <div class="actions">
+      <div class="hint">
+        Tip: If you see a “404”, the link filename here must match the repo file <b>exactly</b>.
+      </div>
+    </div>
+
+    <section class="grid">
+      <a class="card" href="topic-1-civic-involvement.html">
+        <div class="row"><div class="title">Topic 1 — Civic Involvement</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">CS 1,2,14</span><span class="chip">Role of the People</span><span class="chip">OST stems</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">Foundational civic involvement: roles, responsibilities, and how citizens engage in democratic life.</p>
+      </a>
+
+      <a class="card" href="topic-2-civic-participation-skills.html">
+        <div class="row"><div class="title">Topic 2 — Civic Participation Skills</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">Skills practice</span><span class="chip">Evidence-based reasoning</span><span class="chip">OST style</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">Skill-based practice: researching issues, evaluating claims/evidence, and choosing effective civic actions.</p>
+      </a>
+
+      <a class="card" href="topic-3-basic-principles-constitution.html">
+        <div class="row"><div class="title">Topic 3 — Basic Principles of the Constitution</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">Popular sovereignty</span><span class="chip">Limited government</span><span class="chip">Federalism</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">Core constitutional principles + application to scenarios and government structures.</p>
+      </a>
+
+      <a class="card" href="topic-4-bill-of-rights-cs8.html">
+        <div class="row"><div class="title">Topic 4 — Bill of Rights</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">Civil liberties</span><span class="chip">Limits on government</span><span class="chip">SCOTUS links</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">Identify protected rights, violations, and how courts interpret key amendments.</p>
+      </a>
+
+      <a class="card" href="topic-5-amendments-12-26.html">
+        <div class="row"><div class="title">Topic 5 — Amendments 12–26</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">Voting rights</span><span class="chip">Expanded democracy</span><span class="chip">Federal power shifts</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">Key amendments beyond the Bill of Rights: impacts on elections, rights, and governance.</p>
+      </a>
+
+      <a class="card" href="topic-6-structure-functions-fed-gov.html">
+        <div class="row"><div class="title">Topic 6 — Structure &amp; Functions (Federal)</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">Branches</span><span class="chip">Checks &amp; balances</span><span class="chip">CS 12–15</span>
+
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">How the federal government is built and how power is shared/checked across institutions.</p>
+      </a>
+
+      <a class="card" href="topic-7-ohio-state-local-government.html">
+        <div class="row"><div class="title">Topic 7 — Ohio State &amp; Local Government</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">CS 16–17</span><span class="chip">Ohio Constitution</span><span class="chip">Citizen responsibilities</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">State/local structures, home rule, and the responsibilities of Ohioans in civic life.</p>
+      </a>
+
+      <a class="card" href="topic-8-public-policy-cs18-19.html">
+        <div class="row"><div class="title">Topic 8 — Public Policy</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">CS 18–19</span><span class="chip">Policy levels</span><span class="chip">Civic input methods</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">How policy is made across branches/levels + how individuals and groups influence outcomes.</p>
+      </a>
+
+      <a class="card" href="topic-9-government-and-the-economy-cs20-21.html">
+        <div class="row"><div class="title">Topic 9 — Government &amp; the Economy</div><span class="status live">LIVE</span></div>
+        <div class="chips">
+          <span class="chip">CS 20–21</span><span class="chip">Fiscal vs monetary</span><span class="chip">Regulation tradeoffs</span>
+          <span class="chip accent">Start/End timestamps</span><span class="chip">100% required</span>
+        </div>
+        <p class="desc">How government stabilizes the economy: taxes/spending, the Fed, and costs/benefits of regulation.</p>
+      </a>
+    </section>
+
+
+    <footer class="foot">
+      <div class="note">
+        Tip: If a game ever “white screens,” your hardened-shell version should show an on-page error box with the exact cause.
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
