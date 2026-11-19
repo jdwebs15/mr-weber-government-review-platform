@@ -264,6 +264,7 @@
   </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -801,6 +802,16 @@ INSTRUCTIONS: Screenshot this box OR copy/paste into your assignment submission.
 
   renderQuestion();
   updateStats();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    ensureStarted();
+  },
+  snapshot() { return (started) ? { questions, idx, correct, attempts, startTimeMs, elapsedSec, answeredThisQuestion } : null; },
+  restore(v) { questions=v.questions; idx=v.idx; correct=v.correct; attempts=v.attempts; startTimeMs=v.startTimeMs; elapsedSec=v.elapsedSec; answeredThisQuestion=v.answeredThisQuestion; if(answeredThisQuestion && attempts<questions.length) idx++; renderQuestion(); updateStats(); if(attempts>=questions.length){disableChoiceButtons(); if(correct===questions.length) finish(); else setFeedback("warn","Restart for a perfect run.");} }
+});
 })();
 </script>
 

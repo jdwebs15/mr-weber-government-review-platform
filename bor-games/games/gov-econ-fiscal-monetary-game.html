@@ -87,6 +87,7 @@ text-align:center;color:var(--muted);font-size:.8rem;margin-top:6px
 </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 
 <body>
@@ -322,6 +323,16 @@ function escapeHtml(str){
 }
 
 loadQuestion();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    runStarted=true; startDateObj=new Date(); startTime=startDateObj.getTime();
+  },
+  snapshot() { return (runStarted) ? { questions, index, attempts, correct, startTime, startDateObj, runStarted } : null; },
+  restore(v) { questions=v.questions; index=v.index; attempts=v.attempts; correct=v.correct; startTime=v.startTime; startDateObj=v.startDateObj; runStarted=v.runStarted; if(correct>index) index++; if(index>=questions.length) finishGame(); else {loadQuestion();updateStats();} }
+});
 </script>
 </body>
 </html>

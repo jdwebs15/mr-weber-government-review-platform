@@ -170,6 +170,7 @@ input[type="text"]::placeholder{color:rgba(168,180,207,.75)}
 </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 
 <body>
@@ -461,6 +462,16 @@ setInterval(()=>{
   const s = Math.floor((Date.now()-startMs)/1000);
   el("time").textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
 }, 300);
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('nameInput');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (started && startMs) ? { deck, i, attempts, correct, started, startMs, startStamp, streak } : null; },
+  restore(v) { deck=v.deck; i=v.i; attempts=v.attempts; correct=v.correct; started=v.started; startMs=v.startMs; startStamp=v.startStamp; streak=v.streak; if(correct>i) i++; if(i>=deck.length) finish(); else render(); }
+});
 </script>
 </body>
 </html>

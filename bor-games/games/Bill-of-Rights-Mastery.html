@@ -388,6 +388,7 @@
   </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 
 <body>
@@ -1017,6 +1018,16 @@
 
     render();
     startTimers();
-  </script>
+  
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('nameInput');
+    if(nameInput) nameInput.value=identity.name;
+    saveName(identity.name); closeNameModal(); restart();
+  },
+  snapshot() { return (deck.length) ? { deck, index, totalAttempts, totalCorrect, locked, sessionStart, startTs } : null; },
+  restore(v) { deck=v.deck; index=v.index; totalAttempts=v.totalAttempts; totalCorrect=v.totalCorrect; locked=v.locked; sessionStart=v.sessionStart; startTs=v.startTs; if(totalCorrect>index) index++; if(index>=deck.length) endScreen(); else render(); }
+});
+</script>
 </body>
 </html>

@@ -113,6 +113,7 @@ small{color:var(--muted)}
 </style>
 <link rel="stylesheet" href="weber-certificate.css">
 <script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
 </head>
 
 <body>
@@ -487,6 +488,16 @@ Questions: ${QUESTIONS.length}/${QUESTIONS.length}`;
 startBtn.onclick = start;
 resetBtn.onclick = ()=>location.reload();
 closeM.onclick = ()=>modal.classList.add("hidden");
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('name');
+    if(nameInput) nameInput.value=identity.name;
+    start();
+  },
+  snapshot() { return (state.startedAt) ? { state:WeberProgress.dataFields(state) } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; if(state.i>=QUESTIONS.length) finish(); else render(); }
+});
 </script>
 </body>
 </html>

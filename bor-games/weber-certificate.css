@@ -16,3 +16,12 @@
   #weber-run-dialog > :not(#weber-certificate) { display: none !important; }
 }
 #weber-open-certificate { position: fixed; right: 14px; bottom: 14px; z-index: 20; padding: .7rem 1rem; border-radius: 10px; background: #192d58; color: white; border: 1px solid #a7bbff; cursor: pointer; }
+#weber-sign-in { width:min(520px,92vw); max-height:90vh; overflow:auto; background:#111a2d; color:#f4f7ff; border:2px solid #8eacf8; border-radius:18px; padding:24px; }
+#weber-sign-in::backdrop { background:#000b; }
+#weber-sign-in label, #weber-sign-in input, #weber-sign-in select { display:block; width:100%; }
+#weber-sign-in label { margin:.9rem 0; }
+#weber-sign-in input, #weber-sign-in select, #weber-sign-in button { font:inherit; padding:.6rem; }
+#weber-sign-in input, #weber-sign-in select { color:#f4f7ff; background:#172644; border:1px solid #899dc8; border-radius:6px; }
+#weber-sign-in button { margin:0 .4rem .4rem 0; }
+.weber-save-status { display:block; padding: .5rem 1rem; color:#cadaff; }
+@media print { .weber-save-status, #weber-sign-in { display:none !important; } }

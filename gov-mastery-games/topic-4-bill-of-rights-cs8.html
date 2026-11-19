@@ -211,6 +211,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </style>
 <link rel="stylesheet" href="weber-certificate.css">
 <script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
 </head>
 
 <body>
@@ -706,6 +707,16 @@ function restartGame(){
 
   document.getElementById("timerOut").textContent = "0:00";
 }
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startStamp && QUESTIONS.length) ? { QUESTIONS, idx, attempts, misses, startStamp, seconds, advance:attempts-misses>idx } : null; },
+  restore(v) { QUESTIONS=v.QUESTIONS; idx=v.idx; attempts=v.attempts; misses=v.misses; startStamp=v.startStamp; seconds=v.seconds; if(v.advance) idx++; document.getElementById("tStart").textContent = formatDT(startStamp); if(idx>=QUESTIONS.length) finishGame(); else loadQuestion(); }
+});
 </script>
 </body>
 </html>

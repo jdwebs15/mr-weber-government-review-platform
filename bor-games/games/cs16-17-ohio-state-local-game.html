@@ -116,6 +116,7 @@ input, select{
 </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 
 <body>
@@ -312,6 +313,16 @@ function answer(choice){
 function shuffle(arr){
   return arr.sort(()=>Math.random()-0.5);
 }
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (session.runStartedAt) ? { session:WeberProgress.dataFields(session), index, correct, attempts, deck, timer, mode:document.getElementById("modeSelect").value } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.session)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) session[key]=value; index=v.index; correct=v.correct; attempts=v.attempts; deck=v.deck; timer=v.timer; document.getElementById("modeSelect").value=v.mode; setStampsUI(); next(); }
+});
 </script>
 
 </body>

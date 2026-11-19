@@ -138,6 +138,7 @@ button:hover{opacity:.92}
 </style>
 <link rel="stylesheet" href="weber-certificate.css">
 <script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
 </head>
 
 <body>
@@ -489,7 +490,7 @@ function finish(){
 
   if(misses>0){
     alert("Not perfect. Restart required.");
-    location.reload();
+    WeberProgress.complete();
     return;
   }
 
@@ -510,6 +511,16 @@ function finish(){
   document.getElementById("totalTime").textContent = document.getElementById("timerOut").textContent;
   document.getElementById("doneOut").textContent = `${QUESTIONS.length}/${QUESTIONS.length}`;
 }
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startedAt) ? { QUESTIONS, i, attempts, misses, seconds, startedAt, advance:attempts-misses>i } : null; },
+  restore(v) { QUESTIONS=v.QUESTIONS; i=v.i; attempts=v.attempts; misses=v.misses; seconds=v.seconds; startedAt=v.startedAt; if(v.advance) i++; if(i>=QUESTIONS.length) finish(); else loadQ(); }
+});
 </script>
 
 </div>

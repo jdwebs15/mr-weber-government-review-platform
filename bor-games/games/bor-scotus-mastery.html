@@ -256,6 +256,7 @@
 </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 <body>
   <div class="app" role="application" aria-label="Bill of Rights SCOTUS Mastery Game">
@@ -1044,6 +1045,16 @@ btnCopy.addEventListener("click", copyCode);
   elPrompt.textContent  = "Enter your name, then click Start. You must finish with 100% accuracy.";
   elAnswers.innerHTML = "";
 })();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startedAt && questions.length) ? { questions, qIndex, correct, attempts, startedAt, startedISO, locked, awaitingCorrect } : null; },
+  restore(v) { questions=v.questions; qIndex=v.qIndex; correct=v.correct; attempts=v.attempts; startedAt=v.startedAt; startedISO=v.startedISO; locked=v.locked; awaitingCorrect=v.awaitingCorrect; if(correct>qIndex) qIndex++; if(qIndex>=questions.length){updateStats(); if(correct===questions.length && attempts===questions.length) finishGame();} else renderQuestion(); }
+});
 </script>
 </body>
 </html>

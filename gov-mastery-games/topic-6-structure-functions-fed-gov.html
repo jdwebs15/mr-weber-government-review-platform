@@ -308,6 +308,7 @@
 </style>
 <link rel="stylesheet" href="weber-certificate.css">
 <script src="weber-certificate.js"></script>
+<script src="weber-progress.js"></script>
 </head>
 
 <body>
@@ -919,7 +920,7 @@ function handleAnswer(chosen, correct, explain){
 
   if(chosen === correct){
     // correct
-    if(state.attempts === 1){
+    if(state.attempts === state.idx + 1){
       state.correctFirstTry++;
     }
     state.locked = true;
@@ -1029,6 +1030,16 @@ el.resetBtn.addEventListener("click", ()=> resetState(false));
 
 // Initialize
 updateStatus();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (state.started) ? { state:WeberProgress.dataFields(state), advance:state.locked } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; if(v.advance) state.idx++; if(state.idx>=QUESTIONS.length) finishGame(); else renderQuestion(); }
+});
 </script>
 </body>
 </html>

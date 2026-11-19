@@ -349,6 +349,7 @@
   </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 <body>
   <div class="app">
@@ -897,6 +898,16 @@
     el("qTotal").textContent = String(quoteBank.length);
     render();
     startTimer();
-  </script>
+  
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('');
+    if(nameInput) nameInput.value=identity.name;
+    restart();
+  },
+  snapshot() { return (deck.length) ? { deck, index, totalAttempts, totalCorrect, startTs, locked } : null; },
+  restore(v) { deck=v.deck; index=v.index; totalAttempts=v.totalAttempts; totalCorrect=v.totalCorrect; startTs=v.startTs; locked=v.locked; if(locked && totalCorrect>index) index++; if(index>=deck.length) endScreen(); else render(); }
+});
+</script>
 </body>
 </html>

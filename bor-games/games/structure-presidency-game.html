@@ -91,6 +91,7 @@
   </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -566,6 +567,16 @@ window.addEventListener("keydown",(e)=>{
   resetUI();
   setTeacherMode(parseTeacherFromURL());
 })();
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('nameInput');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (state.started) ? { state:WeberProgress.dataFields(state), runStarted:Run.startedAt,advance:state.correct>0 && document.getElementById("fbTitle").textContent.startsWith("Correct") } : null; },
+  restore(v) { for(const [key,value] of Object.entries(v.state)) if(!/timer|interval/i.test(key) || /seconds/i.test(key)) state[key]=value; Run.startedAt = v.runStarted; if(v.advance) next(); else renderQuestion(); updateHud(); }
+});
 </script>
 </body>
 </html>

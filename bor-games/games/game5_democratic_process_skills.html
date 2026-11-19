@@ -54,6 +54,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
 </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 
 <body>
@@ -416,6 +417,16 @@ function endGame(){
 
   document.getElementById("receipt").textContent = generateReceipt();
 }
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startTime) ? { index, attempts, correct, time, startTime, startStampText, nameValue, locked } : null; },
+  restore(v) { index=v.index; attempts=v.attempts; correct=v.correct; time=v.time; startTime=v.startTime; startStampText=v.startStampText; nameValue=v.nameValue; locked=v.locked; if(locked) index++; if(index>=questions.length) endGame(); else loadQ(); updateStats(); }
+});
 </script>
 </body>
 </html>

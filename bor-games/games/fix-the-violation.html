@@ -316,6 +316,7 @@
   </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 <body>
 
@@ -1321,6 +1322,16 @@
       const d = fmtDate(startDate).replaceAll("/","");
       return `BOR-${initials}-${d}-${tail}`;
     }
-  </script>
+  
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startFromGate();
+  },
+  snapshot() { return (studentName && deck.length) ? { deck, idx, stage, totalAttempts, scenarioAttempts, streak, correctChains, correctSteps, studentName, everMissed, sessionStart, startTs } : null; },
+  restore(v) { deck=v.deck; idx=v.idx; stage=v.stage; totalAttempts=v.totalAttempts; scenarioAttempts=v.scenarioAttempts; streak=v.streak; correctChains=v.correctChains; correctSteps=v.correctSteps; studentName=v.studentName; everMissed=v.everMissed; sessionStart=v.sessionStart; startTs=v.startTs; if(correctChains>idx) idx++; if(idx>=deck.length) finishOrSubmit(); else {render(); if(v.stage===2 && v.correctChains<=v.idx){stage=2;el("stageBadge").textContent="Stage: 2/2";el("stage1Choices").style.display="none";el("stage2Choices").style.display="grid";renderFixButtons(deck[idx]);} if(correctChains<=v.idx) scenarioAttempts=v.scenarioAttempts; updateStats();} }
+});
+</script>
 </body>
 </html>

@@ -315,6 +315,7 @@
   </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 <body>
 
@@ -1322,6 +1323,16 @@
     modeBadge.textContent = TEACHER_MODE
       ? "Teacher Mode • Perfect Run Required • Auto-Advance"
       : "Perfect Run Required • Hints On Miss • Auto-Advance";
-  </script>
+  
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    beginGame();
+  },
+  snapshot() { return (startISO && questions.length) ? { questions, idx, attemptsThis, totalGuesses, wrongTotal, correctCount, correctThis, startTime, studentName, startISO } : null; },
+  restore(v) { questions=v.questions; idx=v.idx; attemptsThis=v.attemptsThis; totalGuesses=v.totalGuesses; wrongTotal=v.wrongTotal; correctCount=v.correctCount; correctThis=v.correctThis; startTime=v.startTime; studentName=v.studentName; startISO=v.startISO; if(correctThis) idx++; const prior=attemptsThis; renderQuestion(); if(!v.correctThis) attemptsThis=prior; updateAccuracyUI(); }
+});
+</script>
 </body>
 </html>

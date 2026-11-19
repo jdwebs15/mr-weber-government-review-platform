@@ -11,7 +11,8 @@
       const title = document.title;
       const startedAt = start.toISOString();
       const endedAt = end.toISOString();
-      const runId = file + '|' + startedAt;
+      const runId = window.WeberProgress?.runId() || file + '|' + startedAt;
+      window.WeberProgress?.complete();
       const existing = document.getElementById('weber-run-dialog');
       if (shownRun === runId && existing) {
         if (!existing.open) existing.showModal();
@@ -53,11 +54,22 @@
       const retry = dialog.querySelector('#weber-retry');
       const print = dialog.querySelector('#weber-print');
       form.elements.student.value = name === '—' ? '' : (name || '');
+      const identity = window.WeberProgress?.identity();
+      if (identity) {
+        form.elements.student.value = identity.name;
+        form.elements.email.value = identity.email;
+        form.elements.period.value = identity.period;
+        for (const field of [form.elements.student,form.elements.email,form.elements.period]) {
+          if(field.tagName==='SELECT') field.disabled=true;
+          else field.readOnly=true;
+        }
+      }
       let payload;
       async function save() {
         retry.hidden = true;
         status.textContent = 'Sending to the class Sheet…';
         try {
+          await window.WeberProgress?.afterAutosave();
           const response = await fetch(endpoint, {
             method: 'POST', headers: {'Content-Type':'text/plain;charset=utf-8'},
             body: JSON.stringify(payload), signal: AbortSignal.timeout(20000)

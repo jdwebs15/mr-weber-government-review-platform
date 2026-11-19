@@ -56,6 +56,7 @@ hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
 </style>
 <link rel="stylesheet" href="../weber-certificate.css">
 <script src="../weber-certificate.js"></script>
+<script src="../weber-progress.js"></script>
 </head>
 
 <body>
@@ -556,6 +557,16 @@ function updateStats(){
   const acc = attempts ? Math.round((correct/attempts)*100) : 0;
   document.getElementById("accuracy").textContent = acc + "%";
 }
+
+WeberProgress.connect({
+  start(identity) {
+    const nameInput=document.getElementById('studentName');
+    if(nameInput) nameInput.value=identity.name;
+    startGame();
+  },
+  snapshot() { return (startTime) ? { index, attempts, correct, time, startTime, startStampText, nameValue, locked, part } : null; },
+  restore(v) { index=v.index; attempts=v.attempts; correct=v.correct; time=v.time; startTime=v.startTime; startStampText=v.startStampText; nameValue=v.nameValue; locked=v.locked; part=v.part; if(locked){if(part===1) part=2; else {index++;part=1;}} const targetPart=part; if(index>=questions.length) endGame(); else {loadQ(); if(targetPart===2){locked=true;nextQuestion();}} updateStats(); }
+});
 </script>
 </body>
 </html>
